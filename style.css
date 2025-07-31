@@ -258,3 +258,65 @@ a:hover {
         transform: scale(1);
     }
 }
+
+/* ECOSYSTEM SECTION */
+.ecosystem-section {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f1f9ff;
+    border-radius: 10px;
+    border-left: 5px solid #007bff;
+}
+
+.ecosystem-section h3 {
+    color: #007bff;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.ecosystem-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.ecosystem-links a {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.ecosystem-links a:hover {
+    background-color: #0056b3;
+}
+
+/* COPYABLE BOX STYLES (for RPC, Chain ID, Contract...) */
+.copyable-box {
+    display: block;
+    background-color: #eef3fc;
+    border: 1px solid #cce0ff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    font-family: monospace;
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    word-break: break-all;
+}
+
+.copyable-box:hover {
+    color: #d9534f;
+    background-color: #e6f0ff;
+    text-decoration: underline;
+}
