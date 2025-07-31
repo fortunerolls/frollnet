@@ -1,4 +1,4 @@
-/* Favicon Optimization */
+/* GENERAL RESET & FONT */
 html {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -7,27 +7,6 @@ html {
     user-select: none;
 }
 
-/* Logo Styling */
-.logo {
-    height: 40px;
-    display: block;
-    max-width: 100%;
-    animation: fadeIn 1s ease-in-out;
-}
-
-/* Keyframes for Fade-in Effect */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* General Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -36,7 +15,7 @@ body {
     color: #333;
 }
 
-/* Navbar */
+/* NAVBAR */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -46,22 +25,36 @@ body {
     color: #fff;
 }
 
-.navbar .logo {
+.logo {
     height: 40px;
+    display: block;
+    max-width: 100%;
+    animation: fadeIn 1s ease-in-out;
 }
 
-.navbar .nav-links a {
+.nav-links a {
     text-decoration: none;
     color: #fff;
     margin-left: 15px;
     font-size: 14px;
 }
 
-.navbar .nav-links a:hover {
+.nav-links a:hover {
     text-decoration: underline;
 }
 
-/* Interface Containers */
+/* PRICE DISPLAY */
+.froll-price {
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 18px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* INTERFACE BLOCKS */
 .interface {
     max-width: 600px;
     margin: 50px auto;
@@ -72,15 +65,25 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* TITLES & TEXT */
 h1 {
     color: #007bff;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #007bff;
+    font-size: 22px;
+    text-align: center;
 }
 
 p {
     color: #555;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
-/* Buttons */
+/* BUTTON */
 .button {
     background-color: #007bff;
     color: #fff;
@@ -90,6 +93,7 @@ p {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
 }
 
 .button:hover {
@@ -107,13 +111,13 @@ p {
     cursor: not-allowed;
 }
 
-/* Swap Container */
+/* SWAP CONTAINER */
 .swap-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 20px 0;
-    gap: 20px; /* Create spacing between the swap elements */
+    gap: 20px;
 }
 
 .token-input {
@@ -144,12 +148,10 @@ p {
     outline: none;
 }
 
-/* Adjust Max Button */
 .token-input .button {
-    margin-left: -5px; /* Adjust the placement of the Max button */
+    margin-left: -5px;
 }
 
-/* Swap Direction */
 .swap-direction {
     font-size: 24px;
     color: #007bff;
@@ -163,7 +165,6 @@ p {
     transform: rotate(180deg);
 }
 
-/* Swap Details */
 .swap-details {
     text-align: left;
     font-size: 14px;
@@ -171,47 +172,17 @@ p {
     margin-top: 20px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .swap-container {
-        flex-direction: column;
-        gap: 10px; /* Smaller spacing for mobile */
-    }
-
-    .token-input {
-        width: 100%;
-    }
-}
-/* Giá FROLL trên thanh điều hướng */
-.froll-price {
-    font-weight: bold;
-    color: #ffffff;
-    font-size: 18px;
-    margin-left: 10px;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-}
-
-/* Định dạng phần nội dung mới sau nút kết nối ví */
+/* NEW-CONTENT BLOCK */
 #new-content {
-    background: rgba(255, 255, 255, 0.85); /* Nền trắng trong suốt */
+    background: rgba(255, 255, 255, 0.85);
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Tiêu đề căn giữa */
-#new-content h2 {
-    text-align: center;
-    color: #007bff;
-    font-size: 22px;
-}
-
-/* Đảm bảo độ rộng của phần mới bằng với phần nút kết nối ví */
 #connect-interface {
     margin-bottom: 0;
     border-bottom-left-radius: 0;
@@ -225,82 +196,81 @@ p {
     padding-top: 10px;
 }
 
-/* Khi kết nối ví thành công, ẩn cả phần connect-interface và new-content */
 #connect-interface:has(+ #swap-interface[style*="block"]),
 #new-content:has(+ #swap-interface[style*="block"]) {
     display: none;
 }
 
-/* Danh sách đặc điểm */
+/* FEATURE LISTS */
 .feature-list {
     list-style: none;
     padding: 0;
+    margin: 15px 0;
 }
 
 .feature-list li {
     padding: 8px 0;
     font-size: 16px;
+    line-height: 1.5;
 }
 
-/* Định dạng link */
-#new-content a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-    display: inline-block;
-    padding: 5px 0;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-/* Hiệu ứng hover cho link */
-#new-content a:hover {
-    color: #d9534f;
-    transform: scale(1.05);
-    text-decoration: underline;
-}
-
-/* Đảm bảo hiển thị tốt trên mobile */
-@media (max-width: 768px) {
-    #new-content {
-        max-width: 95%;
-        padding: 15px;
-    }
-
-    .feature-list li {
-        font-size: 14px;
-        padding: 6px 0;
-    }
-}
-/* Định dạng các link của 4 nền tảng để dễ nhận biết & có thể bấm vào */
 .feature-list a {
-    color: #007bff; /* Màu xanh dương đậm */
-    text-decoration: underline; /* Hiển thị đường gạch chân mặc định của link */
+    color: #007bff;
+    text-decoration: underline;
     font-weight: bold;
     cursor: pointer;
 }
 
-/* Hiệu ứng khi di chuột vào link */
 .feature-list a:hover {
-    color: #d9534f; /* Đổi màu đỏ khi hover */
-    text-decoration: none; /* Bỏ gạch chân khi hover để tạo hiệu ứng */
-    transform: scale(1.05); /* Hiệu ứng phóng to nhẹ */
+    color: #d9534f;
+    text-decoration: none;
+    transform: scale(1.05);
 }
 
-/* Cải thiện hiển thị trên mobile */
-@media (max-width: 768px) {
-    .feature-list a {
-        font-size: 14px;
-    }
-}
+/* COPYABLE ADDRESS */
 .copyable {
     cursor: pointer;
     color: #007bff;
     font-weight: bold;
-    text-decoration: none; /* Bỏ gạch chân mặc định */
+    text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .copyable:hover {
     color: #d9534f;
-    text-decoration: underline; /* Chỉ hiển thị gạch chân khi hover */
+    text-decoration: underline;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .swap-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .token-input {
+        width: 100%;
+    }
+
+    #new-content {
+        max-width: 95%;
+        padding: 15px;
+    }
+
+    .feature-list li,
+    .feature-list a {
+        font-size: 14px;
+    }
+}
+
+/* FADE-IN ANIMATION */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
