@@ -27,49 +27,62 @@
         <p>Open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
         <button id="connect-wallet" class="button">Connect Wallet</button>
     </div>
+
     <!-- New Added Content Section -->
-<div id="new-content" class="interface">
+    <div id="new-content" class="interface">
+        <h2>🧭 Add Viction Network & Add FROLL Token to MetaMask</h2>
 
-    <h2>🧭 Add Viction Network & Add FROLL Token to MetaMask</h2>
+        <ul class="feature-list">
+            <li>🧩 <strong>Add Viction Network</strong><br>
+                RPC:
+                <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
+                Chain ID:
+                <span class="copy-box" onclick="copyText(this)">88</span><br>
+                Symbol:
+                <span class="copy-box" onclick="copyText(this)">VIC</span> |
+                Explorer:
+                <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
+            </li>
+            <li>🔔 <strong>Add FROLL Token</strong><br>
+                Contract:
+                <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
+                Symbol:
+                <span class="copy-box" onclick="copyText(this)">FROLL</span> |
+                Decimals:
+                <span class="copy-box" onclick="copyText(this)">18</span>
+            </li>
+        </ul>
 
-<ul class="feature-list">
-    <li>🧩 <strong>Add Viction Network</strong><br>
-        RPC: <code>https://rpc.viction.xyz</code><br>
-        Chain ID: <code>88</code><br>
-        Symbol: <code>VIC</code> | Explorer: <code>https://vicscan.xyz</code>
-    </li>
-    <li>🔔 <strong>Add FROLL Token</strong><br>
-        Contract: <code>0xB4d562A8f811CE7F134a1982992Bd153902290BC</code><br>
-        Symbol: <code>FROLL</code> | Decimals: <code>18</code>
-    </li>
-</ul>
+        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
 
+        <p>🪙 <strong>FortuneRolls (FROLL) – Only 1 million FROLL exist!</strong></p>
 
-    <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
+        <p>📍 <strong>Smart Contract:</strong>
+            <span class="copy-box" onclick="copyText(this)">
+                0xB4d562A8f811CE7F134a1982992Bd153902290BC
+            </span>
+        </p>
 
-    <p>🪙 <strong>FortuneRolls (FROLL) – Only 1 million FROLL exist!</strong></p>
-    <p>📍 <strong>Smart Contract:</strong> 
-    <span id="contract-address" class="copyable" onclick="copyToClipboard()">
-        0xB4d562A8f811CE7F134a1982992Bd153902290BC
-    </span>
-    </p>
-    <p>🔍 <strong>Check on blockchain:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">VicScan</a></p>
+        <p>🔍 <strong>Check on blockchain:</strong>
+            <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">VicScan</a>
+        </p>
 
-    <ul class="feature-list">
-        <li>🔹 <strong>Zero Gas Fees</strong> – Instant transfers within 15 seconds!</li>
-        <li>🔹 <strong>No VIC or other tokens needed to send FROLL</strong> – Completely hassle-free!</li>
-    </ul>
-    <h2>🌎 Join the FROLL Community & Build the Future of Web3!</h2>
+        <ul class="feature-list">
+            <li>🔹 <strong>Zero Gas Fees</strong> – Instant transfers within 15 seconds!</li>
+            <li>🔹 <strong>No VIC or other tokens needed to send FROLL</strong> – Completely hassle-free!</li>
+        </ul>
 
-    <ul class="feature-list">
-        <li>📢 <strong>Don’t miss this groundbreaking opportunity!</strong></li>
-        <li>🔹 <strong>Telegram:</strong> <a href="https://t.me/FortuneRolls" target="_blank">Join Here</a></li>
-        <li>🔹 <strong>X (Twitter):</strong> <a href="https://x.com/FortuneRolls" target="_blank">Follow Here</a></li>
-        <li>🔹 <strong>Facebook:</strong> <a href="https://www.facebook.com/frollpage" target="_blank">Like Here</a></li>
-    </ul>
+        <h2>🌎 Join the FROLL Community & Build the Future of Web3!</h2>
 
-    <p>🚀 <strong>This is just the beginning! Own the Web3 revolution!</strong> 💎🔥</p>
-</div>
+        <ul class="feature-list">
+            <li>📢 <strong>Don’t miss this groundbreaking opportunity!</strong></li>
+            <li>🔹 <strong>Telegram:</strong> <a href="https://t.me/FortuneRolls" target="_blank">Join Here</a></li>
+            <li>🔹 <strong>X (Twitter):</strong> <a href="https://x.com/FortuneRolls" target="_blank">Follow Here</a></li>
+            <li>🔹 <strong>Facebook:</strong> <a href="https://www.facebook.com/frollpage" target="_blank">Like Here</a></li>
+        </ul>
+
+        <p>🚀 <strong>This is just the beginning! Own the Web3 revolution!</strong> 💎🔥</p>
+    </div>
 
     <!-- Swap Interface -->
     <div id="swap-interface" class="interface" style="display: none;">
@@ -114,6 +127,17 @@
 
     <!-- Include Ethers.js -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+    <!-- Helper for copy boxes (để không phải sửa app.js) -->
+    <script>
+        function copyText(el) {
+            const t = el.textContent.trim();
+            navigator.clipboard.writeText(t)
+                .then(() => alert("✅ Copied: " + t))
+                .catch(err => console.error("Copy failed!", err));
+        }
+    </script>
+
     <!-- Include App.js -->
     <script src="app.js"></script>
 </body>
