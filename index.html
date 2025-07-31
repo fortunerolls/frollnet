@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Froll.net</title>
-    <!-- Favicon -->
     <link rel="icon" href="froll_48.png" type="image/png">
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="navbar">
         <img src="froll_48.png" alt="FrollSwap Logo" class="logo">
-        <!-- Giá FROLL hiển thị bên cạnh logo -->
         <span id="froll-price" class="froll-price">Loading price...</span>
         <div class="nav-links">
             <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
@@ -21,70 +17,45 @@
         </div>
     </header>
 
-    <!-- Connect Wallet Interface -->
     <div id="connect-interface" class="interface">
         <h1>Welcome to Froll.net</h1>
         <p>Open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
         <button id="connect-wallet" class="button">Connect Wallet</button>
     </div>
 
-    <!-- New Added Content Section -->
     <div id="new-content" class="interface">
-        <h2>🧭 Add Viction Network & Add FROLL Token to MetaMask</h2>
-
+        <h2>🧭 Add Viction Network & FROLL Token</h2>
         <ul class="feature-list">
             <li>🧩 <strong>Add Viction Network</strong><br>
-                RPC:
-                <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
-                Chain ID:
-                <span class="copy-box" onclick="copyText(this)">88</span><br>
-                Symbol:
-                <span class="copy-box" onclick="copyText(this)">VIC</span> |
-                Explorer:
-                <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
+                RPC: <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
+                Chain ID: <span class="copy-box" onclick="copyText(this)">88</span><br>
+                Symbol: <span class="copy-box" onclick="copyText(this)">VIC</span><br>
+                Explorer: <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
             </li>
             <li>🔔 <strong>Add FROLL Token</strong><br>
-                Contract:
-                <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
-                Symbol:
-                <span class="copy-box" onclick="copyText(this)">FROLL</span> |
-                Decimals:
-                <span class="copy-box" onclick="copyText(this)">18</span>
+                Contract: <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
+                Symbol: <span class="copy-box" onclick="copyText(this)">FROLL</span><br>
+                Decimals: <span class="copy-box" onclick="copyText(this)">18</span>
             </li>
+        </ul>
+
+        <h2>🎮 Explore the FROLL Ecosystem</h2>
+        <ul class="feature-list">
+            <li>🎟️ <a href="https://Lottery.vin" target="_blank">Lottery.vin</a> – Fully on-chain decentralized lottery</li>
+            <li>⚪ <a href="https://Froll.org" target="_blank">Froll.org</a> – Xóc đĩa (Even/Odd) betting game</li>
+            <li>🎡 <a href="https://Roulette.vin" target="_blank">Roulette.vin</a> – Web3 roulette game (coming soon)</li>
         </ul>
 
         <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
-
-        <p>🪙 <strong>FortuneRolls (FROLL) – Only 1 million FROLL exist!</strong></p>
-
-        <p>📍 <strong>Smart Contract:</strong>
-            <span class="copy-box" onclick="copyText(this)">
-                0xB4d562A8f811CE7F134a1982992Bd153902290BC
-            </span>
-        </p>
-
-        <p>🔍 <strong>Check on blockchain:</strong>
-            <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">VicScan</a>
-        </p>
-
+        <p>🪙 <strong>Only 1,000,000 FROLL ever minted!</strong></p>
+        <p>📍 <strong>Smart Contract:</strong> <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
+        <p>🔍 <strong>Track on VicScan:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View Here</a></p>
         <ul class="feature-list">
-            <li>🔹 <strong>Zero Gas Fees</strong> – Instant transfers within 15 seconds!</li>
-            <li>🔹 <strong>No VIC or other tokens needed to send FROLL</strong> – Completely hassle-free!</li>
+            <li>⚡ Zero gas to send FROLL!</li>
+            <li>🔐 Fully decentralized – no data stored, no approvals needed.</li>
         </ul>
-
-        <h2>🌎 Join the FROLL Community & Build the Future of Web3!</h2>
-
-        <ul class="feature-list">
-            <li>📢 <strong>Don’t miss this groundbreaking opportunity!</strong></li>
-            <li>🔹 <strong>Telegram:</strong> <a href="https://t.me/FortuneRolls" target="_blank">Join Here</a></li>
-            <li>🔹 <strong>X (Twitter):</strong> <a href="https://x.com/FortuneRolls" target="_blank">Follow Here</a></li>
-            <li>🔹 <strong>Facebook:</strong> <a href="https://www.facebook.com/frollpage" target="_blank">Like Here</a></li>
-        </ul>
-
-        <p>🚀 <strong>This is just the beginning! Own the Web3 revolution!</strong> 💎🔥</p>
     </div>
 
-    <!-- Swap Interface -->
     <div id="swap-interface" class="interface" style="display: none;">
         <header class="swap-header">
             <div id="wallet-address" class="wallet-address"></div>
@@ -92,7 +63,6 @@
         </header>
         <h1>Swap</h1>
         <div class="swap-container">
-            <!-- From Token -->
             <div class="token-input">
                 <img id="from-token-logo" src="vic_24.png" alt="From Token">
                 <div>
@@ -101,11 +71,7 @@
                 </div>
                 <button id="max-button" class="button">Max</button>
             </div>
-
-            <!-- Swap Direction -->
             <button id="swap-direction" class="swap-direction">↔️</button>
-
-            <!-- To Token -->
             <div class="token-input">
                 <img id="to-token-logo" src="froll_24.png" alt="To Token">
                 <div>
@@ -114,21 +80,14 @@
                 </div>
             </div>
         </div>
-
-        <!-- Swap Details -->
         <div class="swap-details">
             <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
             <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
         </div>
-
-        <!-- Swap Button -->
         <button id="swap-now" class="button">Swap Now</button>
     </div>
 
-    <!-- Include Ethers.js -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-    <!-- Helper for copy boxes (để không phải sửa app.js) -->
     <script>
         function copyText(el) {
             const t = el.textContent.trim();
@@ -137,8 +96,6 @@
                 .catch(err => console.error("Copy failed!", err));
         }
     </script>
-
-    <!-- Include App.js -->
     <script src="app.js"></script>
 </body>
 </html>
