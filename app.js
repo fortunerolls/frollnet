@@ -16,52 +16,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const transactionFeeDisplay = document.getElementById('transaction-fee');
     const gasFeeDisplay = document.getElementById('gas-fee');
 
+    const connectInterface = document.getElementById('connect-interface');
+    const newContent = document.getElementById('new-content');
+    const swapInterface = document.getElementById('swap-interface');
+
     // Blockchain Config
     let provider, signer;
     const frollSwapAddress = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
     const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
 
-    const RATE = 100; // 1 FROLL = 100 VIC
-    const FEE = 0.01; // 0.01 VIC swap fee
-    const GAS_FEE_ESTIMATE = 0.000029; // Estimated gas fee
-    const MIN_SWAP_AMOUNT_VIC = 0.011; // Minimum VIC
-    const MIN_SWAP_AMOUNT_FROLL = 0.00011; // Minimum FROLL
+    const RATE = 100;
+    const FEE = 0.01;
+    const GAS_FEE_ESTIMATE = 0.000029;
+    const MIN_SWAP_AMOUNT_VIC = 0.011;
+    const MIN_SWAP_AMOUNT_FROLL = 0.00011;
 
     const frollSwapABI = [
-        {
-            "inputs": [],
-            "name": "swapVicToFroll",
-            "outputs": [],
-            "stateMutability": "payable",
-            "type": "function"
-        },
-        {
-            "inputs": [{ "internalType": "uint256", "name": "frollAmount", "type": "uint256" }],
-            "name": "swapFrollToVic",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
+        { "inputs": [], "name": "swapVicToFroll", "outputs": [], "stateMutability": "payable", "type": "function" },
+        { "inputs": [{ "internalType": "uint256", "name": "frollAmount", "type": "uint256" }],
+          "name": "swapFrollToVic", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
     ];
 
     const frollABI = [
-        {
-            "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
-            "name": "balanceOf",
-            "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                { "internalType": "address", "name": "spender", "type": "address" },
-                { "internalType": "uint256", "name": "amount", "type": "uint256" }
-            ],
-            "name": "approve",
-            "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
+        { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+          "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+          "stateMutability": "view", "type": "function" },
+        { "inputs": [
+            { "internalType": "address", "name": "spender", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }],
+          "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+          "stateMutability": "nonpayable", "type": "function" }
     ];
 
     let frollSwapContract, frollTokenContract;
@@ -70,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let fromToken = 'VIC';
     let toToken = 'FROLL';
 
-    // Ensure Wallet Connected
     async function ensureWalletConnected() {
         try {
             if (!window.ethereum) {
@@ -92,15 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fetch Balances
     async function updateBalances() {
         try {
             balances.VIC = parseFloat(ethers.utils.formatEther(await provider.getBalance(walletAddress)));
             balances.FROLL = parseFloat(
-                ethers.utils.formatUnits(
-                    await frollTokenContract.balanceOf(walletAddress),
-                    18
-                )
+                ethers.utils.formatUnits(await frollTokenContract.balanceOf(walletAddress), 18)
             );
 
             updateTokenDisplay();
@@ -114,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toTokenInfo.textContent = `${toToken}: ${balances[toToken].toFixed(18)}`;
     }
 
-    // Max Button
     maxButton.addEventListener('click', async () => {
         const connected = await ensureWalletConnected();
         if (!connected) return;
@@ -123,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateToAmount();
     });
 
-    // Calculate To Amount
     fromAmountInput.addEventListener('input', calculateToAmount);
     function calculateToAmount() {
         const fromAmount = parseFloat(fromAmountInput.value);
@@ -156,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gasFeeDisplay.textContent = `Estimated Gas Fee: ~${GAS_FEE_ESTIMATE} VIC`;
     }
 
-    // Swap Direction
     swapDirectionButton.addEventListener('click', () => {
         [fromToken, toToken] = [toToken, fromToken];
         [fromTokenLogo.src, toTokenLogo.src] = [toTokenLogo.src, fromTokenLogo.src];
@@ -164,13 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInputs();
     });
 
-    // Clear Inputs
     function clearInputs() {
         fromAmountInput.value = '';
         toAmountInput.value = '';
     }
 
-    // Swap Tokens
     swapNowButton.addEventListener('click', async () => {
         try {
             const fromAmount = parseFloat(fromAmountInput.value);
@@ -182,18 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (fromToken === 'VIC') {
                 const fromAmountInWei = ethers.utils.parseEther(fromAmount.toString());
-
-                const tx = await frollSwapContract.swapVicToFroll({
-                    value: fromAmountInWei
-                });
+                const tx = await frollSwapContract.swapVicToFroll({ value: fromAmountInWei });
                 await tx.wait();
                 alert('Swap VIC to FROLL successful.');
             } else {
                 const fromAmountInWei = ethers.utils.parseUnits(fromAmount.toString(), 18);
-
                 const approveTx = await frollTokenContract.approve(frollSwapAddress, fromAmountInWei);
                 await approveTx.wait();
-
                 const tx = await frollSwapContract.swapFrollToVic(fromAmountInWei);
                 await tx.wait();
                 alert('Swap FROLL to VIC successful.');
@@ -206,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Connect Wallet
     connectWalletButton.addEventListener('click', async () => {
         const connected = await ensureWalletConnected();
         if (!connected) return;
@@ -224,64 +192,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle Disconnect Wallet button click
-    disconnectWalletButton.addEventListener('click', async () => {
-        try {
-            // Reset wallet-related variables
-            walletAddress = null;
-            balances = { VIC: 0, FROLL: 0 };
-            frollSwapContract = null;
-            frollTokenContract = null;
+    disconnectWalletButton.addEventListener('click', () => {
+        walletAddress = null;
+        balances = { VIC: 0, FROLL: 0 };
+        frollSwapContract = null;
+        frollTokenContract = null;
 
-            // Update UI
-            walletAddressDisplay.textContent = '';
-            clearInputs();
-            showConnectInterface();
-
-            alert('Wallet disconnected successfully.');
-        } catch (error) {
-            console.error('Error disconnecting wallet:', error);
-            alert('Failed to disconnect wallet. Please try again.');
-        }
+        walletAddressDisplay.textContent = '';
+        clearInputs();
+        showConnectInterface();
+        alert('Wallet disconnected successfully.');
     });
 
-    // Show/Hide Interfaces
     function showSwapInterface() {
-        document.getElementById('swap-interface').style.display = 'block';
-        document.getElementById('connect-interface').style.display = 'none';
+        swapInterface.style.display = 'block';
+        connectInterface.style.display = 'none';
+        newContent.style.display = 'none';
     }
 
     function showConnectInterface() {
-        document.getElementById('swap-interface').style.display = 'none';
-        document.getElementById('connect-interface').style.display = 'block';
+        swapInterface.style.display = 'none';
+        connectInterface.style.display = 'block';
+        newContent.style.display = 'block';
     }
 
-   // Hàm cập nhật giá FROLL theo USD
-async function updateFrollPrice() {
-    try {
-        // Gọi API Binance lấy giá VIC/USDT
-        const response = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await response.json();
-        const vicPrice = parseFloat(data.price); // Giá VIC theo USD
-
-        // Tính giá FROLL theo USD (FROLL = 100 VIC)
-        const frollPrice = (vicPrice * 100).toFixed(2); 
-
-        // Cập nhật UI
-        document.getElementById("froll-price").textContent = `1 FROLL = ${frollPrice} USD`;
-    } catch (error) {
-        console.error("Lỗi khi lấy giá VIC:", error);
-        document.getElementById("froll-price").textContent = "Price unavailable";
+    async function updateFrollPrice() {
+        try {
+            const response = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+            const data = await response.json();
+            const vicPrice = parseFloat(data.price);
+            const frollPrice = (vicPrice * 100).toFixed(2);
+            document.getElementById("froll-price").textContent = `1 FROLL = ${frollPrice} USD`;
+        } catch (error) {
+            console.error("Lỗi khi lấy giá VIC:", error);
+            document.getElementById("froll-price").textContent = "Price unavailable";
+        }
     }
-}
 
-// Cập nhật giá FROLL mỗi 10 giây
-setInterval(updateFrollPrice, 10000);
-updateFrollPrice(); // Gọi ngay khi tải trang
+    setInterval(updateFrollPrice, 10000);
+    updateFrollPrice();
 
-    // Initialize Interface
     showConnectInterface();
 });
+
 function copyToClipboard() {
     const contractAddress = document.getElementById("contract-address").textContent;
     navigator.clipboard.writeText(contractAddress).then(() => {
