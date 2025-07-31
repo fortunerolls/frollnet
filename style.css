@@ -43,7 +43,7 @@ html, body {
     text-decoration: underline;
 }
 
-/* INTERFACE WRAPPER */
+/* INTERFACE BLOCKS */
 .interface {
     max-width: 640px;
     margin: 40px auto;
@@ -52,6 +52,12 @@ html, body {
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-align: center;
+}
+
+/* Ẩn giao diện home nếu #swap-interface đang hiển thị */
+#swap-interface:not([style*="display: none"]) ~ #connect-interface,
+#swap-interface:not([style*="display: none"]) ~ #new-content {
+    display: none !important;
 }
 
 /* HEADINGS */
@@ -100,7 +106,7 @@ p {
     transform: scale(0.97);
 }
 
-/* HOME CONTENT (before connect) */
+/* HOME CONTENT */
 #new-content {
     background: #ffffffdd;
     border-radius: 12px;
@@ -145,7 +151,7 @@ p {
     text-decoration: underline;
 }
 
-/* LINK STYLING */
+/* LINKS */
 a {
     color: #007bff;
     text-decoration: none;
@@ -157,7 +163,7 @@ a:hover {
     text-decoration: underline;
 }
 
-/* SWAP INTERFACE (already mượt) */
+/* SWAP INTERFACE */
 .swap-container {
     display: flex;
     justify-content: space-between;
