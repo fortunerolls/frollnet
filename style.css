@@ -18,29 +18,21 @@ html, body {
 }
 
 .logo {
-    height: 40px;
+    height: 50px; /* Tăng kích thước logo */
     display: block;
     max-width: 100%;
     animation: fadeIn 0.8s ease-in-out;
+    margin: 0 auto;
 }
 
 .froll-price {
     font-weight: bold;
-    color: #ffffff;
-    font-size: 18px;
-    margin-left: 10px;
-    white-space: nowrap;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #fff;
-    margin-left: 15px;
-    font-size: 14px;
-}
-
-.nav-links a:hover {
-    text-decoration: underline;
+    font-size: 28px; /* Tăng kích thước chữ giá */
+    color: #FFD700; /* Màu vàng kim */
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); /* Thêm hiệu ứng đổ bóng để giá nổi bật hơn */
 }
 
 /* INTERFACE BLOCKS */
@@ -110,6 +102,24 @@ p {
     transform: scale(0.97);
 }
 
+/* FOOTER */
+.footer {
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
+
+.footer .social-links a {
+    margin: 0 15px;
+    color: white;
+    text-decoration: none;
+}
+
+.footer .social-links a:hover {
+    text-decoration: underline;
+}
+
 /* HOME CONTENT */
 #new-content {
     background: #ffffffdd;
@@ -151,18 +161,6 @@ p {
 }
 
 .copyable:hover {
-    color: #d9534f;
-    text-decoration: underline;
-}
-
-/* LINKS */
-a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
     color: #d9534f;
     text-decoration: underline;
 }
@@ -226,24 +224,6 @@ a:hover {
     font-size: 14px;
     color: #555;
     margin-top: 20px;
-}
-
-/* FOOTER */
-.footer {
-    padding: 20px 0;
-    background-color: #007bff;
-    text-align: center;
-    color: white;
-}
-
-.footer .social-links a {
-    margin: 0 15px;
-    color: white;
-    text-decoration: none;
-}
-
-.footer .social-links a:hover {
-    text-decoration: underline;
 }
 
 /* RESPONSIVE */
