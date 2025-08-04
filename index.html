@@ -8,19 +8,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="navbar">
-        <img src="froll_48.png" alt="FrollSwap Logo" class="logo">
-        <span id="froll-price" class="froll-price">Loading price...</span>
-        <div class="nav-links">
-            <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
-            <a href="https://x.com/FortuneRolls" target="_blank">Follow X</a>
-        </div>
-    </header>
-
     <div id="connect-interface" class="interface">
-        <h1>Welcome to Froll.net</h1>
-        <p>Open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
-        <button id="connect-wallet" class="button">Connect Wallet</button>
+        <img src="froll_48.png" alt="FrollSwap Logo" class="logo" style="display: block; margin: 0 auto;">
+        <span id="froll-price" class="froll-price" style="font-weight: bold; font-size: 24px; color: #007bff; display: block; text-align: center; margin-top: 20px;">Loading price...</span>
+        
+        <p style="font-size: 14px; color: #555;">Please open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
+
+        <div class="button-container">
+            <button id="connect-wallet" class="button">Connect Wallet</button>
+        </div>
     </div>
 
     <div id="new-content" class="interface">
@@ -39,18 +35,16 @@
             </li>
         </ul>
 
+        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
+        <p><strong>Name:</strong> FortuneRolls</p>
+        <p><strong>Symbol:</strong> FROLL</p>
+        <p><strong>Blockchain:</strong> Viction (VIC)</p>
+        <p><strong>Max Supply:</strong> 1,000,000</p>
+        <p><strong>Contract:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View on VicScan</a></p>
+
         <h2>🎮 Explore the FROLL Ecosystem</h2>
         <ul class="feature-list">
             <li>🎟️ <a href="https://Lottery.vin" target="_blank">Lottery.vin</a> – Fully on-chain decentralized lottery</li>
-        </ul>
-
-        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
-        <p>🪙 <strong>Only 1,000,000 FROLL ever minted!</strong></p>
-        <p>📍 <strong>Smart Contract:</strong> <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span></p>
-        <p>🔍 <strong>Track on VicScan:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View Here</a></p>
-        <ul class="feature-list">
-            <li>⚡ Zero gas to send FROLL!</li>
-            <li>🔐 Fully decentralized – no data stored, no approvals needed.</li>
         </ul>
     </div>
 
@@ -84,6 +78,13 @@
         </div>
         <button id="swap-now" class="button">Swap Now</button>
     </div>
+
+    <footer class="footer">
+        <div class="social-links">
+            <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
+            <a href="https://x.com/FortuneRolls" target="_blank">Follow X</a>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
