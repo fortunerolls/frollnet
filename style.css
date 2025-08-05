@@ -80,6 +80,12 @@ p {
     margin-bottom: 15px;
 }
 
+/* Cập nhật đoạn văn: làm đậm và nghiêng */
+p.italic-bold {
+    font-weight: bold;
+    font-style: italic;
+}
+
 /* BUTTON */
 .button {
     background-color: #007bff;
