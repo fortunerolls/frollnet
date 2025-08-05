@@ -283,3 +283,39 @@ main {
     text-align: center;
     margin-top: 10px;
 }
+
+/* Đảm bảo hai đoạn văn bản có độ rộng bằng nhau */
+.equal-width-segments {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.equal-width-segments .segment {
+    width: 48%; /* Đảm bảo mỗi phần chiếm 48% chiều rộng để có độ rộng bằng nhau */
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Đảm bảo các phần hiển thị đẹp trên màn hình nhỏ (responsive) */
+@media (max-width: 768px) {
+    .equal-width-segments {
+        flex-direction: column; /* Chuyển thành cột khi trên màn hình nhỏ */
+    }
+
+    .equal-width-segments .segment {
+        width: 100%; /* Mỗi đoạn chiếm toàn bộ chiều rộng khi trên màn hình nhỏ */
+        margin-bottom: 10px;
+    }
+}
+
+/* Tinh chỉnh phần hiển thị giá FROLL cho mượt mà và dễ nhìn */
+#froll-price {
+    font-weight: bold; /* Làm đậm giá để nổi bật */
+    font-size: 24px;
+    color: #FFD700; /* Màu vàng ánh kim */
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.5;
+}
