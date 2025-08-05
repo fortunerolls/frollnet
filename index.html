@@ -13,14 +13,20 @@
     <!-- Kết nối ví -->
     <div id="connect-interface" class="interface">
         <img src="128.png" alt="FrollSwap Logo" class="logo" style="display: block; margin: 0 auto;">
-        <span id="froll-price" class="froll-price" style="font-weight: bold; font-size: 24px; color: #FFD700; display: block; text-align: center; margin-top: 20px;">Loading price...</span>
+        
+        <!-- Thêm div bao quanh giá FROLL và đoạn thông báo để có độ rộng bằng nhau -->
+        <div class="equal-width-segments">
+            <div class="segment">
+                <span id="froll-price" class="froll-price">Loading price...</span>
+            </div>
+            <div class="segment">
+                <p class="italic-bold">Please open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
+            </div>
+        </div>
 
         <div class="button-container">
             <button id="connect-wallet" class="button">Connect Wallet</button>
         </div>
-
-        <!-- Cập nhật phần dòng chữ -->
-        <p class="italic-bold">Please open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
     </div>
 
     <!-- Nội dung khi kết nối -->
