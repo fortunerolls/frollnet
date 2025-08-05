@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const connectInterface = document.getElementById('connect-interface');
     const newContent = document.getElementById('new-content');
     const swapInterface = document.getElementById('swap-interface');
+    const footer = document.getElementById('footer');
+    const navbar = document.getElementById('navbar');
 
     // Blockchain Config
     let provider, signer;
@@ -204,8 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showConnectInterface();
 
         // Hiển thị lại footer và navbar
-        document.getElementById("footer").style.display = "block";
-        document.getElementById("navbar").style.display = "block";
+        if (footer && navbar) {
+            footer.style.display = "block";
+            navbar.style.display = "block";
+        }
 
         alert('Wallet disconnected successfully.');
     });
@@ -216,8 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
         newContent.style.display = 'none';
 
         // Ẩn footer và navbar khi vào giao diện swap
-        document.getElementById("footer").style.display = "none";
-        document.getElementById("navbar").style.display = "none";
+        if (footer && navbar) {
+            footer.style.display = "none";
+            navbar.style.display = "none";
+        }
     }
 
     function showConnectInterface() {
