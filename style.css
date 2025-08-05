@@ -5,7 +5,6 @@ html, body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
-    height: 100%;
 }
 
 /* NAVBAR */
@@ -39,6 +38,7 @@ html, body {
     line-height: 1.2; /* Điều chỉnh khoảng cách dòng để cân đối */
 }
 
+
 /* INTERFACE BLOCKS */
 .interface {
     max-width: 640px;
@@ -53,20 +53,11 @@ html, body {
 /* REMOVE WELCOME SECTION AND NAVBAR */
 #connect-interface, #new-content {
     display: block;
-    margin: 0 auto; /* Căn giữa */
-    padding: 20px;
-    width: 100%; /* Đảm bảo cả hai đoạn có độ rộng bằng nhau */
-    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
-    border-radius: 12px;
-    text-align: left;
 }
 
-#connect-interface {
-    margin-top: 30px;
-}
-
-#new-content {
-    margin-top: 30px;
+#swap-interface:not([style*="display: none"]) ~ #connect-interface,
+#swap-interface:not([style*="display: none"]) ~ #new-content {
+    display: none !important;
 }
 
 /* BUTTON */
@@ -281,31 +272,6 @@ main {
     background-color: #007bff;
     text-align: center;
     color: white;
-    display: block; /* Đảm bảo footer hiển thị mặc định */
-}
-
-/* Ẩn footer và navbar khi vào giao diện swap */
-#swap-interface {
-    display: block;
-}
-
-#swap-interface ~ #connect-interface,
-#swap-interface ~ #new-content {
-    display: none !important;
-}
-
-#swap-interface ~ #footer,
-#swap-interface ~ .navbar {
-    display: none !important;
-}
-
-/* Đảm bảo footer và navbar hiển thị lại khi ngắt kết nối ví */
-#connect-interface, #new-content {
-    display: block;
-}
-
-#footer, .navbar {
-    display: block;
 }
 
 /* Định dạng dòng chữ "Please open Froll.net" */
