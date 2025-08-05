@@ -273,3 +273,49 @@ main {
     text-align: center;
     color: white;
 }
+
+/* Đảm bảo footer luôn ở dưới cùng của trang */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của trang là 100% chiều cao màn hình */
+}
+
+/* Phần nội dung chính */
+main {
+    flex-grow: 1; /* Phần thân chính (content) sẽ chiếm không gian còn lại */
+}
+
+/* Footer */
+.footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng của trang */
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+    display: block; /* Đảm bảo footer hiển thị mặc định */
+}
+
+/* Ẩn footer và navbar khi vào giao diện swap */
+#swap-interface {
+    display: block;
+}
+
+#swap-interface ~ #connect-interface,
+#swap-interface ~ #new-content {
+    display: none !important;
+}
+
+#swap-interface ~ #footer,
+#swap-interface ~ .navbar {
+    display: none !important;
+}
+
+/* Đảm bảo footer và navbar hiển thị lại khi ngắt kết nối ví */
+#connect-interface, #new-content {
+    display: block;
+}
+
+#footer, .navbar {
+    display: block;
+}
