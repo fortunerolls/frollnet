@@ -253,3 +253,23 @@ html, body {
         transform: scale(1);
     }
 }
+
+/* Đảm bảo footer luôn ở dưới cùng của trang */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của trang là 100% chiều cao màn hình */
+}
+
+main {
+    flex-grow: 1; /* Phần thân chính (content) sẽ chiếm không gian còn lại */
+}
+
+/* Footer */
+.footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng của trang */
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
