@@ -317,3 +317,33 @@ main {
     text-align: center;
     margin-top: 10px;
 }
+
+/* Căn giữa nút Connect Wallet */
+.button-container {
+    display: flex;
+    justify-content: center; /* Căn giữa nút */
+    align-items: center;     /* Căn giữa theo chiều dọc */
+    margin-top: 20px;         /* Thêm khoảng cách trên nút */
+}
+
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
