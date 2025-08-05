@@ -317,13 +317,3 @@ main {
     text-align: center;
     margin-top: 10px;
 }
-
-/* Định dạng dòng chữ "Please open Froll.net" */
-.italic-bold {
-    font-weight: bold; /* In đậm */
-    font-style: italic; /* Nghiêng chữ */
-    font-size: 12px; /* Giữ cỡ chữ nhỏ như yêu cầu */
-    color: #555;
-    text-align: center;
-    margin-top: 10px;
-}
