@@ -5,6 +5,7 @@ html, body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
+    height: 100%;
 }
 
 /* NAVBAR */
@@ -52,9 +53,20 @@ html, body {
 /* REMOVE WELCOME SECTION AND NAVBAR */
 #connect-interface, #new-content {
     display: block;
-    margin: 0;
-    padding: 0;
+    margin: 0 auto; /* Căn giữa */
+    padding: 20px;
+    width: 100%; /* Đảm bảo cả hai đoạn có độ rộng bằng nhau */
     background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    text-align: left;
+}
+
+#connect-interface {
+    margin-top: 30px;
+}
+
+#new-content {
+    margin-top: 30px;
 }
 
 /* BUTTON */
