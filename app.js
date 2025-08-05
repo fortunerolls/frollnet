@@ -1,4 +1,3 @@
-// Sự kiện chạy khi trang đã tải hoàn tất
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const connectWalletButton = document.getElementById('connect-wallet');
@@ -15,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const swapNowButton = document.getElementById('swap-now');
     const transactionFeeDisplay = document.getElementById('transaction-fee');
     const gasFeeDisplay = document.getElementById('gas-fee');
+    const frollPriceDisplay = document.getElementById('froll-price');
 
     const connectInterface = document.getElementById('connect-interface');
     const newContent = document.getElementById('new-content');
@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     fromAmountInput.addEventListener('input', calculateToAmount);
+
     function calculateToAmount() {
         const fromAmount = parseFloat(fromAmountInput.value);
         if (isNaN(fromAmount) || fromAmount <= 0) {
@@ -201,6 +202,11 @@ document.addEventListener('DOMContentLoaded', () => {
         walletAddressDisplay.textContent = '';
         clearInputs();
         showConnectInterface();
+
+        // Hiển thị lại footer và navbar
+        document.getElementById("footer").style.display = "block";
+        document.getElementById("navbar").style.display = "block";
+
         alert('Wallet disconnected successfully.');
     });
 
@@ -208,6 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
         swapInterface.style.display = 'block';
         connectInterface.style.display = 'none';
         newContent.style.display = 'none';
+
+        // Ẩn footer và navbar khi vào giao diện swap
+        document.getElementById("footer").style.display = "none";
+        document.getElementById("navbar").style.display = "none";
     }
 
     function showConnectInterface() {
@@ -222,10 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             const vicPrice = parseFloat(data.price);
             const frollPrice = (vicPrice * 100).toFixed(2);
-            document.getElementById("froll-price").textContent = `1 FROLL = ${frollPrice} USD`;
+            frollPriceDisplay.textContent = `1 FROLL = ${frollPrice} USD`;
         } catch (error) {
-            console.error("Lỗi khi lấy giá VIC:", error);
-            document.getElementById("froll-price").textContent = "Price unavailable";
+            console.error("Error fetching VIC price:", error);
+            frollPriceDisplay.textContent = "Price unavailable";
         }
     }
 
@@ -234,12 +244,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showConnectInterface();
 });
-
-function copyToClipboard() {
-    const contractAddress = document.getElementById("contract-address").textContent;
-    navigator.clipboard.writeText(contractAddress).then(() => {
-        alert("✅ Copied to clipboard: " + contractAddress);
-    }).catch(err => {
-        console.error("Copy failed!", err);
-    });
-}
