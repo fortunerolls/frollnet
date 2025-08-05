@@ -18,21 +18,22 @@ html, body {
 }
 
 .logo {
-    height: 50px; /* Tăng kích thước logo */
+    height: 50px;
     display: block;
     max-width: 100%;
     animation: fadeIn 0.8s ease-in-out;
     margin: 0 auto;
 }
 
+/* Giá FROLL theo USD */
 .froll-price {
     font-weight: bold;
-    font-size: 28px; /* Tăng kích thước chữ giá */
-    color: #FFD700; /* Màu vàng kim đậm */
+    font-size: 28px;
+    color: #FFD700; /* Màu vàng ánh kim */
     display: block;
     text-align: center;
     margin-top: 20px;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); /* Thêm hiệu ứng đổ bóng để giá nổi bật hơn */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); /* Thêm hiệu ứng đổ bóng để giá nổi bật */
 }
 
 /* INTERFACE BLOCKS */
