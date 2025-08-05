@@ -27,15 +27,13 @@ html, body {
 
 /* Giá FROLL theo USD */
 .froll-price {
-    font-weight: bold; /* Làm đậm chữ để giá nổi bật */
-    font-size: 28px; /* Kích thước chữ lớn hơn để dễ nhìn */
+    font-weight: bold;
+    font-size: 28px;
     color: #FFD700; /* Màu vàng ánh kim */
     display: block;
     text-align: center;
     margin-top: 20px;
-    text-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5); /* Thêm đổ bóng để làm nổi bật giá trị */
-    letter-spacing: 1px; /* Thêm khoảng cách giữa các chữ để giá dễ đọc hơn */
-    line-height: 1.2; /* Điều chỉnh khoảng cách dòng để cân đối */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); /* Thêm hiệu ứng đổ bóng để giá nổi bật */
 }
 
 
