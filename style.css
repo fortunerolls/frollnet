@@ -107,87 +107,7 @@ html, body {
     background-color: #0056b3;
 }
 
-/* TRADE BAR */
-.tradebar {
-    background-color: #f7f7f7;
-    padding: 10px;
-    text-align: center;
-}
-
-.trade-btn {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.trade-btn:hover {
-    background-color: #218838;
-}
-
-/* QUICK NAV */
-.quicknav {
-    background-color: #007bff;
-    padding: 10px 0;
-}
-
-.quicknav-inner {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.qn-btn {
-    background-color: #fff;
-    color: #007bff;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.qn-btn:hover {
-    background-color: #0056b3;
-    color: white;
-}
-
-.qn-search input {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    width: 200px;
-}
-
-.qn-search button {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-}
-
-/* MAIN CONTAINER */
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 15px;
-}
-
-.section-title {
-    font-size: 28px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #333;
-}
-
-/* POST FEED */
+/* FEED */
 .feed {
     display: flex;
     flex-direction: column;
@@ -227,78 +147,6 @@ html, body {
     background-color: #218838;
 }
 
-/* COMPOSER */
-.composer {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.composer-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.composer-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-}
-
-/* SWAP VIEW */
-.swap-wrap {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.token-input {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.token-col {
-    display: flex;
-    flex-direction: column;
-    margin-left: 10px;
-}
-
-.token-info {
-    font-size: 14px;
-    color: #333;
-}
-
-.swap-direction {
-    background-color: #28a745;
-    color: white;
-    padding: 8px 10px;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-    margin: 0 10px;
-}
-
-.swap-direction:hover {
-    background-color: #218838;
-}
-
-.swap-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-.swap-title {
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-align: center;
-    color: #333;
-}
-
 /* FOOTER */
 .footer {
     background-color: #007bff;
@@ -319,7 +167,7 @@ html, body {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-    .brandbar, .tradebar, .quicknav, .footer {
+    .brandbar, .feed, .footer {
         padding: 10px;
     }
 
