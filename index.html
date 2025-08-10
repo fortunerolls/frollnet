@@ -13,17 +13,23 @@
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- ===== NAVBAR ===== -->
+  <!-- ===== NAVBAR (auto ẩn khi mở Swap) ===== -->
   <nav class="navbar">
     <div class="navbar-content">
       <div class="nav-left">
         <img src="froll_48.png" alt="FROLL" class="logo"/>
         <span class="brand">Froll Social</span>
-        <!-- Chip giá FROLL ≈ USD -->
         <span id="froll-price-usd" class="froll-price">Loading price...</span>
       </div>
       <div class="nav-right">
+        <a id="btn-guide" class="btn tiny outline" href="#" target="_blank" rel="noopener">Guide</a>
         <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
+
+        <!-- Balances (ẩn khi Guest) -->
+        <span id="vic-balance" class="badge" style="display:none">VIC: 0</span>
+        <span id="froll-balance" class="badge" style="display:none">FROLL: 0</span>
+
+        <!-- Connect / Disconnect -->
         <button id="connect-wallet" class="btn">Connect</button>
         <span id="wallet-badge" class="badge">Guest</span>
       </div>
@@ -47,6 +53,7 @@
         <button id="register-account" class="btn outline">Register (0.001 FROLL)</button>
 
         <textarea id="post-content" rows="5" placeholder="Write up to ~60KB. Line breaks are preserved."></textarea>
+        <input id="post-media" type="url" placeholder="Media URL (image/video) – optional" />
         <div class="row">
           <button id="btn-publish" class="btn">Publish</button>
         </div>
@@ -66,14 +73,10 @@
     </section>
   </main>
 
-  <!-- ===== SWAP PANEL (từ froll.org) ===== -->
+  <!-- ===== SWAP PANEL (tối giản: chỉ swap + nút Back) ===== -->
   <section id="swap-interface" class="interface" style="display:none">
-    <header class="swap-header">
-      <div id="wallet-address" class="wallet-address">—</div>
-      <div>
-        <button id="btn-back-to-home" class="btn ghost">Back to Home</button>
-        <button id="disconnect-wallet" class="btn">Disconnect Wallet</button>
-      </div>
+    <header class="swap-header minimal">
+      <button id="btn-back-to-home" class="btn ghost tiny">← Back to Home</button>
     </header>
 
     <h2 class="center">Swap</h2>
@@ -86,7 +89,7 @@
           <p id="from-token-info">VIC: 0.000000000000000000</p>
           <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
         </div>
-        <button id="max-button" class="btn">Max</button>
+        <button id="max-button" class="btn tiny">Max</button>
       </div>
 
       <!-- Direction -->
@@ -104,7 +107,7 @@
 
     <div class="swap-details">
       <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
-      <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
+      <p id="gas-fee">Estimated Gas Fee: ~</p>
     </div>
 
     <div class="center">
@@ -127,14 +130,13 @@
     (async function loadFrollPrice() {
       const el = document.getElementById("froll-price-usd");
       try {
-        // Lấy giá VIC/USDT từ Binance, ước tính FROLL ≈ 100 * VIC
         const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT", { cache: "no-store" });
         const j = await r.json();
         const vic = parseFloat(j?.price || "0");
         if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
-        const frollUsd = vic * 100; // nếu mô hình đổi khác, chỉ cần đổi hệ số 100
+        const frollUsd = vic * 100;
         el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
-      } catch (e) {
+      } catch {
         el.textContent = "Price unavailable";
       }
     })();
