@@ -6,7 +6,6 @@ const VIC_CHAIN = {
   rpcUrls: ["https://rpc.viction.xyz", "https://viction.blockpi.network/v1/rpc/public"],
   blockExplorerUrls: ["https://vicscan.xyz"]
 };
-
 const FROLL_ADDR = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
 const SWAP_ADDR = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
 const SOCIAL_ADDR = "0x28c642682b1E1458d922C4226a7192F5B8953A74";
@@ -77,12 +76,14 @@ function setGuestUI() {
   elStatus.textContent = "Not connected";
   elConnectBtn.textContent = "Connect Wallet";
   elBadgeVic.style.display = "none"; elBadgeFroll.style.display = "none";
+  elFeedList.innerHTML = `<div class="meta meta-center">Please connect your wallet to interact.</div>`;
 }
 
 function setConnectedUI() {
   elStatus.textContent = shorten(account);
   elConnectBtn.textContent = "Disconnect";
   elBadgeVic.style.display = "inline-block"; elBadgeFroll.style.display = "inline-block";
+  refreshFeed();
 }
 
 /* CONNECT / DISCONNECT */
@@ -101,27 +102,13 @@ async function connectWallet() {
     setConnectedUI();
     await Promise.all([refreshBalances()]);
     await checkRegistered();
-    await refreshFeed();
   } catch (e) { console.error(e); alert("Connect failed or rejected."); setGuestUI(); }
   finally { elConnectBtn.disabled = false; }
 }
 
 function softDisconnect() {
   provider = signer = froll = swap = social = undefined; account = undefined; isRegistered = false;
-  setGuestUI(); refreshFeed();
-}
-
-if (window.ethereum) {
-  window.ethereum.on?.("accountsChanged", async (accs) => {
-    if (accs && accs.length) {
-      account = accs[0]; if (provider) signer = provider.getSigner();
-      setConnectedUI();
-      await refreshBalances();
-      await checkRegistered();
-      await refreshFeed();
-    } else { softDisconnect(); }
-  });
-  window.ethereum.on?.("chainChanged", (cid) => { if (cid?.toLowerCase() !== VIC_CHAIN.chainId) elStatus.textContent = "Wrong network"; else if (account) elStatus.textContent = shorten(account); });
+  setGuestUI();
 }
 
 /* FOLLOW & LIKE */
@@ -186,12 +173,3 @@ async function renderFeed(posts) {
     elFeedList.appendChild(postElement);
   });
 }
-
-/* SWAP */
-async function refreshSwapBalances() {
-  // Same logic as before to display token balances
-}
-
-/* INIT */
-setGuestUI();
-refreshFeed();
