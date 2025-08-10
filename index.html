@@ -3,30 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Froll.net — Swap & Social</title>
+  <title>Froll.net — Decentralized Social</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Swap FROLL ↔ VIC and use on-chain social features. Powered by MetaMask on Viction (chainId 88).">
+  <meta name="description" content="Read on-chain posts without a wallet. Connect only when you want to publish. Swap FROLL ↔ VIC when needed." />
 </head>
 <body>
-  <!-- NAVBAR -->
+  <!-- NAV -->
   <nav class="navbar">
     <div class="navbar-content">
-      <img src="froll_48.png" alt="FROLL" class="logo" />
-      <span id="froll-price-usd" class="pill">Loading price...</span>
+      <div class="nav-left">
+        <img src="froll_48.png" alt="FROLL" class="logo" />
+        <span class="brand">Froll Social</span>
+        <span id="froll-price-usd" class="pill">Loading price...</span>
+      </div>
 
-      <button id="connect-wallet" class="btn">Connect Wallet</button>
-      <span id="wallet-badge" class="badge">Not connected</span>
+      <div class="nav-right">
+        <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
+        <button id="connect-wallet" class="btn">Connect</button>
+        <span id="wallet-badge" class="badge">Guest</span>
+      </div>
     </div>
   </nav>
 
-  <!-- MAIN -->
-  <main class="main-container">
+  <!-- MAIN: HOME FEED (always visible) -->
+  <main id="home-view" class="main-container">
+    <!-- Compose box (requires wallet; show disabled hint if not) -->
+    <section class="card">
+      <h2>Post something</h2>
+      <div id="compose-guard" class="guard">Connect wallet to create an account and publish.</div>
+      <div id="compose-area" class="compose" style="display:none">
+        <textarea id="post-content" rows="4" placeholder="Write up to ~60 KB. Line breaks are preserved."></textarea>
+        <div class="row">
+          <button id="btn-create-profile" class="btn outline">Create Account (0.001 FROLL)</button>
+          <button id="btn-publish" class="btn">Publish</button>
+        </div>
+        <div class="meta" id="compose-msg"></div>
+      </div>
+    </section>
 
-    <!-- SWAP CARD -->
-    <section class="card" id="swap-card">
-      <h2>Swap FROLL ↔ VIC</h2>
-      <p class="muted">Fixed rate: <strong>1 FROLL = 100 VIC</strong> • Network fee (contract): <strong>0.01 VIC</strong></p>
+    <!-- Feed -->
+    <section class="card">
+      <h2>Latest posts (on-chain)</h2>
+      <div id="feed-controls" class="feed-controls">
+        <input id="feed-address" class="input" type="text" placeholder="Filter by author (0x… optional)" />
+        <button id="btn-refresh" class="btn outline tiny">Refresh</button>
+      </div>
+      <div id="feed-list" class="feed-list">
+        <!-- posts rendered here -->
+      </div>
+      <div class="meta" id="feed-msg">Reading posts from the Social contract. No wallet required.</div>
+    </section>
+  </main>
+
+  <!-- SWAP VIEW (hidden until opened) -->
+  <section id="swap-view" class="swap-overlay" style="display:none">
+    <div class="swap-wrapper">
+      <div class="swap-header">
+        <h2>Swap FROLL ↔ VIC</h2>
+        <div class="swap-actions">
+          <button id="swap-disconnect" class="btn outline tiny">Back to Home</button>
+        </div>
+      </div>
+
+      <p class="muted">Fixed rate: <strong>1 FROLL = 100 VIC</strong> • Contract fee: <strong>0.01 VIC</strong></p>
 
       <div class="swap-tabs">
         <button class="tab-btn active" data-dir="VIC2FROLL">VIC → FROLL</button>
@@ -66,50 +106,8 @@
         <button id="swap-now" class="btn">Swap Now</button>
       </div>
       <div class="meta" id="swap-msg"></div>
-    </section>
-
-    <!-- SOCIAL CARD -->
-    <section class="card" id="social-card">
-      <h2>FROLL Social (on-chain)</h2>
-      <p class="muted">Create account, post, follow, like, and share — all on-chain using FROLL.</p>
-
-      <div id="social-not-connected" class="muted">Connect your wallet to continue.</div>
-
-      <div id="social-connected" style="display:none">
-        <div class="social-grid">
-          <div class="social-box">
-            <h3>Create Account</h3>
-            <p class="muted">One-time fee (e.g., 0.001 FROLL — configurable in contract).</p>
-            <button id="btn-create-profile" class="btn">Create Account</button>
-          </div>
-
-          <div class="social-box">
-            <h3>New Post</h3>
-            <textarea id="post-content" rows="4" placeholder="Write up to ~20,000 characters (keeps line breaks)"></textarea>
-            <button id="btn-publish" class="btn">Publish</button>
-          </div>
-
-          <div class="social-box">
-            <h3>Follow / Like / Share</h3>
-            <input id="follow-addr" type="text" placeholder="Address to follow (0x…)" />
-            <div class="row">
-              <input id="like-postid" type="number" min="0" placeholder="Post ID to like" />
-              <input id="share-postid" type="number" min="0" placeholder="Post ID to share" />
-            </div>
-            <div class="row">
-              <button id="btn-follow" class="btn outline">Follow</button>
-              <button id="btn-like" class="btn outline">Like</button>
-              <button id="btn-share" class="btn outline">Share</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="meta" id="social-msg">
-          To enable Social actions, please set <code>SOCIAL_ADDR</code> & <code>SOCIAL_ABI</code> in <code>app.js</code> (I left placeholders ready). After you paste, everything will work via MetaMask.
-        </div>
-      </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <!-- FOOTER -->
   <footer>
