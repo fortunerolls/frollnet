@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Froll.net — Connect Wallet</title>
+  <title>Froll.net — Swap & Social</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Connect your MetaMask and use FROLL on the Viction (VIC) network." />
+  <meta name="description" content="Swap FROLL ↔ VIC and use on-chain social features. Powered by MetaMask on Viction (chainId 88).">
 </head>
 <body>
   <!-- NAVBAR -->
@@ -22,20 +22,98 @@
 
   <!-- MAIN -->
   <main class="main-container">
-    <section class="card">
-      <h2>Connect your wallet</h2>
-      <p>Click <strong>Connect Wallet</strong> in the top bar. We’ll automatically switch (or add) the Viction Mainnet (chainId <code>88</code>) in MetaMask.</p>
-      <ul>
-        <li>If MetaMask is not installed, please install it first.</li>
-        <li>If MetaMask asks for multiple approvals (add network → switch → connect), approve them all.</li>
-      </ul>
-      <div class="meta" id="env-info"></div>
+
+    <!-- SWAP CARD -->
+    <section class="card" id="swap-card">
+      <h2>Swap FROLL ↔ VIC</h2>
+      <p class="muted">Fixed rate: <strong>1 FROLL = 100 VIC</strong> • Network fee (contract): <strong>0.01 VIC</strong></p>
+
+      <div class="swap-tabs">
+        <button class="tab-btn active" data-dir="VIC2FROLL">VIC → FROLL</button>
+        <button class="tab-btn" data-dir="FROLL2VIC">FROLL → VIC</button>
+      </div>
+
+      <div class="swap-grid">
+        <div>
+          <label class="lab">From</label>
+          <div class="token-box">
+            <span id="from-token">VIC</span>
+            <input id="from-amount" type="number" min="0" step="0.000000000000000001" placeholder="0.0" />
+            <button id="btn-max" class="tiny-btn" type="button">Max</button>
+          </div>
+          <div class="muted bal" id="from-balance">Balance: –</div>
+        </div>
+
+        <div class="arrow">↔</div>
+
+        <div>
+          <label class="lab">To</label>
+          <div class="token-box">
+            <span id="to-token">FROLL</span>
+            <input id="to-amount" type="text" placeholder="0.0" readonly />
+          </div>
+          <div class="muted bal" id="to-balance">Balance: –</div>
+        </div>
+      </div>
+
+      <div class="muted fee-line">
+        <span>Transaction Fee (contract): <strong>0.01 VIC</strong></span>
+        <span id="est-gas" class="muted">Estimated Gas: ~</span>
+      </div>
+
+      <div class="actions">
+        <button id="approve-froll" class="btn outline" style="display:none">Approve FROLL</button>
+        <button id="swap-now" class="btn">Swap Now</button>
+      </div>
+      <div class="meta" id="swap-msg"></div>
+    </section>
+
+    <!-- SOCIAL CARD -->
+    <section class="card" id="social-card">
+      <h2>FROLL Social (on-chain)</h2>
+      <p class="muted">Create account, post, follow, like, and share — all on-chain using FROLL.</p>
+
+      <div id="social-not-connected" class="muted">Connect your wallet to continue.</div>
+
+      <div id="social-connected" style="display:none">
+        <div class="social-grid">
+          <div class="social-box">
+            <h3>Create Account</h3>
+            <p class="muted">One-time fee (e.g., 0.001 FROLL — configurable in contract).</p>
+            <button id="btn-create-profile" class="btn">Create Account</button>
+          </div>
+
+          <div class="social-box">
+            <h3>New Post</h3>
+            <textarea id="post-content" rows="4" placeholder="Write up to ~20,000 characters (keeps line breaks)"></textarea>
+            <button id="btn-publish" class="btn">Publish</button>
+          </div>
+
+          <div class="social-box">
+            <h3>Follow / Like / Share</h3>
+            <input id="follow-addr" type="text" placeholder="Address to follow (0x…)" />
+            <div class="row">
+              <input id="like-postid" type="number" min="0" placeholder="Post ID to like" />
+              <input id="share-postid" type="number" min="0" placeholder="Post ID to share" />
+            </div>
+            <div class="row">
+              <button id="btn-follow" class="btn outline">Follow</button>
+              <button id="btn-like" class="btn outline">Like</button>
+              <button id="btn-share" class="btn outline">Share</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta" id="social-msg">
+          To enable Social actions, please set <code>SOCIAL_ADDR</code> & <code>SOCIAL_ABI</code> in <code>app.js</code> (I left placeholders ready). After you paste, everything will work via MetaMask.
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- FOOTER -->
   <footer>
-    <p>FROLL ecosystem: 
+    <p>FROLL ecosystem:
       <a href="https://lottery.vin" target="_blank" rel="noopener">Lottery.vin</a> •
       <a href="https://froll.org" target="_blank" rel="noopener">Froll.org</a> •
       <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a> •
@@ -58,7 +136,10 @@
     })();
   </script>
 
-  <!-- App logic (we'll replace this next) -->
+  <!-- Ethers -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+  <!-- App -->
   <script src="app.js"></script>
 </body>
 </html>
