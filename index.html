@@ -13,116 +13,128 @@
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- ===== NAVBAR (auto ẩn khi mở Swap) ===== -->
-  <nav class="navbar">
-    <div class="navbar-content">
-      <div class="nav-left">
+  <!-- ===== TOP TIP BAR ===== -->
+  <div class="tipbar">
+    <div class="tip-inner">
+      <span>Tip: Use the Viction (VIC) network in MetaMask. On mobile, open in the wallet’s browser.</span>
+      <span class="madeon">Made ✦ on the VIC blockchain</span>
+    </div>
+  </div>
+
+  <!-- ===== BRAND BAR ===== -->
+  <header class="brandbar">
+    <div class="brand-inner">
+      <div class="brand-left">
         <img src="froll_48.png" alt="FROLL" class="logo"/>
-        <span class="brand">Froll Social</span>
-        <span id="froll-price-usd" class="froll-price">Loading price...</span>
+        <div class="brand-meta">
+          <div class="brand-title">Froll.net</div>
+          <div class="brand-sub">Decentralized. Uncensored. Free Speech.</div>
+        </div>
       </div>
-      <div class="nav-right">
-        <a id="btn-guide" class="btn tiny outline" href="#" target="_blank" rel="noopener">Guide</a>
-        <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
 
-        <!-- Balances (ẩn khi Guest) -->
-        <span id="vic-balance" class="badge" style="display:none">VIC: 0</span>
-        <span id="froll-balance" class="badge" style="display:none">FROLL: 0</span>
+      <div class="brand-right">
+        <!-- price chip -->
+        <span id="froll-price-usd" class="chip">1 FROLL ≈ — USD</span>
 
-        <!-- Connect / Disconnect -->
-        <button id="connect-wallet" class="btn">Connect</button>
-        <span id="wallet-badge" class="badge">Guest</span>
+        <!-- balances (ẩn khi guest) -->
+        <span id="badge-froll" class="mini-badge" style="display:none;">0.00 FROLL</span>
+        <span id="badge-vic" class="mini-badge" style="display:none;">0.00 VIC</span>
+
+        <!-- status + connect/disconnect -->
+        <span id="wallet-status" class="status">Not connected</span>
+        <button id="connect-wallet" class="btn">Connect Wallet</button>
+
+        <!-- guide link -->
+        <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <!-- ===== HOME (SOCIAL) ===== -->
-  <main id="home-view" class="main-container">
-    <!-- Composer -->
-    <section class="card">
-      <h2>Post something</h2>
+  <!-- ===== TRADE BAR (ở giữa, giống VinSocial) ===== -->
+  <div class="tradebar">
+    <button id="btn-open-swap" class="trade-btn">Trade FROLL/VIC</button>
+  </div>
 
-      <!-- Nếu chưa kết nối ví -->
-      <div id="compose-guard" class="guard">
-        Read posts without a wallet. Connect only when you want to publish.
+  <!-- ===== MAIN (HOME / SOCIAL) ===== -->
+  <main id="home-view" class="container">
+    <h2 class="section-title">Latest Posts</h2>
+
+    <!-- Compose (ẩn khi guest) -->
+    <section class="composer card" id="composer" style="display:none;">
+      <div class="composer-head">
+        <button id="register-account" class="btn ghost">Register (0.001 FROLL)</button>
       </div>
-
-      <!-- Nếu đã kết nối ví -->
-      <div id="compose-area" class="compose" style="display:none">
-        <!-- Nút Đăng ký: sẽ tự ẩn nếu đã register -->
-        <button id="register-account" class="btn outline">Register (0.001 FROLL)</button>
-
-        <textarea id="post-content" rows="5" placeholder="Write up to ~60KB. Line breaks are preserved."></textarea>
-        <input id="post-media" type="url" placeholder="Media URL (image/video) – optional" />
-        <div class="row">
-          <button id="btn-publish" class="btn">Publish</button>
-        </div>
-        <div id="compose-msg" class="meta"></div>
+      <textarea id="post-content" rows="6" placeholder="Write your post… (up to ~60KB). Line breaks are preserved."></textarea>
+      <input id="post-media" type="url" class="input" placeholder="Media URL (image/video) — optional"/>
+      <div class="composer-actions">
+        <button id="btn-publish" class="btn primary">New Post</button>
       </div>
+      <div id="compose-msg" class="meta"></div>
     </section>
 
-    <!-- Feed -->
-    <section class="card">
-      <h2>Latest posts (on-chain)</h2>
-      <div class="feed-controls">
-        <input id="feed-address" class="input" type="text" placeholder="Filter by author (0x… optional)"/>
-        <button id="btn-refresh" class="btn outline tiny">Refresh</button>
-      </div>
-      <div id="feed-list" class="feed-list"></div>
-      <div id="feed-msg" class="meta">Reading posts from the Social contract. No wallet required.</div>
-    </section>
+    <!-- Feed controls -->
+    <div class="feed-controls">
+      <input id="feed-address" class="input" type="text" placeholder="Search wallet… (0x… optional)"/>
+      <button id="btn-refresh" class="btn ghost">Refresh</button>
+    </div>
+
+    <!-- Feed list -->
+    <section id="feed-list" class="feed"></section>
+    <div id="feed-msg" class="meta meta-center">Reading posts from the Social contract. No wallet required.</div>
   </main>
 
-  <!-- ===== SWAP PANEL (tối giản: chỉ swap + nút Back) ===== -->
-  <section id="swap-interface" class="interface" style="display:none">
-    <header class="swap-header minimal">
-      <button id="btn-back-to-home" class="btn ghost tiny">← Back to Home</button>
-    </header>
+  <!-- ===== SWAP VIEW (chỉ hiện swap, ẩn mọi thứ khác) ===== -->
+  <section id="swap-view" class="swap-wrap" style="display:none;">
+    <div class="swap-head">
+      <button id="btn-back-home" class="btn ghost small">← Back to Home</button>
+      <button id="btn-disconnect" class="btn small">Disconnect</button>
+    </div>
 
-    <h2 class="center">Swap</h2>
+    <h2 class="swap-title">Swap</h2>
 
-    <div class="swap-container">
+    <div class="swap-box">
       <!-- From -->
       <div class="token-input">
-        <img id="from-token-logo" src="vic_24.png" alt="From Token"/>
-        <div>
-          <p id="from-token-info">VIC: 0.000000000000000000</p>
+        <img id="from-token-logo" src="vic_24.png" alt="From"/>
+        <div class="token-col">
+          <p id="from-token-info" class="token-info">VIC: 0.000000000000000000</p>
           <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
         </div>
         <button id="max-button" class="btn tiny">Max</button>
       </div>
 
       <!-- Direction -->
-      <button id="swap-direction" class="swap-direction" aria-label="Change direction">↔️</button>
+      <button id="swap-direction" class="swap-direction" aria-label="Change direction">↔</button>
 
       <!-- To -->
       <div class="token-input">
-        <img id="to-token-logo" src="froll_24.png" alt="To Token"/>
-        <div>
-          <p id="to-token-info">FROLL: 0.000000000000000000</p>
+        <img id="to-token-logo" src="froll_24.png" alt="To"/>
+        <div class="token-col">
+          <p id="to-token-info" class="token-info">FROLL: 0.000000000000000000</p>
           <input type="text" id="to-amount" placeholder="0.0" disabled/>
         </div>
       </div>
     </div>
 
-    <div class="swap-details">
-      <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
-      <p id="gas-fee">Estimated Gas Fee: ~</p>
+    <div class="swap-meta">
+      <span id="transaction-fee">Transaction Fee: 0.01 VIC</span>
+      <span id="gas-fee">Estimated Gas: ~</span>
     </div>
 
-    <div class="center">
+    <div class="swap-actions">
       <button id="swap-now" class="btn primary">Swap Now</button>
     </div>
   </section>
 
   <!-- ===== FOOTER ===== -->
-  <footer>
-    <p>FROLL ecosystem:
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>FROLL ecosystem:</span>
       <a href="https://lottery.vin" target="_blank" rel="noopener">Lottery.vin</a> •
       <a href="https://froll.org" target="_blank" rel="noopener">Froll.org</a> •
       <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a> •
       <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-    </p>
+    </div>
   </footer>
 
   <!-- ===== Price chip logic (in-page) ===== -->
@@ -134,10 +146,10 @@
         const j = await r.json();
         const vic = parseFloat(j?.price || "0");
         if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
-        const frollUsd = vic * 100;
+        const frollUsd = vic * 100; // cập nhật hệ số nếu mô hình giá đổi
         el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
       } catch {
-        el.textContent = "Price unavailable";
+        el.textContent = "1 FROLL ≈ — USD";
       }
     })();
   </script>
