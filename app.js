@@ -1,4 +1,4 @@
-// app.js — Froll.net (VinSocial style + actions + clean Swap)
+// app.js — Froll.net (VinSocial-style Social + Swap overlay)
 
 /* NETWORK & CONTRACTS */
 const VIC_CHAIN = {
@@ -31,7 +31,8 @@ const SOCIAL_ABI = [
   "function nextPostId() view returns (uint256)",
   "function getUserPosts(address) view returns (uint256[] memory)",
   "function getPost(uint256) view returns (tuple(uint256 id, address author, string content, uint64 timestamp))",
-  "function register()", "function createPost(string calldata content) returns (uint256 id)"
+  "function register()", "function createPost(string calldata content) returns (uint256 id)",
+  "function tipPost(uint256 postId, uint256 amount)"
 ];
 
 /* STATE */
@@ -39,20 +40,23 @@ let roProvider, provider, signer, account, froll, swap, social;
 let isRegistered = false;
 let swapDirection = "VIC2FROLL";
 
-/* DOM refs */
+/* DOM */
 const $ = (id)=>document.getElementById(id);
+// brand / wallet
 const elBadgeFroll = $("badge-froll"), elBadgeVic = $("badge-vic"), elStatus = $("wallet-status"), elConnectBtn = $("connect-wallet");
-const elOpenSwap = $("btn-open-swap"), elSwapView = $("swap-view"), elBackHome = $("btn-back-home"), elBtnDisco = $("btn-disconnect");
-const elFromLogo=$("from-token-logo"), elToLogo=$("to-token-logo"), elFromInfo=$("from-token-info"), elToInfo=$("to-token-info");
-const elFromAmount=$("from-amount"), elToAmount=$("to-amount"), elMaxBtn=$("max-button"), elSwapDir=$("swap-direction"), elSwapNow=$("swap-now");
-const elGasFee=$("gas-fee");
-
+// quick nav
+const elQHome=$("qn-home"), elQProfile=$("qn-profile"), elQNew=$("qn-newpost"), elFeedAddr=$("feed-address"), elBtnSearch=$("btn-search");
+// composer
 const elComposer=$("composer"), elRegister=$("register-account"), elPostContent=$("post-content"), elPostMedia=$("post-media"), elPublish=$("btn-publish"), elComposeMsg=$("compose-msg");
-const elFeedList=$("feed-list"), elFeedMsg=$("feed-msg"), elFeedAddr=$("feed-address");
-const elQHome=$("qn-home"), elQProfile=$("qn-profile"), elQNew=$("qn-newpost"), elBtnSearch=$("btn-search");
+// feed
+const elFeedList=$("feed-list"), elFeedMsg=$("feed-msg");
+// swap
+const elOpenSwap=$("btn-open-swap"), elSwapView=$("swap-view"), elBackHome=$("btn-back-home"), elBtnDisco=$("btn-disconnect");
+const elFromLogo=$("from-token-logo"), elToLogo=$("to-token-logo"), elFromInfo=$("from-token-info"), elToInfo=$("to-token-info");
+const elFromAmount=$("from-amount"), elToAmount=$("to-amount"), elMaxBtn=$("max-button"), elSwapDir=$("swap-direction"), elSwapNow=$("swap-now"), elGasFee=$("gas-fee");
 
 /* HELPERS */
-const fmt=(n,d=6)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
+const fmt=(n,d=6)=>Number(n).toLocaleString(undefined,{ maximumFractionDigits:d });
 const shorten=(a="")=>a?`${a.slice(0,6)}…${a.slice(-4)}`:"";
 const getRO=()=> (roProvider ||= new ethers.providers.JsonRpcProvider(VIC_CHAIN.rpcUrls[0]));
 async function ensureViction(eth){
@@ -75,7 +79,7 @@ function setConnectedUI(){
 
 /* CONNECT / DISCONNECT */
 async function connectWallet(){
-  if (account){ softDisconnect(); return; }
+  if (account){ softDisconnect(); return; } // toggle = disconnect
   const eth=window.ethereum; if(!eth) return alert("MetaMask not detected.");
   elConnectBtn.disabled=true; elConnectBtn.textContent="Connecting…"; elStatus.textContent="Connecting…";
   try{
@@ -87,20 +91,28 @@ async function connectWallet(){
     swap =new ethers.Contract(SWAP_ADDR,  SWAP_ABI,  signer);
     social=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer);
     setConnectedUI();
-    await Promise.all([refreshBalances(), checkRegistered()]);
+    await Promise.all([refreshBalances()]);
+    await checkRegistered();         // ⬅️ đảm bảo cập nhật biến isRegistered
+    await refreshFeed();             // ⬅️ re-render feed để hiện nút 👍💬🔁
     if (document.body.classList.contains("swap-open")) await refreshSwapBalances();
   }catch(e){ console.error(e); alert("Connect failed or rejected."); setGuestUI(); }
   finally{ elConnectBtn.disabled=false; }
 }
 function softDisconnect(){
-  provider=signer=froll=swap=social=undefined; account=undefined; isRegistered=false; setGuestUI();
+  provider=signer=froll=swap=social=undefined; account=undefined; isRegistered=false;
+  setGuestUI(); refreshFeed();                 // ⬅️ render lại để ẩn nút hành động
   if (document.body.classList.contains("swap-open")) closeSwap();
 }
 if (window.ethereum){
-  window.ethereum.on?.("accountsChanged",(accs)=>{
-    if(accs && accs.length){ account=accs[0]; if(provider) signer=provider.getSigner();
-      if(signer){ froll=new ethers.Contract(FROLL_ADDR,ERC20_ABI,signer); swap=new ethers.Contract(SWAP_ADDR,SWAP_ABI,signer); social=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer);}
-      setConnectedUI(); refreshBalances(); checkRegistered(); refreshSwapBalances();
+  window.ethereum.on?.("accountsChanged", async (accs)=>{
+    if(accs && accs.length){
+      account=accs[0]; if(provider) signer=provider.getSigner();
+      if(signer){ froll=new ethers.Contract(FROLL_ADDR,ERC20_ABI,signer); swap=new ethers.Contract(SWAP_ADDR,SWAP_ABI,signer); social=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer); }
+      setConnectedUI();
+      await refreshBalances();
+      await checkRegistered();        // ⬅️ cập nhật cờ và
+      await refreshFeed();            // ⬅️ vẽ lại feed
+      refreshSwapBalances().catch(()=>{});
     } else { softDisconnect(); }
   });
   window.ethereum.on?.("chainChanged",(cid)=>{ if(cid?.toLowerCase()!==VIC_CHAIN.chainId) elStatus.textContent="Wrong network"; else if(account) elStatus.textContent=shorten(account); });
@@ -118,9 +130,10 @@ async function refreshBalances(){
   }catch{}
 }
 async function checkRegistered(){
-  if (!social || !account) return;
+  if (!social || !account){ isRegistered=false; elRegister.style.display="inline-block"; return false; }
   isRegistered = await social.isRegistered(account).catch(()=>false);
   elRegister.style.display = isRegistered ? "none" : "inline-block";
+  return isRegistered;
 }
 
 /* FEED (READ-ONLY) */
@@ -145,18 +158,16 @@ async function fetchPostsByAuthor(addr){
   return posts.filter(Boolean);
 }
 function detectMediaUrl(text=""){
-  const m = text.match(/(https?:\/\/[^\s)]+)$/im);
-  if(!m) return null; const url=m[1];
-  const isImg=/\.(png|jpe?g|gif|webp)$/i.test(url);
-  const isVid=/\.(mp4|webm|ogg)$/i.test(url);
-  return {url, isImg, isVid};
+  const m=text.match(/(https?:\/\/[^\s)]+)$/im); if(!m) return null;
+  const url=m[1]; const isImg=/\.(png|jpe?g|gif|webp)$/i.test(url); const isVid=/\.(mp4|webm|ogg)$/i.test(url);
+  return {url,isImg,isVid};
 }
 function renderFeed(posts){
   elFeedList.innerHTML = "";
   if(!posts || !posts.length){ elFeedList.innerHTML = `<div class="meta meta-center">No posts yet.</div>`; return; }
   for(const p of posts){
     const t=new Date(Number(p.timestamp)*1000).toLocaleString();
-    const card=document.createElement("article"); card.className="post";
+    const card=document.createElement("article"); card.className="post"; card.id=`post-${p.id}`;
     const head=document.createElement("div"); head.className="post-header"; head.textContent=`${shorten(p.author)} • ${t} • #${p.id}`;
     const content=document.createElement("div"); content.className="post-content"; const text=p.content||""; content.textContent=text;
     const media=detectMediaUrl(text);
@@ -165,15 +176,13 @@ function renderFeed(posts){
       m.innerHTML = media.isImg ? `<img src="${media.url}" alt="media"/>` : (media.isVid ? `<video src="${media.url}" controls></video>` : "");
       if (m.innerHTML) card.appendChild(m);
     }
-    // Actions
+    // Actions (giống VinSocial: Profile/Translate luôn hiển thị, thêm Like/Comment/Share khi đã đăng ký)
     const act=document.createElement("div"); act.className="post-actions";
-    // Always show Profile & Translate
     const btnProfile=document.createElement("button"); btnProfile.className="action-btn"; btnProfile.textContent="👤 Profile";
     btnProfile.addEventListener("click",()=>{ elFeedAddr.value=p.author; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
     const btnTrans=document.createElement("button"); btnTrans.className="action-btn"; btnTrans.textContent="🌐 Translate";
     btnTrans.addEventListener("click",()=>{ const url=`https://translate.google.com/?sl=auto&tl=vi&text=${encodeURIComponent(text)}&op=translate`; window.open(url,"_blank"); });
     act.appendChild(btnProfile); act.appendChild(btnTrans);
-    // Extra when connected & registered
     if (account && isRegistered){
       const btnLike=document.createElement("button"); btnLike.className="action-btn"; btnLike.textContent="👍 Like";
       btnLike.addEventListener("click",()=>tipFlow(p.id));
@@ -207,7 +216,8 @@ elRegister.addEventListener("click", async ()=>{
     if(allow.lt(fee)){ const tx1=await erc.approve(SOCIAL_ADDR,fee); await tx1.wait(); }
     const tx=await social.register(); elComposeMsg.textContent=`Registering… tx: ${tx.hash}`;
     await tx.wait(); elComposeMsg.textContent=`Registered successfully ✔`;
-    isRegistered=true; elRegister.style.display="none"; refreshBalances();
+    isRegistered=true; elRegister.style.display="none";
+    await Promise.all([refreshBalances(), refreshFeed()]);   // ⬅️ vẽ lại feed để xuất hiện nút
   }catch(e){ console.error(e); elComposeMsg.textContent=`Register failed.`; alert("Register failed or rejected."); }
 });
 elPublish.addEventListener("click", async ()=>{
@@ -220,11 +230,12 @@ elPublish.addEventListener("click", async ()=>{
     const maxBytes=await new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,getRO()).MAX_POST_BYTES();
     const enc=new TextEncoder().encode(full); if(enc.length>Number(maxBytes)) return alert(`Content too large. Max ${maxBytes} bytes.`);
     const tx=await social.createPost(full); elComposeMsg.textContent=`Publishing… tx: ${tx.hash}`;
-    await tx.wait(); elComposeMsg.textContent=`Post published ✔`; elPostContent.value=""; elPostMedia.value=""; refreshFeed();
+    await tx.wait(); elComposeMsg.textContent=`Post published ✔`; elPostContent.value=""; elPostMedia.value="";
+    refreshFeed();
   }catch(e){ console.error(e); elComposeMsg.textContent=`Publish failed.`; alert("Publish failed or rejected."); }
 });
 
-/* Actions under post */
+/* Actions dưới bài — map theo hợp đồng FrollSocial */
 async function tipFlow(postId){
   try{
     if(!account) await connectWallet(); if(!isRegistered) return alert("Please register first.");
@@ -233,10 +244,9 @@ async function tipFlow(postId){
     const erc=new ethers.Contract(FROLL_ADDR,ERC20_ABI,signer);
     const allow=await erc.allowance(account, SOCIAL_ADDR);
     if(allow.lt(units)){ const tx1=await erc.approve(SOCIAL_ADDR,units); await tx1.wait(); }
-    const socialW=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer);
-    const tx=await socialW.tipPost ? socialW.tipPost(postId, units) : Promise.reject(new Error("Tip unsupported"));
+    const tx=await social.tipPost(postId, units);
     await tx.wait(); alert("Tipped ✔");
-  }catch(e){ console.error(e); alert("Tip failed or unsupported."); }
+  }catch(e){ console.error(e); alert("Tip failed."); }
 }
 async function commentFlow(p){
   try{
@@ -251,9 +261,9 @@ async function commentFlow(p){
 function shareFlow(p){
   const url = `${location.origin}${location.pathname}#post-${p.id}`;
   const text = `Post #${p.id} by ${p.author}\n\n${p.content}`;
-  const payload = `${url}\n\n${text}`;
   if (navigator.share) { navigator.share({ title: `Post #${p.id}`, text, url }).catch(()=>{}); }
   else {
+    const payload = `${url}\n\n${text}`;
     navigator.clipboard?.writeText(payload).then(()=>alert("Copied to clipboard ✔")).catch(()=>{
       prompt("Copy this", payload);
     });
@@ -261,21 +271,15 @@ function shareFlow(p){
 }
 
 /* QUICK NAV */
-elQHome.addEventListener("click", ()=>{ elFeedAddr.value=""; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
-elQProfile.addEventListener("click", async ()=>{
-  if(!account) await connectWallet();
-  if(account){ elFeedAddr.value=account; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); }
-});
-elQNew.addEventListener("click", async ()=>{
-  if(!account) await connectWallet();
-  if(account){ document.getElementById("composer").scrollIntoView({behavior:"smooth"}); elPostContent.focus(); }
-});
-elBtnSearch.addEventListener("click", refreshFeed);
+$("qn-home").addEventListener("click", ()=>{ elFeedAddr.value=""; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
+$("qn-profile").addEventListener("click", async ()=>{ if(!account) await connectWallet(); if(account){ elFeedAddr.value=account; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); } });
+$("qn-newpost").addEventListener("click", async ()=>{ if(!account) await connectWallet(); if(account){ document.getElementById("composer").scrollIntoView({behavior:"smooth"}); elPostContent.focus(); } });
+$("btn-search").addEventListener("click", refreshFeed);
 
 /* SWAP (overlay) */
 function openSwap(){ document.body.classList.add("swap-open"); elSwapView.style.display="block"; if(!account) connectWallet().then(()=>refreshSwapBalances()); else refreshSwapBalances(); }
 function closeSwap(){ document.body.classList.remove("swap-open"); elSwapView.style.display="none"; }
-$("btn-open-swap").addEventListener("click", openSwap);
+elOpenSwap.addEventListener("click", openSwap);
 elBackHome.addEventListener("click", closeSwap);
 elBtnDisco.addEventListener("click", ()=>{ softDisconnect(); closeSwap(); });
 
@@ -330,7 +334,7 @@ elSwapNow.addEventListener("click", async ()=>{
   }catch(e){ console.error(e); elGasFee.textContent="Error"; alert("Swap failed or rejected."); }
 });
 
-/* NAV EVENTS */
+/* NAV */
 elConnectBtn.addEventListener("click", connectWallet);
 
 /* INIT */
