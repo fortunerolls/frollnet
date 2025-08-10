@@ -2,142 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Froll.net — Decentralized Social</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Froll.net – Decentralized Social Network</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Read on-chain posts without a wallet. Connect only when you want to publish. Swap FROLL ↔ VIC when needed." />
 </head>
 <body>
-  <!-- NAV -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-content">
-      <div class="nav-left">
-        <img src="froll_48.png" alt="FROLL" class="logo" />
-        <span class="brand">Froll Social</span>
-        <span id="froll-price-usd" class="pill">Loading price...</span>
-      </div>
+      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
+      <span id="froll-price-usd" class="froll-price">Loading price...</span>
 
-      <div class="nav-right">
-        <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
-        <button id="connect-wallet" class="btn">Connect</button>
-        <span id="wallet-badge" class="badge">Guest</span>
-      </div>
+      <button id="connect-wallet" class="btn">Connect Wallet</button>
+      <button id="toggle-swap" class="btn">Swap FROLL/VIC</button>
     </div>
   </nav>
 
-  <!-- MAIN: HOME FEED (always visible) -->
-  <main id="home-view" class="main-container">
-    <!-- Compose box (requires wallet; show disabled hint if not) -->
-    <section class="card">
-      <h2>Post something</h2>
-      <div id="compose-guard" class="guard">Connect wallet to create an account and publish.</div>
-      <div id="compose-area" class="compose" style="display:none">
-        <textarea id="post-content" rows="4" placeholder="Write up to ~60 KB. Line breaks are preserved."></textarea>
-        <div class="row">
-          <button id="btn-create-profile" class="btn outline">Create Account (0.001 FROLL)</button>
-          <button id="btn-publish" class="btn">Publish</button>
-        </div>
-        <div class="meta" id="compose-msg"></div>
-      </div>
-    </section>
+  <!-- MAIN CONTENT -->
+  <div class="main-container">
+    <!-- Social Feed -->
+    <div id="social-feed">
+      <h2>Decentralized Social Feed</h2>
 
-    <!-- Feed -->
-    <section class="card">
-      <h2>Latest posts (on-chain)</h2>
-      <div id="feed-controls" class="feed-controls">
-        <input id="feed-address" class="input" type="text" placeholder="Filter by author (0x… optional)" />
-        <button id="btn-refresh" class="btn outline tiny">Refresh</button>
-      </div>
-      <div id="feed-list" class="feed-list">
-        <!-- posts rendered here -->
-      </div>
-      <div class="meta" id="feed-msg">Reading posts from the Social contract. No wallet required.</div>
-    </section>
-  </main>
+      <!-- Composer -->
+      <div id="create-post">
+        <!-- Nút đăng ký: sẽ bị ẩn nếu user đã register (app.js lo phần ẩn/hiện) -->
+        <button id="register-account" class="btn secondary">Register (0.001 FROLL)</button>
 
-  <!-- SWAP VIEW (hidden until opened) -->
-  <section id="swap-view" class="swap-overlay" style="display:none">
-    <div class="swap-wrapper">
-      <div class="swap-header">
-        <h2>Swap FROLL ↔ VIC</h2>
-        <div class="swap-actions">
-          <button id="swap-disconnect" class="btn outline tiny">Back to Home</button>
-        </div>
+        <input type="text" id="post-title" placeholder="Post title..." />
+        <textarea id="post-content" placeholder="Write your post... (keeps new lines, up to ~60KB)"></textarea>
+        <input type="text" id="post-media" placeholder="Image or video URL (optional)" />
+        <button id="submit-post" class="btn">Post</button>
+
+        <div id="compose-hint" class="meta">You can read posts without a wallet. Connect only when you want to publish.</div>
       </div>
 
-      <p class="muted">Fixed rate: <strong>1 FROLL = 100 VIC</strong> • Contract fee: <strong>0.01 VIC</strong></p>
-
-      <div class="swap-tabs">
-        <button class="tab-btn active" data-dir="VIC2FROLL">VIC → FROLL</button>
-        <button class="tab-btn" data-dir="FROLL2VIC">FROLL → VIC</button>
-      </div>
-
-      <div class="swap-grid">
-        <div>
-          <label class="lab">From</label>
-          <div class="token-box">
-            <span id="from-token">VIC</span>
-            <input id="from-amount" type="number" min="0" step="0.000000000000000001" placeholder="0.0" />
-            <button id="btn-max" class="tiny-btn" type="button">Max</button>
-          </div>
-          <div class="muted bal" id="from-balance">Balance: –</div>
-        </div>
-
-        <div class="arrow">↔</div>
-
-        <div>
-          <label class="lab">To</label>
-          <div class="token-box">
-            <span id="to-token">FROLL</span>
-            <input id="to-amount" type="text" placeholder="0.0" readonly />
-          </div>
-          <div class="muted bal" id="to-balance">Balance: –</div>
-        </div>
-      </div>
-
-      <div class="muted fee-line">
-        <span>Transaction Fee (contract): <strong>0.01 VIC</strong></span>
-        <span id="est-gas" class="muted">Estimated Gas: ~</span>
-      </div>
-
-      <div class="actions">
-        <button id="approve-froll" class="btn outline" style="display:none">Approve FROLL</button>
-        <button id="swap-now" class="btn">Swap Now</button>
-      </div>
-      <div class="meta" id="swap-msg"></div>
+      <!-- Feed list -->
+      <div id="posts-container"></div>
     </div>
-  </section>
+
+    <!-- Swap Interface (toggle panel) -->
+    <div id="swap-interface" style="display:none;">
+      <h2>Swap FROLL/VIC</h2>
+      <div>
+        <label>From:</label>
+        <input type="number" id="swap-from-amount" placeholder="0.0" />
+        <select id="swap-from-token">
+          <option value="VIC">VIC</option>
+          <option value="FROLL">FROLL</option>
+        </select>
+      </div>
+      <div>
+        <label>To:</label>
+        <input type="number" id="swap-to-amount" placeholder="0.0" readonly />
+        <select id="swap-to-token" disabled>
+          <option value="FROLL">FROLL</option>
+          <option value="VIC">VIC</option>
+        </select>
+      </div>
+      <button id="swap-now" class="btn" disabled>Swap Now</button>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer>
-    <p>FROLL ecosystem:
-      <a href="https://lottery.vin" target="_blank" rel="noopener">Lottery.vin</a> •
-      <a href="https://froll.org" target="_blank" rel="noopener">Froll.org</a> •
-      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a> •
-      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-    </p>
+    <p>Part of the FROLL ecosystem:</p>
+    <a href="https://lottery.vin" target="_blank">Lottery.vin</a> |
+    <a href="https://froll.org" target="_blank">Froll.org</a> |
+    <a href="https://x.com/FortuneRolls" target="_blank">X</a> |
+    <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
   </footer>
 
-  <!-- Quick price (VIC→USDT on Binance; 1 FROLL = 100 VIC) -->
+  <!-- SCRIPT: quick price -->
   <script>
-    (async function loadFrollPrice(){
+    async function loadFrollPrice() {
       try {
-        const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const j = await r.json();
-        const vic = parseFloat(j.price);
-        const usd = vic * 100;
-        document.getElementById("froll-price-usd").textContent = `1 FROLL ≈ ${usd.toFixed(2)} USD`;
+        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+        const data = await res.json();
+        const vicPrice = parseFloat(data.price || "0");
+        const frollPrice = vicPrice * 100; // internal calc; UI không ghi tỉ lệ cố định
+        document.getElementById("froll-price-usd").textContent = frollPrice ? `1 FROLL ≈ ${frollPrice.toFixed(2)} USD` : "Price unavailable";
       } catch {
         document.getElementById("froll-price-usd").textContent = "Price unavailable";
       }
-    })();
+    }
+    loadFrollPrice();
   </script>
 
-  <!-- Ethers -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-  <!-- App -->
+  <!-- Main App Logic -->
   <script src="app.js"></script>
 </body>
 </html>
