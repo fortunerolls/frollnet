@@ -19,6 +19,8 @@
       <div class="nav-left">
         <img src="froll_48.png" alt="FROLL" class="logo"/>
         <span class="brand">Froll Social</span>
+        <!-- Chip giá FROLL ≈ USD -->
+        <span id="froll-price-usd" class="froll-price">Loading price...</span>
       </div>
       <div class="nav-right">
         <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
@@ -64,7 +66,7 @@
     </section>
   </main>
 
-  <!-- ===== SWAP PANEL (bê nguyên cấu trúc từ froll.org) ===== -->
+  <!-- ===== SWAP PANEL (từ froll.org) ===== -->
   <section id="swap-interface" class="interface" style="display:none">
     <header class="swap-header">
       <div id="wallet-address" class="wallet-address">—</div>
@@ -119,6 +121,24 @@
       <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
     </p>
   </footer>
+
+  <!-- ===== Price chip logic (in-page) ===== -->
+  <script>
+    (async function loadFrollPrice() {
+      const el = document.getElementById("froll-price-usd");
+      try {
+        // Lấy giá VIC/USDT từ Binance, ước tính FROLL ≈ 100 * VIC
+        const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT", { cache: "no-store" });
+        const j = await r.json();
+        const vic = parseFloat(j?.price || "0");
+        if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
+        const frollUsd = vic * 100; // nếu mô hình đổi khác, chỉ cần đổi hệ số 100
+        el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
+      } catch (e) {
+        el.textContent = "Price unavailable";
+      }
+    })();
+  </script>
 
   <!-- App -->
   <script src="app.js"></script>
