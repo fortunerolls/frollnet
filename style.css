@@ -137,7 +137,6 @@ body.swap-open .container,
 body.swap-open .footer { display: none !important; }
 body.swap-open #swap-view { display: block !important; }
 
-/* RESPONSIVE */
 @media (max-width: 860px) {
   .swap-box { grid-template-columns: 1fr; }
   .swap-direction { display: none; }
