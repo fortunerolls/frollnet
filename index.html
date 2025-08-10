@@ -2,132 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FROLL Social DApp — Swap & Social</title>
-  <link rel="icon" href="froll_48.png" type="image/png"/>
-  <link rel="stylesheet" href="style.css"/>
-  <meta name="description" content="Swap FROLL ↔ VIC and publish on-chain posts with FROLL Social. 100% on-chain ready UI.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Froll.net — On-chain Social + Swap</title>
+  <meta name="description" content="Post fully on-chain with FROLL and swap FROLL ↔ VIC directly on Froll.net. 100% decentralized." />
+  <link rel="icon" href="froll_48.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="navbar">
+  <!-- Top Nav -->
+  <header class="nav">
     <div class="nav-left">
-      <img src="128.png" alt="FROLL" class="logo"/>
-      <div class="price" id="froll-price">Loading price...</div>
+      <img src="128.png" alt="FROLL" class="logo" />
+      <h1 class="brand">Froll.net</h1>
+    </div>
+    <div class="nav-center">
+      <span id="froll-price-usd" class="price">Loading price...</span>
     </div>
     <div class="nav-right">
-      <button id="connect-wallet" class="btn primary">Connect Wallet</button>
-      <div id="connection-status" class="status">Not Connected</div>
+      <button id="swap-toggle" class="btn ghost" title="Swap FROLL/VIC">Swap FROLL/VIC</button>
+      <button id="connect-btn" class="btn primary">Connect Wallet</button>
     </div>
   </header>
 
   <main class="container">
-    <div class="tabs">
-      <button class="tab active" data-target="#swap-tab">Swap</button>
-      <button class="tab" data-target="#social-tab">Social</button>
-    </div>
 
-    <!-- SWAP -->
-    <section id="swap-tab" class="tab-pane active">
-      <div class="card">
-        <h2>Swap VIC ↔ FROLL</h2>
-        <p class="muted">Fixed rate: <strong>1 FROLL = 100 VIC</strong> • Fee per tx: <strong>0.01 VIC</strong></p>
-
-        <div class="swap-row">
-          <label class="lbl">From</label>
-          <div class="token-box">
-            <select id="from-token" class="select">
-              <option value="VIC">VIC</option>
-              <option value="FROLL">FROLL</option>
-            </select>
-            <input id="from-amount" class="input" type="number" placeholder="0.0" min="0" step="any"/>
-          </div>
-          <div class="balance" id="from-balance">—</div>
+    <!-- Swap Panel (hidden by default) -->
+    <section id="swap-panel" class="card hide" aria-hidden="true">
+      <h2>Swap FROLL ↔ VIC</h2>
+      <div class="swap-grid">
+        <div class="swap-side">
+          <label for="from-token">From</label>
+          <select id="from-token">
+            <option value="VIC">VIC</option>
+            <option value="FROLL">FROLL</option>
+          </select>
+          <input id="from-amount" type="number" placeholder="0.0" min="0" step="any" />
         </div>
 
-        <div class="swap-row">
-          <label class="lbl">To</label>
-          <div class="token-box">
-            <input id="to-token" class="select readonly" value="FROLL" readonly/>
-            <input id="to-amount" class="input readonly" type="text" placeholder="0.0" readonly/>
-          </div>
-          <div class="balance" id="to-balance">—</div>
-        </div>
+        <div class="swap-arrow" aria-hidden="true">↔</div>
 
-        <div class="row">
-          <button id="flip" class="btn ghost">↔️ Flip</button>
-          <div class="fees">
-            <div>Tx Fee: <strong>0.01 VIC</strong></div>
-            <div class="muted">Est. Gas (approx): shown by wallet</div>
-          </div>
+        <div class="swap-side">
+          <label for="to-token">To</label>
+          <select id="to-token">
+            <option value="FROLL">FROLL</option>
+            <option value="VIC">VIC</option>
+          </select>
+          <input id="to-amount" type="number" placeholder="0.0" min="0" step="any" disabled />
         </div>
-
-        <div class="row">
-          <button id="approve-btn" class="btn" style="display:none;">Approve FROLL</button>
-          <button id="swap-btn" class="btn primary">Swap Now</button>
-        </div>
-
-        <div id="swap-status" class="status-line"></div>
       </div>
+      <p class="meta" id="swap-fees">Fee: 0.01 VIC • Rate: 1 FROLL = 100 VIC</p>
+      <button id="swap-btn" class="btn accent">Swap Now</button>
     </section>
 
-    <!-- SOCIAL -->
-    <section id="social-tab" class="tab-pane">
-      <div class="grid">
-        <div class="card">
-          <h2>FROLL Social</h2>
-          <p class="muted">
-            Register once to post on-chain. (Default fee planned: <strong>0.001 FROLL</strong>).
-          </p>
-
-          <div class="row">
-            <button id="social-register" class="btn">Register</button>
-            <div id="social-status" class="status-line"></div>
-          </div>
-
-          <div class="divider"></div>
-
-          <h3>Create a Post</h3>
-          <textarea id="post-content" class="textarea" placeholder="Write something amazing… (max ~20k chars)"></textarea>
-          <div class="row">
-            <button id="post-btn" class="btn primary">Publish</button>
-            <span class="muted">Tip: Keep it concise. Content will be stored on-chain.</span>
-          </div>
-
-          <div class="divider"></div>
-
-          <h3>Latest Posts</h3>
-          <div id="feed" class="feed"></div>
+    <!-- Profile + Composer -->
+    <section class="grid">
+      <aside class="card">
+        <h2>Your Profile</h2>
+        <p id="wallet-short">Not connected</p>
+        <p class="meta">Register fee: 0.001 FROLL</p>
+        <button id="register-btn" class="btn secondary">Register</button>
+        <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+        <div class="meta">
+          <div>Contract: <code id="contract-address">0x28c642682b1E1458d922C4226a7192F5B8953A74</code></div>
+          <div>Token: <code>FROLL</code> on VIC</div>
         </div>
+      </aside>
 
-        <div class="card">
-          <h3>Actions</h3>
-          <div class="row">
-            <input id="target-post-id" class="input" type="number" placeholder="Post ID"/>
-            <button id="like-btn" class="btn">Like</button>
-            <button id="share-btn" class="btn">Share</button>
-          </div>
-          <div class="row">
-            <input id="follow-address" class="input" type="text" placeholder="0x... address to follow"/>
-            <button id="follow-btn" class="btn">Follow</button>
-          </div>
-          <div id="social-action-status" class="status-line"></div>
+      <section class="card flex-1">
+        <h2>New Post</h2>
+        <textarea id="post-content" rows="8" placeholder="Write on-chain (≤ 60KB). New lines will be preserved. You can paste any language. URLs like https://lottery.vin will be clickable."></textarea>
+        <div class="row">
+          <span id="byte-counter" class="meta">0 / 60000 bytes</span>
+          <button id="post-btn" class="btn primary">Post On-chain</button>
         </div>
-      </div>
+        <p class="meta" id="post-hint">Tip: Long posts cost more gas. Keep it concise when possible.</p>
+      </section>
+    </section>
+
+    <!-- Feed -->
+    <section class="card">
+      <h2>Latest Posts</h2>
+      <div id="feed"></div>
     </section>
   </main>
 
   <footer class="footer">
-    <div>© FROLL — Fully on-chain experiences.</div>
-    <div class="links">
-      <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
-      <a href="https://Froll.org" target="_blank" rel="noopener">Froll.org</a>
-      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
-      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-    </div>
+    <span>© Froll.net • 100% on-chain social • Built for VIC • <a href="https://froll.org" target="_blank" rel="noopener noreferrer">Froll.org</a></span>
   </footer>
 
-  <!-- libs -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.min.js"></script>
+  <!-- Scripts -->
+  <script>
+    // Expose contract constants for app.js
+    window.FROLL_SOCIAL_ADDRESS = "0x28c642682b1E1458d922C4226a7192F5B8953A74";  // deployed
+    window.FROLL_TOKEN_ADDRESS  = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // FROLL on VIC
+    window.SWAP_CONTRACT_ADDRESS = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068"; // fixed-rate swap (1 FROLL = 100 VIC)
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
