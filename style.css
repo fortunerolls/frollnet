@@ -124,7 +124,7 @@ input, textarea, button { font-family: inherit; }
 .token-col { display: grid; gap: .35rem; }
 .token-info { margin: 0; font-size: .86rem; color: #64748b; }
 .token-input input { width: 100%; border: 1px solid #e5e7eb; border-radius: .5rem; padding: .5rem .6rem; font-size: .95rem; }
-.swap-direction { border: 1px solid #e5e7eb; background: #f8fafc; color: #0f172a; padding: .6rem .75rem; border-radius: .65rem; cursor: pointer; }
+.swap-direction { border: 1px solid #e5e7eb; background: #f8fafc; color: #0f172a; padding: .6rem .75rem; border-radius: .65rem; cursor: pointer; font-size: 1.5rem; }
 .swap-meta { margin-top: .7rem; display: flex; justify-content: space-between; gap: .75rem; flex-wrap: wrap; color: #6b7280; font-size: .9rem; }
 .swap-actions { text-align: center; margin-top: .6rem; }
 
@@ -139,7 +139,7 @@ body.swap-open #swap-view { display: block !important; }
 
 @media (max-width: 860px) {
   .swap-box { grid-template-columns: 1fr; }
-  .swap-direction { display: none; }
+  .swap-direction { font-size: 1.8rem; }
   .input { width: 180px; }
 }
 @media (max-width: 640px) {
