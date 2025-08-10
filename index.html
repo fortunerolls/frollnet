@@ -2,85 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Froll.net – Decentralized Social Network</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Froll.net — Connect Wallet</title>
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Connect your MetaMask and use FROLL on the Viction (VIC) network." />
 </head>
 <body>
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-content">
-      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
-      <span id="froll-price-usd" class="froll-price">Loading price...</span>
+      <img src="froll_48.png" alt="FROLL" class="logo" />
+      <span id="froll-price-usd" class="pill">Loading price...</span>
+
       <button id="connect-wallet" class="btn">Connect Wallet</button>
-      <button id="toggle-swap" class="btn">Swap FROLL/VIC</button>
+      <span id="wallet-badge" class="badge">Not connected</span>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <div class="main-container">
-    <!-- Social Feed -->
-    <div id="social-feed">
-      <h2>Decentralized Social Feed</h2>
-      <div id="create-post">
-        <input type="text" id="post-title" placeholder="Post title..." />
-        <textarea id="post-content" placeholder="Write your post..."></textarea>
-        <input type="text" id="post-media" placeholder="Image or video URL (optional)" />
-        <button id="submit-post" class="btn">Post</button>
-      </div>
-      <div id="posts-container"></div>
-    </div>
-
-    <!-- Swap Interface -->
-    <div id="swap-interface" style="display:none;">
-      <h2>Swap FROLL/VIC</h2>
-      <div>
-        <label>From:</label>
-        <input type="number" id="swap-from-amount" placeholder="0.0" />
-        <select id="swap-from-token">
-          <option value="VIC">VIC</option>
-          <option value="FROLL">FROLL</option>
-        </select>
-      </div>
-      <div>
-        <label>To:</label>
-        <input type="number" id="swap-to-amount" placeholder="0.0" readonly />
-        <select id="swap-to-token" disabled>
-          <option value="FROLL">FROLL</option>
-          <option value="VIC">VIC</option>
-        </select>
-      </div>
-      <button id="swap-now" class="btn">Swap Now</button>
-    </div>
-  </div>
+  <!-- MAIN -->
+  <main class="main-container">
+    <section class="card">
+      <h2>Connect your wallet</h2>
+      <p>Click <strong>Connect Wallet</strong> in the top bar. We’ll automatically switch (or add) the Viction Mainnet (chainId <code>88</code>) in MetaMask.</p>
+      <ul>
+        <li>If MetaMask is not installed, please install it first.</li>
+        <li>If MetaMask asks for multiple approvals (add network → switch → connect), approve them all.</li>
+      </ul>
+      <div class="meta" id="env-info"></div>
+    </section>
+  </main>
 
   <!-- FOOTER -->
   <footer>
-    <p>Part of the FROLL ecosystem:</p>
-    <a href="https://lottery.vin" target="_blank">Lottery.vin</a> |
-    <a href="https://froll.org" target="_blank">Froll.org</a> |
-    <a href="https://x.com/FortuneRolls" target="_blank">X</a> |
-    <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
+    <p>FROLL ecosystem: 
+      <a href="https://lottery.vin" target="_blank" rel="noopener">Lottery.vin</a> •
+      <a href="https://froll.org" target="_blank" rel="noopener">Froll.org</a> •
+      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a> •
+      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+    </p>
   </footer>
 
-  <!-- SCRIPT: Fetch FROLL Price Quickly -->
+  <!-- Quick price (VIC→USDT on Binance; 1 FROLL = 100 VIC) -->
   <script>
-    async function loadFrollPrice() {
+    (async function loadFrollPrice(){
       try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await res.json();
-        const vicPrice = parseFloat(data.price);
-        const frollPrice = vicPrice * 100; // 1 FROLL = 100 VIC
-        document.getElementById("froll-price-usd").textContent = `1 FROLL = ${frollPrice.toFixed(2)} USD`;
-      } catch (err) {
+        const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
+        const j = await r.json();
+        const vic = parseFloat(j.price);
+        const usd = vic * 100;
+        document.getElementById("froll-price-usd").textContent = `1 FROLL ≈ ${usd.toFixed(2)} USD`;
+      } catch {
         document.getElementById("froll-price-usd").textContent = "Price unavailable";
       }
-    }
-    loadFrollPrice();
+    })();
   </script>
 
-  <!-- Main App Logic -->
+  <!-- App logic (we'll replace this next) -->
   <script src="app.js"></script>
 </body>
 </html>
