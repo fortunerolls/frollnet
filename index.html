@@ -1,96 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Froll.net – Decentralized Social Network</title>
-  <link rel="icon" href="froll_48.png" type="image/png" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Froll.net — Decentralized Social</title>
+  <link rel="icon" href="froll_48.png" type="image/png"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Ethers v5 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
-  <!-- NAVBAR -->
+  <noscript>This app requires JavaScript to run.</noscript>
+
+  <!-- ===== NAVBAR ===== -->
   <nav class="navbar">
     <div class="navbar-content">
-      <img src="froll_48.png" alt="FROLL Logo" class="logo" />
-      <span id="froll-price-usd" class="froll-price">Loading price...</span>
-
-      <button id="connect-wallet" class="btn">Connect Wallet</button>
-      <button id="toggle-swap" class="btn">Swap FROLL/VIC</button>
+      <div class="nav-left">
+        <img src="froll_48.png" alt="FROLL" class="logo"/>
+        <span class="brand">Froll Social</span>
+      </div>
+      <div class="nav-right">
+        <button id="btn-open-swap" class="btn tiny">Swap FROLL/VIC</button>
+        <button id="connect-wallet" class="btn">Connect</button>
+        <span id="wallet-badge" class="badge">Guest</span>
+      </div>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <div class="main-container">
-    <!-- Social Feed -->
-    <div id="social-feed">
-      <h2>Decentralized Social Feed</h2>
+  <!-- ===== HOME (SOCIAL) ===== -->
+  <main id="home-view" class="main-container">
+    <!-- Composer -->
+    <section class="card">
+      <h2>Post something</h2>
 
-      <!-- Composer -->
-      <div id="create-post">
-        <!-- Nút đăng ký: sẽ bị ẩn nếu user đã register (app.js lo phần ẩn/hiện) -->
-        <button id="register-account" class="btn secondary">Register (0.001 FROLL)</button>
-
-        <input type="text" id="post-title" placeholder="Post title..." />
-        <textarea id="post-content" placeholder="Write your post... (keeps new lines, up to ~60KB)"></textarea>
-        <input type="text" id="post-media" placeholder="Image or video URL (optional)" />
-        <button id="submit-post" class="btn">Post</button>
-
-        <div id="compose-hint" class="meta">You can read posts without a wallet. Connect only when you want to publish.</div>
+      <!-- Nếu chưa kết nối ví -->
+      <div id="compose-guard" class="guard">
+        Read posts without a wallet. Connect only when you want to publish.
       </div>
 
-      <!-- Feed list -->
-      <div id="posts-container"></div>
+      <!-- Nếu đã kết nối ví -->
+      <div id="compose-area" class="compose" style="display:none">
+        <!-- Nút Đăng ký: sẽ tự ẩn nếu đã register -->
+        <button id="register-account" class="btn outline">Register (0.001 FROLL)</button>
+
+        <textarea id="post-content" rows="5" placeholder="Write up to ~60KB. Line breaks are preserved."></textarea>
+        <div class="row">
+          <button id="btn-publish" class="btn">Publish</button>
+        </div>
+        <div id="compose-msg" class="meta"></div>
+      </div>
+    </section>
+
+    <!-- Feed -->
+    <section class="card">
+      <h2>Latest posts (on-chain)</h2>
+      <div class="feed-controls">
+        <input id="feed-address" class="input" type="text" placeholder="Filter by author (0x… optional)"/>
+        <button id="btn-refresh" class="btn outline tiny">Refresh</button>
+      </div>
+      <div id="feed-list" class="feed-list"></div>
+      <div id="feed-msg" class="meta">Reading posts from the Social contract. No wallet required.</div>
+    </section>
+  </main>
+
+  <!-- ===== SWAP PANEL (bê nguyên cấu trúc từ froll.org) ===== -->
+  <section id="swap-interface" class="interface" style="display:none">
+    <header class="swap-header">
+      <div id="wallet-address" class="wallet-address">—</div>
+      <div>
+        <button id="btn-back-to-home" class="btn ghost">Back to Home</button>
+        <button id="disconnect-wallet" class="btn">Disconnect Wallet</button>
+      </div>
+    </header>
+
+    <h2 class="center">Swap</h2>
+
+    <div class="swap-container">
+      <!-- From -->
+      <div class="token-input">
+        <img id="from-token-logo" src="vic_24.png" alt="From Token"/>
+        <div>
+          <p id="from-token-info">VIC: 0.000000000000000000</p>
+          <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
+        </div>
+        <button id="max-button" class="btn">Max</button>
+      </div>
+
+      <!-- Direction -->
+      <button id="swap-direction" class="swap-direction" aria-label="Change direction">↔️</button>
+
+      <!-- To -->
+      <div class="token-input">
+        <img id="to-token-logo" src="froll_24.png" alt="To Token"/>
+        <div>
+          <p id="to-token-info">FROLL: 0.000000000000000000</p>
+          <input type="text" id="to-amount" placeholder="0.0" disabled/>
+        </div>
+      </div>
     </div>
 
-    <!-- Swap Interface (toggle panel) -->
-    <div id="swap-interface" style="display:none;">
-      <h2>Swap FROLL/VIC</h2>
-      <div>
-        <label>From:</label>
-        <input type="number" id="swap-from-amount" placeholder="0.0" />
-        <select id="swap-from-token">
-          <option value="VIC">VIC</option>
-          <option value="FROLL">FROLL</option>
-        </select>
-      </div>
-      <div>
-        <label>To:</label>
-        <input type="number" id="swap-to-amount" placeholder="0.0" readonly />
-        <select id="swap-to-token" disabled>
-          <option value="FROLL">FROLL</option>
-          <option value="VIC">VIC</option>
-        </select>
-      </div>
-      <button id="swap-now" class="btn" disabled>Swap Now</button>
+    <div class="swap-details">
+      <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
+      <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
     </div>
-  </div>
 
-  <!-- FOOTER -->
+    <div class="center">
+      <button id="swap-now" class="btn primary">Swap Now</button>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
   <footer>
-    <p>Part of the FROLL ecosystem:</p>
-    <a href="https://lottery.vin" target="_blank">Lottery.vin</a> |
-    <a href="https://froll.org" target="_blank">Froll.org</a> |
-    <a href="https://x.com/FortuneRolls" target="_blank">X</a> |
-    <a href="https://t.me/FortuneRolls" target="_blank">Telegram</a>
+    <p>FROLL ecosystem:
+      <a href="https://lottery.vin" target="_blank" rel="noopener">Lottery.vin</a> •
+      <a href="https://froll.org" target="_blank" rel="noopener">Froll.org</a> •
+      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a> •
+      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+    </p>
   </footer>
 
-  <!-- SCRIPT: quick price -->
-  <script>
-    async function loadFrollPrice() {
-      try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT");
-        const data = await res.json();
-        const vicPrice = parseFloat(data.price || "0");
-        const frollPrice = vicPrice * 100; // internal calc; UI không ghi tỉ lệ cố định
-        document.getElementById("froll-price-usd").textContent = frollPrice ? `1 FROLL ≈ ${frollPrice.toFixed(2)} USD` : "Price unavailable";
-      } catch {
-        document.getElementById("froll-price-usd").textContent = "Price unavailable";
-      }
-    }
-    loadFrollPrice();
-  </script>
-
-  <!-- Main App Logic -->
+  <!-- App -->
   <script src="app.js"></script>
 </body>
 </html>
