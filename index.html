@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Froll.net — On-chain Social + Swap</title>
-  <meta name="description" content="Post fully on-chain with FROLL and swap FROLL ↔ VIC directly on Froll.net. 100% decentralized." />
+  <title>Froll.net — Censorship-resistant Social + Swap</title>
+  <meta name="description" content="Froll.net is a censorship-resistant, on-chain social network powered by the FROLL token on the VIC blockchain." />
   <link rel="icon" href="froll_48.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -13,20 +13,23 @@
   <header class="nav">
     <div class="nav-left">
       <img src="128.png" alt="FROLL" class="logo" />
-      <h1 class="brand">Froll.net</h1>
+      <div>
+        <h1 class="brand">Froll.net</h1>
+        <div class="slogan">Uncensorable. On-chain. For everyone.</div>
+      </div>
     </div>
     <div class="nav-center">
       <span id="froll-price-usd" class="price">Loading price...</span>
     </div>
     <div class="nav-right">
-      <button id="swap-toggle" class="btn ghost" title="Swap FROLL/VIC">Swap FROLL/VIC</button>
-      <button id="connect-btn" class="btn primary">Connect Wallet</button>
+      <a id="guide-link" class="btn ghost" href="https://docs.google.com/document/d/1IEUP8x_xSOUhbFBAuG012VA5HW_O9MuI/edit" target="_blank" rel="noopener noreferrer">Guide</a>
+      <button id="swap-toggle" class="btn ghost" title="Swap FROLL/VIC">Swap</button>
+      <button id="connect-btn" class="btn primary" data-connected="0">Connect Wallet</button>
     </div>
   </header>
 
   <main class="container">
-
-    <!-- Swap Panel (hidden by default) -->
+    <!-- Swap Panel -->
     <section id="swap-panel" class="card hide" aria-hidden="true">
       <h2>Swap FROLL ↔ VIC</h2>
       <div class="swap-grid">
@@ -38,9 +41,7 @@
           </select>
           <input id="from-amount" type="number" placeholder="0.0" min="0" step="any" />
         </div>
-
         <div class="swap-arrow" aria-hidden="true">↔</div>
-
         <div class="swap-side">
           <label for="to-token">To</label>
           <select id="to-token">
@@ -60,8 +61,8 @@
         <h2>Your Profile</h2>
         <p id="wallet-short">Not connected</p>
         <p class="meta">Register fee: 0.001 FROLL</p>
-        <button id="register-btn" class="btn secondary">Register</button>
-        <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+        <button id="register-btn" class="btn secondary" disabled>Register</button>
+        <hr class="divider" />
         <div class="meta">
           <div>Contract: <code id="contract-address">0x28c642682b1E1458d922C4226a7192F5B8953A74</code></div>
           <div>Token: <code>FROLL</code> on VIC</div>
@@ -70,10 +71,10 @@
 
       <section class="card flex-1">
         <h2>New Post</h2>
-        <textarea id="post-content" rows="8" placeholder="Write on-chain (≤ 60KB). New lines will be preserved. You can paste any language. URLs like https://lottery.vin will be clickable."></textarea>
+        <textarea id="post-content" rows="8" placeholder="Write on-chain (≤ 60KB). New lines will be preserved. URLs like https://lottery.vin will be clickable."></textarea>
         <div class="row">
           <span id="byte-counter" class="meta">0 / 60000 bytes</span>
-          <button id="post-btn" class="btn primary">Post On-chain</button>
+          <button id="post-btn" class="btn primary" disabled>Post On-chain</button>
         </div>
         <p class="meta" id="post-hint">Tip: Long posts cost more gas. Keep it concise when possible.</p>
       </section>
@@ -87,15 +88,32 @@
   </main>
 
   <footer class="footer">
-    <span>© Froll.net • 100% on-chain social • Built for VIC • <a href="https://froll.org" target="_blank" rel="noopener noreferrer">Froll.org</a></span>
+    <div class="eco">
+      <a href="https://lottery.vin" target="_blank" rel="noopener noreferrer">Lottery.vin — Blockchain Lottery</a>
+      <span class="dot">•</span>
+      <a href="https://froll.org" target="_blank" rel="noopener noreferrer">Froll.org — Dice (Xóc Đĩa)</a>
+      <span class="dot">•</span>
+      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
+      <span class="dot">•</span>
+      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener noreferrer">Telegram</a>
+    </div>
+    <div class="copy">© Froll.net • 100% on-chain social • Built for VIC</div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Config for app.js -->
   <script>
-    // Expose contract constants for app.js
-    window.FROLL_SOCIAL_ADDRESS = "0x28c642682b1E1458d922C4226a7192F5B8953A74";  // deployed
-    window.FROLL_TOKEN_ADDRESS  = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // FROLL on VIC
-    window.SWAP_CONTRACT_ADDRESS = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068"; // fixed-rate swap (1 FROLL = 100 VIC)
+    window.FROLL_SOCIAL_ADDRESS   = "0x28c642682b1E1458d922C4226a7192F5B8953A74";
+    window.FROLL_TOKEN_ADDRESS    = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
+    window.SWAP_CONTRACT_ADDRESS  = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
+    window.VIC_CHAIN_ID_DEC       = 88;               // VIC mainnet
+    window.VIC_CHAIN_ID_HEX       = "0x58";           // 88 in hex
+    window.VIC_PARAMS = {
+      chainId: "0x58",
+      chainName: "Viction Mainnet",
+      nativeCurrency: { name: "VIC", symbol: "VIC", decimals: 18 },
+      rpcUrls: ["https://rpc.viction.xyz"],
+      blockExplorerUrls: ["https://vicscan.xyz/"]
+    };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="app.js"></script>
