@@ -1,414 +1,332 @@
-/* app.js — FROLL Social + Swap — HOTFIX CONNECT v2.1
-   - Auto switch/add Viction (chainId 88 / 0x58)
-   - Friendly errors (incl. -32002 pending request)
-   - Works even if #connection-status chưa có (tự tạo)
-   - Fallback bắt sự kiện click để chắc chắn bắt được nút
-*/
+/* ================================
+   Froll.net — On-chain Social + Swap
+   Requires: ethers v5.7 (loaded in index.html)
+================================== */
 
-/** ===== CONFIG ===== **/
-const VIC = {
-  chainIdHex: '0x58', // 88
-  params: {
-    chainId: '0x58',
-    chainName: 'Viction Mainnet',
-    nativeCurrency: { name: 'VIC', symbol: 'VIC', decimals: 18 },
-    rpcUrls: ['https://rpc.viction.xyz','https://viction.blockpi.network/v1/rpc/public'],
-    blockExplorerUrls: ['https://vicscan.xyz/']
-  }
-};
+// ---------- Constants ----------
+const FROLL_SOCIAL_ADDRESS = window.FROLL_SOCIAL_ADDRESS;
+const FROLL_TOKEN_ADDRESS  = window.FROLL_TOKEN_ADDRESS;
+const SWAP_CONTRACT_ADDRESS = window.SWAP_CONTRACT_ADDRESS;
 
-const FROLL = { address: '0xB4d562A8f811CE7F134a1982992Bd153902290BC' }; // FROLL on VIC
+// Fixed-rate info (from your swap contract spec)
+const FIXED_RATE_FROLL_VIC = 100;   // 1 FROLL = 100 VIC
+const FIXED_FEE_VIC        = 0.01;  // 0.01 VIC fee per swap tx
 
-// Swap contract (fixed: 1 FROLL = 100 VIC, fee 0.01 VIC)
-const SWAP = {
-  address: '0x9197BF0813e0727df4555E8cb43a0977F4a3A068',
-  abi: [
-    {"inputs":[],"name":"swapVicToFroll","outputs":[],"stateMutability":"payable","type":"function"},
-    {"inputs":[{"internalType":"uint256","name":"frollAmount","type":"uint256"}],"name":"swapFrollToVic","outputs":[],"stateMutability":"payable","type":"function"}
-  ],
-  FEE_VIC: typeof ethers !== 'undefined' ? ethers.parseEther("0.01") : null,
-  RATE: 100n
-};
+// Binance API for VIC price in USDT → FROLL = 100 * VIC
+const BINANCE_VIC_TICKER = "https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT";
 
-// Social placeholder (cập nhật khi bạn đưa địa chỉ & ABI thật)
-const SOCIAL = {
-  address: '',
-  abi: [],
-  REGISTER_FEE_FROLL: typeof ethers !== 'undefined' ? ethers.parseUnits("0.001", 18) : null
-};
-
+// ---------- Minimal ABIs ----------
 const ERC20_ABI = [
-  { "constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"type":"function" },
-  { "constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"type":"function" },
-  { "constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"type":"function" },
-  { "constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function" },
-  { "constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"type":"function" }
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)"
 ];
 
-/** ===== STATE & DOM ===== **/
-let provider, signer, user;
+// FrollSocial ABI (only the parts we use; matches your compiled ABI)
+const FROLL_SOCIAL_ABI = [
+  "constructor(address frollToken)",
+  "function FROLL() view returns (address)",
+  "function MAX_POST_BYTES() view returns (uint256)",
+  "function registerFee() view returns (uint256)",
+  "function isRegistered(address) view returns (bool)",
+  "function nextPostId() view returns (uint256)",
+  "function register()",
+  "function createPost(string content) returns (uint256)",
+  "function getPost(uint256 id) view returns (tuple(uint256 id,address author,string content,uint64 timestamp))"
+];
 
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
+// Swap contract (fixed-rate)
+const SWAP_ABI = [
+  "function swapVicToFroll() payable",
+  "function swapFrollToVic(uint256 frollAmount)"
+];
 
-function getConnectBtn() {
-  return $('#connect-wallet') || $('#connect') || document.querySelector('[data-connect]');
-}
-function ensureStatusEl() {
-  let el = $('#connection-status');
-  const btn = getConnectBtn();
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'connection-status';
-    el.className = 'status';
-    el.style.marginLeft = '8px';
-    if (btn && btn.parentElement) btn.parentElement.appendChild(el);
-    else document.body.appendChild(el);
-  }
-  return el;
-}
-const statusEl = ensureStatusEl();
-function setStatus(t) { if (statusEl) statusEl.textContent = t; }
-const short = a => a ? `${a.slice(0,6)}…${a.slice(-4)}` : '';
+// ---------- State ----------
+let provider, signer, account;
+let frollToken, frollSocial, swapContract;
+let frollDecimals = 18;
 
-/** ===== SAFETY CHECKS ===== **/
-function envSanity() {
-  if (!location.protocol.startsWith('https')) {
-    setStatus('This page must be served over HTTPS.');
-    console.warn('Not HTTPS – wallet may refuse connection.');
-  }
-  if (typeof ethers === 'undefined') {
-    console.error('Ethers library not loaded.');
-    setStatus('Internal error: ethers not loaded.');
-    return false;
-  }
-  return true;
+// ---------- Helpers ----------
+const $ = (sel) => document.querySelector(sel);
+
+function shortAddr(addr) {
+  if (!addr) return "Not connected";
+  return addr.slice(0, 6) + "…" + addr.slice(-4);
 }
 
-/** ===== NETWORK ===== **/
-async function ensureVIC() {
-  const eth = window.ethereum;
-  if (!eth) throw new Error('No wallet found. Install MetaMask.');
-  const cid = await eth.request({ method:'eth_chainId' });
-  if (cid === VIC.chainIdHex) return;
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[m]));
+}
+
+function linkify(text) {
+  const urlRegex = /\b(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)\b/gi;
+  return text.replace(urlRegex, (url) => {
+    const href = url.startsWith("http") ? url : `https://${url}`;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+}
+
+function bytesUtf8(s) {
+  return new TextEncoder().encode(s).length;
+}
+
+function formatTime(tsSec) {
+  const d = new Date(tsSec * 1000);
+  return d.toLocaleString();
+}
+
+async function fetchVicPriceAndShow() {
   try {
-    await eth.request({ method:'wallet_switchEthereumChain', params:[{ chainId: VIC.chainIdHex }] });
-  } catch (err) {
-    if (err && err.code === 4902) {
-      await eth.request({ method:'wallet_addEthereumChain', params:[VIC.params] });
-    } else {
-      throw err;
-    }
+    const res = await fetch(BINANCE_VIC_TICKER);
+    const data = await res.json();
+    const vicUsd = parseFloat(data.price); // USDT≈USD
+    if (!isFinite(vicUsd)) throw new Error("Bad VIC price");
+    const frollUsd = vicUsd * FIXED_RATE_FROLL_VIC;
+    $("#froll-price-usd").textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
+  } catch (e) {
+    $("#froll-price-usd").textContent = "Loading price...";
   }
 }
 
-/** ===== CONNECT ===== **/
+async function ensureApproval(token, owner, spender, amountWei) {
+  const current = await token.allowance(owner, spender);
+  if (current.gte(amountWei)) return null;
+  const tx = await token.approve(spender, amountWei);
+  return tx.wait();
+}
+
+// ---------- Wallet / Contracts ----------
 async function connect() {
-  try {
-    if (!envSanity()) return;
-    if (!window.ethereum) { setStatus('No wallet found. Install MetaMask.'); return; }
-
-    const btn = getConnectBtn();
-    if (btn) btn.disabled = true;
-    setStatus('Connecting… check your wallet');
-
-    // Request accounts
-    const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
-    if (!accounts || !accounts.length) { setStatus('No account connected.'); return; }
-
-    // Ensure VIC
-    await ensureVIC();
-
-    provider = new ethers.BrowserProvider(window.ethereum, 'any');
-    signer   = await provider.getSigner();
-    user     = await signer.getAddress();
-
-    setStatus(`Connected: ${short(user)}`);
-    await Promise.all([refreshBalances(), loadFeed()]);
-    wireWalletEvents();
-  } catch (err) {
-    console.error('CONNECT ERROR:', err);
-    // Common cases
-    if (err?.code === 4001) setStatus('Request rejected in wallet.');
-    else if (err?.code === -32002) setStatus('Request already pending. Open your wallet and approve.');
-    else if (String(err?.message||'').includes('wallet_addEthereumChain')) setStatus('Please approve adding VIC network in wallet.');
-    else if (String(err?.message||'').includes('wallet_switchEthereumChain')) setStatus('Please switch to VIC network in wallet.');
-    else setStatus('Connect failed. Please approve wallet or switch to VIC.');
-  } finally {
-    const btn = getConnectBtn();
-    if (btn) btn.disabled = false;
-  }
-}
-
-/** ===== WIRE EVENTS (robust) ===== **/
-function wireConnectButton() {
-  const btn = getConnectBtn();
-  if (btn) btn.addEventListener('click', connect);
-  // Fallback global click catcher (in case the element is re-rendered later)
-  document.addEventListener('click', (e) => {
-    if (e.target && (e.target.id === 'connect-wallet' || e.target.id === 'connect' || e.target.matches('[data-connect]'))) {
-      connect();
-    }
-  });
-}
-
-function wireWalletEvents() {
-  if (!window.ethereum) return;
-  window.ethereum.removeAllListeners?.('accountsChanged');
-  window.ethereum.removeAllListeners?.('chainChanged');
-
-  window.ethereum.on('accountsChanged', async (accs) => {
-    if (!accs || !accs.length) { setStatus('Wallet disconnected.'); user = undefined; return; }
-    user = accs[0];
-    setStatus(`Connected: ${short(user)}`);
-    await refreshBalances();
-  });
-
-  window.ethereum.on('chainChanged', async (cid) => {
-    if (cid !== VIC.chainIdHex) {
-      setStatus('Wrong network. Switching…');
-      try { await ensureVIC(); location.reload(); } catch { setStatus('Please switch to VIC network.'); }
-    } else {
-      location.reload();
-    }
-  });
-}
-
-/** ===== PRICE ===== **/
-async function loadPrice() {
-  const priceEl = document.getElementById('froll-price');
-  if (!priceEl) return;
-  try {
-    priceEl.textContent = 'Loading price...';
-    const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
-    const j = await r.json();
-    const vicUsd = parseFloat(j?.price||'0');
-    priceEl.textContent = vicUsd>0 ? `1 FROLL = ${(100*vicUsd).toFixed(2)} USD` : '1 FROLL = — USD';
-  } catch {
-    priceEl.textContent = '1 FROLL = — USD';
-  }
-}
-
-/** ===== BALANCES ===== **/
-async function refreshBalances() {
-  const fromTokenSel = $('#from-token');
-  const fromBalEl = $('#from-balance');
-  const toBalEl   = $('#to-balance');
-  if (!provider || !user || !fromTokenSel || !fromBalEl || !toBalEl) return;
-
-  const vicWei = await provider.getBalance(user);
-  const vic = Number(ethers.formatEther(vicWei));
-
-  const erc20 = new ethers.Contract(FROLL.address, ERC20_ABI, provider);
-  const [sym, dec, raw] = await Promise.all([erc20.symbol(), erc20.decimals(), erc20.balanceOf(user)]);
-  const froll = Number(ethers.formatUnits(raw, dec));
-
-  const fromToken = fromTokenSel.value;
-  if (fromToken === 'VIC') {
-    fromBalEl.textContent = `${vic.toFixed(4)} VIC`;
-    toBalEl.textContent   = `${froll.toFixed(4)} ${sym}`;
-  } else {
-    fromBalEl.textContent = `${froll.toFixed(4)} ${sym}`;
-    toBalEl.textContent   = `${vic.toFixed(4)} VIC`;
-  }
-}
-
-/** ===== SWAP UI ===== **/
-function recalcQuote() {
-  const fromTokenSel = $('#from-token');
-  const fromAmountInp= $('#from-amount');
-  const toTokenInp   = $('#to-token');
-  const toAmountInp  = $('#to-amount');
-  const approveBtn   = $('#approve-btn');
-
-  if (!fromTokenSel || !fromAmountInp || !toTokenInp || !toAmountInp) return;
-
-  const fromToken = fromTokenSel.value;
-  const val = Number(fromAmountInp.value || '0');
-  if (val<=0) { toAmountInp.value=''; return; }
-
-  if (fromToken === 'VIC') {
-    toTokenInp.value = 'FROLL';
-    toAmountInp.value = (val/100).toFixed(6);
-    if (approveBtn) approveBtn.style.display = 'none';
-  } else {
-    toTokenInp.value = 'VIC';
-    toAmountInp.value = (val*100).toFixed(6);
-    if (approveBtn) approveBtn.style.display = 'inline-block';
-  }
-}
-
-async function ensureFrollAllowance(amount) {
-  const erc20 = new ethers.Contract(FROLL.address, ERC20_ABI, signer);
-  const cur = await erc20.allowance(user, SWAP.address);
-  if (cur >= amount) return true;
-  const tx = await erc20.approve(SWAP.address, amount);
-  $('#swap-status').textContent = 'Approving FROLL…';
-  await tx.wait();
-  return true;
-}
-
-/** ===== SWAP ACTION ===== **/
-async function doSwap() {
-  const swapStatus = $('#swap-status');
-  try {
-    if (!signer || !user) { await connect(); if (!user) return; }
-    await ensureVIC();
-
-    const fromTokenSel = $('#from-token');
-    const fromAmountInp= $('#from-amount');
-    if (!fromTokenSel || !fromAmountInp) return;
-
-    const fromToken = fromTokenSel.value;
-    const raw = fromAmountInp.value.trim();
-    const amt = Number(raw);
-    if (!raw || isNaN(amt) || amt <= 0) { swapStatus.textContent='Enter a valid amount.'; return; }
-
-    const contract = new ethers.Contract(SWAP.address, SWAP.abi, signer);
-
-    if (fromToken === 'VIC') {
-      const vicAmount = ethers.parseEther(raw);
-      const value = vicAmount + SWAP.FEE_VIC;
-      const tx = await contract.swapVicToFroll({ value });
-      swapStatus.textContent = 'Swapping VIC→FROLL…';
-      await tx.wait();
-      swapStatus.textContent = 'Swap done!';
-    } else {
-      const frollAmount = ethers.parseUnits(raw, 18);
-      await ensureFrollAllowance(frollAmount);
-      const tx = await contract.swapFrollToVic(frollAmount, { value: SWAP.FEE_VIC });
-      swapStatus.textContent = 'Swapping FROLL→VIC…';
-      await tx.wait();
-      swapStatus.textContent = 'Swap done!';
-    }
-
-    $('#from-amount').value = '';
-    $('#to-amount').value = '';
-    await refreshBalances();
-  } catch (err) {
-    console.error(err);
-    if (err?.code === 4001) $('#swap-status').textContent = 'Transaction rejected in wallet.';
-    else $('#swap-status').textContent = 'Swap failed. See console for details.';
-  }
-}
-
-/** ===== SOCIAL (placeholder until ABI/addr) ===== **/
-function socialConfigured() {
-  return SOCIAL.address && SOCIAL.address.startsWith('0x') && SOCIAL.address.length===42 && SOCIAL.abi?.length>0;
-}
-async function socialRegister() {
-  const socialStatus = $('#social-status');
-  try {
-    if (!signer || !user) { await connect(); if (!user) return; }
-    if (!socialConfigured()) { socialStatus.textContent='Social not configured yet.'; return; }
-    const erc20 = new ethers.Contract(FROLL.address, ERC20_ABI, signer);
-    await ensureFrollAllowance(SOCIAL.REGISTER_FEE_FROLL);
-    const social = new ethers.Contract(SOCIAL.address, SOCIAL.abi, signer);
-    const tx = await social.register();
-    socialStatus.textContent = 'Registering…';
-    await tx.wait();
-    socialStatus.textContent = 'Registered!';
-  } catch (e) {
-    console.error(e); $('#social-status').textContent = 'Register failed.';
-  }
-}
-async function socialPost() {
-  const socialStatus = $('#social-status');
-  try {
-    if (!signer || !user) { await connect(); if (!user) return; }
-    if (!socialConfigured()) { socialStatus.textContent='Social not configured yet.'; return; }
-    const content = ($('#post-content').value||'').trim();
-    if (!content) { socialStatus.textContent='Write something first.'; return; }
-    const social = new ethers.Contract(SOCIAL.address, SOCIAL.abi, signer);
-    const tx = await social.post(content);
-    socialStatus.textContent = 'Publishing…';
-    await tx.wait();
-    socialStatus.textContent = 'Published!';
-    $('#post-content').value = '';
-    await loadFeed();
-  } catch (e) {
-    console.error(e); socialStatus.textContent = 'Publish failed.';
-  }
-}
-async function socialAction(kind) {
-  const out = $('#social-action-status');
-  try {
-    if (!signer || !user) { await connect(); if (!user) return; }
-    if (!socialConfigured()) { out.textContent='Social not configured yet.'; return; }
-    const social = new ethers.Contract(SOCIAL.address, SOCIAL.abi, signer);
-    if (kind==='like') {
-      const id = Number(($('#target-post-id').value||'0')); if (!id) { out.textContent='Enter Post ID.'; return; }
-      const tx = await social.like(id); out.textContent='Liking…'; await tx.wait(); out.textContent='Liked!';
-    } else if (kind==='share') {
-      const id = Number(($('#target-post-id').value||'0')); if (!id) { out.textContent='Enter Post ID.'; return; }
-      const tx = await social.share(id); out.textContent='Sharing…'; await tx.wait(); out.textContent='Shared!';
-    } else if (kind==='follow') {
-      const addr = ($('#follow-address').value||'').trim(); if (!(addr && addr.startsWith('0x') && addr.length===42)) { out.textContent='Enter a valid address.'; return; }
-      const tx = await social.follow(addr); out.textContent='Following…'; await tx.wait(); out.textContent='Followed!';
-    }
-  } catch (e) { console.error(e); out.textContent='Action failed.'; }
-}
-async function loadFeed() {
-  const feedEl = $('#feed'); if (!feedEl) return;
-  feedEl.innerHTML = '';
-  if (!socialConfigured()) {
-    const demo = [
-      {id:1,author:'0xDEMO1',content:'Welcome to FROLL Social! Configure contract to go on-chain.',likes:12,shares:3},
-      {id:2,author:'0xDEMO2',content:'Swap FROLL ↔ VIC at a fixed rate. Fully transparent.',likes:7,shares:1}
-    ];
-    demo.forEach(p=>{
-      const el = document.createElement('div'); el.className = 'post';
-      el.innerHTML = `<div class="post-head"><span class="author">${p.author}</span><span class="pid">#${p.id}</span></div>
-      <div class="post-content">${p.content.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}</div>
-      <div class="post-meta">❤ ${p.likes} • 🔁 ${p.shares}</div>`;
-      feedEl.appendChild(el);
-    });
+  if (!window.ethereum) {
+    alert("Please install MetaMask or a compatible wallet.");
     return;
   }
-  // TODO: replace with on-chain listPosts when ABI có
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  account = await signer.getAddress();
+
+  // Instances
+  frollToken   = new ethers.Contract(FROLL_TOKEN_ADDRESS, ERC20_ABI, signer);
+  frollSocial  = new ethers.Contract(FROLL_SOCIAL_ADDRESS, FROLL_SOCIAL_ABI, signer);
+  swapContract = new ethers.Contract(SWAP_CONTRACT_ADDRESS, SWAP_ABI, signer);
+
+  try { frollDecimals = await frollToken.decimals(); } catch {}
+  $("#wallet-short").textContent = shortAddr(account);
+  $("#connect-btn").textContent = "Disconnect";
+  $("#connect-btn").dataset.connected = "1";
+
+  await refreshFeed();
+  await refreshRegisterButton();
 }
 
-/** ===== WIRE UI ===== **/
-function wireSwapUI() {
-  const fromTokenSel = $('#from-token');
-  const fromAmountInp= $('#from-amount');
-  const toTokenInp   = $('#to-token');
-  const flipBtn      = $('#flip');
-  const approveBtn   = $('#approve-btn');
-  const swapBtn      = $('#swap-btn');
+function disconnectUi() {
+  provider = signer = account = null;
+  $("#wallet-short").textContent = "Not connected";
+  $("#connect-btn").textContent = "Connect Wallet";
+  $("#connect-btn").dataset.connected = "0";
+}
 
-  if (fromTokenSel) fromTokenSel.addEventListener('change', ()=>{ toTokenInp.value = fromTokenSel.value==='VIC'?'FROLL':'VIC'; recalcQuote(); refreshBalances(); });
-  if (fromAmountInp) fromAmountInp.addEventListener('input', recalcQuote);
-  if (flipBtn) flipBtn.addEventListener('click', ()=>{
-    if (!fromTokenSel || !toTokenInp) return;
-    fromTokenSel.value = fromTokenSel.value==='VIC' ? 'FROLL' : 'VIC';
-    toTokenInp.value   = fromTokenSel.value==='VIC' ? 'FROLL' : 'VIC';
-    recalcQuote(); refreshBalances();
+// ---------- Registration ----------
+async function refreshRegisterButton() {
+  if (!signer) return;
+  const reg = await frollSocial.isRegistered(account);
+  $("#register-btn").disabled = reg;
+  $("#register-btn").textContent = reg ? "Registered" : "Register";
+}
+
+async function onRegister() {
+  if (!signer) return alert("Connect wallet first.");
+  const fee = await frollSocial.registerFee(); // in FROLL wei (18)
+  // Approve FROLL to contract if needed
+  await ensureApproval(frollToken, account, FROLL_SOCIAL_ADDRESS, fee);
+  const tx = await frollSocial.register();
+  $("#register-btn").disabled = true;
+  await tx.wait();
+  await refreshRegisterButton();
+  alert("Registration successful!");
+}
+
+// ---------- Posting ----------
+async function onPost() {
+  if (!signer) return alert("Connect wallet first.");
+  const content = $("#post-content").value || "";
+  const limit = await frollSocial.MAX_POST_BYTES();
+  const size = bytesUtf8(content);
+  if (size === 0) return alert("Please write something.");
+  if (size > limit.toNumber()) return alert(`Post exceeds ${limit.toString()} bytes.`);
+
+  // Must be registered
+  const reg = await frollSocial.isRegistered(account);
+  if (!reg) return alert("Please register first (0.001 FROLL).");
+
+  const tx = await frollSocial.createPost(content);
+  $("#post-btn").disabled = true;
+  await tx.wait();
+  $("#post-btn").disabled = false;
+  $("#post-content").value = "";
+  $("#byte-counter").textContent = `0 / ${limit}`;
+  await refreshFeed();
+}
+
+// ---------- Feed ----------
+async function refreshFeed() {
+  try {
+    const root = $("#feed");
+    root.innerHTML = "";
+    const count = await frollSocial.nextPostId(); // last id
+    const last = count.toNumber();
+    const start = Math.max(1, last - 19); // last 20 posts
+    for (let id = last; id >= start; id--) {
+      const p = await frollSocial.getPost(id);
+      const contentEsc = escapeHtml(p.content);
+      const contentHtml = linkify(contentEsc);
+      const el = document.createElement("div");
+      el.className = "post";
+      el.innerHTML = `
+        <div class="head">
+          <span>${shortAddr(p.author)}</span>
+          <span>${formatTime(p.timestamp)}</span>
+        </div>
+        <div class="content">${contentHtml}</div>
+      `;
+      root.appendChild(el);
+    }
+    if (last === 0) {
+      root.innerHTML = `<div class="meta">No posts yet. Be the first!</div>`;
+    }
+  } catch (e) {
+    console.error("refreshFeed error:", e);
+  }
+}
+
+// ---------- Byte Counter ----------
+function setupByteCounter() {
+  const ta = $("#post-content");
+  const counter = $("#byte-counter");
+  function update() {
+    const size = bytesUtf8(ta.value || "");
+    counter.textContent = `${size} / 60000 bytes`;
+  }
+  ta.addEventListener("input", update);
+  update();
+}
+
+// ---------- Swap ----------
+function updateSwapPreview() {
+  const fromToken = $("#from-token").value;
+  const toToken   = $("#to-token").value;
+  const fromAmt   = parseFloat($("#from-amount").value || "0");
+  let out = 0;
+
+  if (!isFinite(fromAmt) || fromAmt <= 0) {
+    $("#to-amount").value = "";
+    return;
+  }
+
+  if (fromToken === "VIC" && toToken === "FROLL") {
+    // VIC → FROLL (rate: 1 FROLL = 100 VIC)
+    out = fromAmt / FIXED_RATE_FROLL_VIC;
+  } else if (fromToken === "FROLL" && toToken === "VIC") {
+    out = fromAmt * FIXED_RATE_FROLL_VIC;
+  } else {
+    out = fromAmt; // same token (shouldn’t happen with our selects)
+  }
+  $("#to-amount").value = (out || 0).toString();
+}
+
+async function doSwap() {
+  if (!signer) return alert("Connect wallet first.");
+  const fromToken = $("#from-token").value;
+  const toToken   = $("#to-token").value;
+
+  const fromAmtNum = parseFloat($("#from-amount").value || "0");
+  if (!isFinite(fromAmtNum) || fromAmtNum <= 0) return alert("Enter a valid amount.");
+
+  try {
+    if (fromToken === "VIC" && toToken === "FROLL") {
+      // User pays VIC + fee (0.01 VIC) as msg.value
+      const vicToSend = fromAmtNum + FIXED_FEE_VIC;
+      const tx = await swapContract.swapVicToFroll({
+        value: ethers.utils.parseEther(vicToSend.toString())
+      });
+      $("#swap-btn").disabled = true;
+      await tx.wait();
+      $("#swap-btn").disabled = false;
+      alert("Swapped VIC → FROLL successfully.");
+    } else if (fromToken === "FROLL" && toToken === "VIC") {
+      // User approves FROLL and also sends 0.01 VIC fee in msg.value (per your spec)
+      const frollWei = ethers.utils.parseUnits(fromAmtNum.toString(), frollDecimals);
+      await ensureApproval(frollToken, account, SWAP_CONTRACT_ADDRESS, frollWei);
+      const tx = await swapContract.swapFrollToVic(frollWei, {
+        value: ethers.utils.parseEther(FIXED_FEE_VIC.toString())
+      });
+      $("#swap-btn").disabled = true;
+      await tx.wait();
+      $("#swap-btn").disabled = false;
+      alert("Swapped FROLL → VIC successfully.");
+    } else {
+      alert("Please choose different tokens to swap.");
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Swap failed. Please try again or adjust amount.");
+  }
+}
+
+// ---------- UI wiring ----------
+function setupUi() {
+  // Connect / Disconnect
+  $("#connect-btn").addEventListener("click", async () => {
+    if ($("#connect-btn").dataset.connected === "1") {
+      disconnectUi();
+    } else {
+      await connect();
+    }
   });
-  if (approveBtn) approveBtn.addEventListener('click', async ()=>{
+
+  // Register
+  $("#register-btn").addEventListener("click", onRegister);
+
+  // Posting
+  $("#post-btn").addEventListener("click", onPost);
+  setupByteCounter();
+
+  // Swap panel
+  $("#swap-toggle").addEventListener("click", () => {
+    const panel = $("#swap-panel");
+    const hidden = panel.classList.toggle("hide");
+    panel.setAttribute("aria-hidden", hidden ? "true" : "false");
+  });
+
+  // Swap input listeners
+  $("#from-token").addEventListener("change", updateSwapPreview);
+  $("#to-token").addEventListener("change", updateSwapPreview);
+  $("#from-amount").addEventListener("input", updateSwapPreview);
+  $("#swap-btn").addEventListener("click", doSwap);
+}
+
+// ---------- Init ----------
+(async function init() {
+  setupUi();
+  await fetchVicPriceAndShow();
+
+  // If wallet already connected (some wallets inject accounts)
+  if (window.ethereum) {
     try {
-      const raw = ($('#from-amount').value||'').trim(); if (!raw) { $('#swap-status').textContent='Enter amount first.'; return; }
-      const amount = ethers.parseUnits(raw, 18);
-      await ensureFrollAllowance(amount);
-      $('#swap-status').textContent='Approve done.';
-    } catch(e){ console.error(e); $('#swap-status').textContent='Approve failed.'; }
-  });
-  if (swapBtn) swapBtn.addEventListener('click', doSwap);
-}
-
-function wireSocialUI() {
-  $('#social-register')?.addEventListener('click', socialRegister);
-  $('#post-btn')?.addEventListener('click', socialPost);
-  $('#like-btn')?.addEventListener('click', ()=>socialAction('like'));
-  $('#share-btn')?.addEventListener('click', ()=>socialAction('share'));
-  $('#follow-btn')?.addEventListener('click', ()=>socialAction('follow'));
-}
-
-function boot() {
-  wireConnectButton();
-  wireSwapUI();
-  wireSocialUI();
-  loadPrice();
-  loadFeed();
-}
-window.addEventListener('load', boot);
+      const p = new ethers.providers.Web3Provider(window.ethereum);
+      const accs = await p.listAccounts();
+      if (accs && accs.length) {
+        await connect();
+      }
+      // Auto-refresh price periodically
+      setInterval(fetchVicPriceAndShow, 60_000);
+      // Wallet events
+      window.ethereum.on?.("accountsChanged", () => window.location.reload());
+      window.ethereum.on?.("chainChanged", () => window.location.reload());
+    } catch {}
+  }
+})();
