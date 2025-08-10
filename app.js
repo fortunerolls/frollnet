@@ -1,5 +1,3 @@
-// app.js — Froll.net (VinSocial-style Social + Swap overlay)
-
 /* NETWORK & CONTRACTS */
 const VIC_CHAIN = {
   chainId: "0x58",
@@ -176,7 +174,6 @@ function renderFeed(posts){
       m.innerHTML = media.isImg ? `<img src="${media.url}" alt="media"/>` : (media.isVid ? `<video src="${media.url}" controls></video>` : "");
       if (m.innerHTML) card.appendChild(m);
     }
-    // Actions (giống VinSocial: Profile/Translate luôn hiển thị, thêm Like/Comment/Share khi đã đăng ký)
     const act=document.createElement("div"); act.className="post-actions";
     const btnProfile=document.createElement("button"); btnProfile.className="action-btn"; btnProfile.textContent="👤 Profile";
     btnProfile.addEventListener("click",()=>{ elFeedAddr.value=p.author; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
@@ -207,7 +204,7 @@ async function refreshFeed(){
 }
 
 /* WRITE */
-elRegister.addEventListener("click", async ()=>{
+elRegister.addEventListener("click", async ()=>{ 
   try{
     if(!account) await connectWallet();
     const fee=await social.registerFee();
@@ -217,7 +214,7 @@ elRegister.addEventListener("click", async ()=>{
     const tx=await social.register(); elComposeMsg.textContent=`Registering… tx: ${tx.hash}`;
     await tx.wait(); elComposeMsg.textContent=`Registered successfully ✔`;
     isRegistered=true; elRegister.style.display="none";
-    await Promise.all([refreshBalances(), refreshFeed()]);   // ⬅️ vẽ lại feed để xuất hiện nút
+    await Promise.all([refreshBalances(), refreshFeed()]);
   }catch(e){ console.error(e); elComposeMsg.textContent=`Register failed.`; alert("Register failed or rejected."); }
 });
 elPublish.addEventListener("click", async ()=>{
