@@ -50,14 +50,29 @@
   <script>
     async function fetchFrollPrice() {
       try {
-        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=FROLLUSDT');  <!-- Đảm bảo URL đúng -->
+        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');  <!-- API lấy giá VIC -->
+        
+        if (!res.ok) {
+          throw new Error("API request failed");
+        }
+
         const data = await res.json();
-        const frollUsd = (parseFloat(data.price)).toFixed(2);  <!-- Tính giá trực tiếp -->
+
+        // Kiểm tra nếu dữ liệu trả về hợp lệ
+        if (!data.price || isNaN(data.price)) {
+          throw new Error("Invalid price data received");
+        }
+
+        const vicUsd = parseFloat(data.price);  // Giá VIC
+        const frollUsd = (vicUsd * 100).toFixed(2);  // Giá FROLL = VIC * 100
+
         document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
-      } catch {
+      } catch (error) {
+        console.error(error);  // Log lỗi ra console để kiểm tra
         document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
     }
+
     fetchFrollPrice();
     setInterval(fetchFrollPrice, 60000);  <!-- Cập nhật giá mỗi phút -->
   </script>
