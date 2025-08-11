@@ -58,18 +58,29 @@ const elFromAmount=$("from-amount"), elToAmount=$("to-amount"), elMaxBtn=$("max-
 const fmt=(n,d=6)=>Number(n).toLocaleString(undefined,{ maximumFractionDigits:d });
 const shorten=(a="")=>a?`${a.slice(0,6)}…${a.slice(-4)}`:"";
 const getRO=()=> (roProvider ||= new ethers.providers.JsonRpcProvider(VIC_CHAIN.rpcUrls[0]));
+
+// Ensure we are connected to Viction network
 async function ensureViction(eth){
   const cid = await eth.request({method:"eth_chainId"});
   if (cid?.toLowerCase()===VIC_CHAIN.chainId) return;
-  try{ await eth.request({method:"wallet_switchEthereumChain", params:[{chainId:VIC_CHAIN.chainId}]}); }
-  catch(e){ if(e?.code===4902){ await eth.request({method:"wallet_addEthereumChain", params:[VIC_CHAIN]}); } else throw e; }
+  try{ 
+    await eth.request({method:"wallet_switchEthereumChain", params:[{chainId:VIC_CHAIN.chainId}]}); 
+  } catch(e){ 
+    if(e?.code===4902){ 
+      await eth.request({method:"wallet_addEthereumChain", params:[VIC_CHAIN]}); 
+    } else throw e; 
+  }
 }
+
+// UI for guest user (not connected wallet)
 function setGuestUI(){
   elStatus.textContent="Not connected";
   elConnectBtn.textContent="Connect Wallet";
   elBadgeVic.style.display="none"; elBadgeFroll.style.display="none";
   elComposer.style.display="none";
 }
+
+// UI when wallet is connected
 function setConnectedUI(){
   elStatus.textContent=shorten(account);
   elConnectBtn.textContent="Disconnect";
@@ -90,20 +101,21 @@ async function connectWallet(){
     swap =new ethers.Contract(SWAP_ADDR,  SWAP_ABI,  signer);
     social=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer);
     setConnectedUI();
-    await Promise.all([refreshBalances()]);  // Ensure balances are updated
-    await checkRegistered();         // Ensure registration status is updated
+    await Promise.all([refreshBalances()]);
+    await checkRegistered();         // Ensure registration status
     await refreshFeed();             // Re-render feed to display actions like 👍💬🔁
     if (document.body.classList.contains("swap-open")) await refreshSwapBalances();
   }catch(e){ console.error(e); alert("Connect failed or rejected."); setGuestUI(); }
   finally{ elConnectBtn.disabled=false; }
 }
+
 function softDisconnect(){
   provider=signer=froll=swap=social=undefined; account=undefined; isRegistered=false;
   setGuestUI(); refreshFeed();                 // Re-render feed to hide action buttons
   if (document.body.classList.contains("swap-open")) closeSwap();
 }
 
-/* Balances & Registration */
+// Refresh balances for VIC and FROLL
 async function refreshBalances(){
   try{
     if (!provider || !account) return;
@@ -114,6 +126,8 @@ async function refreshBalances(){
     elBadgeVic.style.display="inline-block"; elBadgeFroll.style.display="inline-block";
   }catch{}
 }
+
+// Check if user is registered
 async function checkRegistered(){
   if (!social || !account){ isRegistered=false; elRegister.style.display="inline-block"; return false; }
   isRegistered = await social.isRegistered(account).catch(()=>false);
@@ -129,17 +143,15 @@ async function latestIds(limit=20){
   const start=next, end=Math.max(1,start-limit+1), ids=[]; for(let i=start;i>=end;i--) ids.push(i);
   return ids;
 }
+
 async function fetchLatestPosts(limit=20){
   const ro=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,getRO());
   const ids=await latestIds(limit); if(!ids.length) return [];
   const posts=await Promise.all(ids.map(async id=>{ try{ return await ro.getPost(id);}catch{return null;} }));
   return posts.filter(Boolean);
 }
-function detectMediaUrl(text=""){
-  const m=text.match(/(https?:\/\/[^\s)]+)$/im); if(!m) return null;
-  const url=m[1]; const isImg=/\.(png|jpe?g|gif|webp)$/i.test(url); const isVid=/\.(mp4|webm|ogg)$/i.test(url);
-  return {url,isImg,isVid};
-}
+
+// Render feed on screen
 function renderFeed(posts){
   elFeedList.innerHTML = "";
   if(!posts || !posts.length){ elFeedList.innerHTML = `<div class="meta meta-center">No posts yet.</div>`; return; }
@@ -174,6 +186,8 @@ function renderFeed(posts){
     elFeedList.appendChild(card);
   }
 }
+
+// Refresh the feed list
 async function refreshFeed(){
   try{
     elFeedMsg.textContent="Loading on-chain posts…";
