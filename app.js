@@ -91,20 +91,20 @@ async function tryAutoConnect() {
 
 // 👉 Hiển thị số dư ví và cập nhật menu
 async function updateUI() {
-  const vinBal = await vinTokenContract.balanceOf(userAddress);
+  const frollBal = await frollTokenContract.balanceOf(userAddress); // Đổi từ vinTokenContract sang frollTokenContract
   const vicBal = await provider.getBalance(userAddress);
-  const vin = parseFloat(ethers.utils.formatEther(vinBal)).toFixed(2);
+  const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);  // Đổi từ vin thành froll
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
   document.getElementById("walletAddress").innerHTML = `
     <span style="font-family: monospace;">${userAddress}</span>
     <button onclick="copyToClipboard('${userAddress}')" title="Copy address">📋</button>
-    <span style="margin-left: 10px;">| ${vin} VIN | ${vic} VIC</span>
+    <span style="margin-left: 10px;">| ${froll} FROLL | ${vic} VIC</span>
   `;
 
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
-  isRegistered = await vinSocialContract.isRegistered(userAddress);
+  isRegistered = await frollSocialContract.isRegistered(userAddress);  // Đổi từ vinSocialContract sang frollSocialContract
   updateMenu();
   showHome(true);
 }
