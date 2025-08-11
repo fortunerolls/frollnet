@@ -50,9 +50,10 @@
   <script>
     async function fetchFrollPrice() {
       try {
-        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=FROLLUSDT');  <!-- Thay đổi từ VICUSDT thành FROLLUSDT -->
+        // Lấy giá FROLL từ Binance
+        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=FROLLUSDT');  <!-- Đảm bảo URL đúng -->
         const data = await res.json();
-        const frollUsd = (parseFloat(data.price) * 100).toFixed(2);  <!-- Điều chỉnh tỷ lệ -->
+        const frollUsd = (parseFloat(data.price)).toFixed(2);  <!-- Tính giá trực tiếp -->
         document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
       } catch {
         document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
