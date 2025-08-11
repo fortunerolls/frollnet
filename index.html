@@ -6,7 +6,6 @@
   <title>Froll.net — Decentralized Social</title>
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
-  <!-- Ethers v5 (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -41,13 +40,18 @@
         <span id="wallet-status" class="status">Not connected</span>
         <button id="connect-wallet" class="btn">Connect Wallet</button>
 
-        <!-- Guide -->
+        <!-- Guide (để trống link, bạn thay sau) -->
         <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
       </div>
     </div>
   </header>
 
-  <!-- ===== QUICK NAV ===== -->
+  <!-- ===== TRADE BAR ===== -->
+  <div class="tradebar">
+    <button id="btn-open-swap" class="trade-btn">Trade FROLL/VIC</button>
+  </div>
+
+  <!-- ===== QUICK NAV (giống vibe VinSocial) ===== -->
   <div class="quicknav">
     <div class="quicknav-inner">
       <button id="qn-home" class="qn-btn">🏠 Home</button>
@@ -67,7 +71,6 @@
     <!-- Composer (ẩn khi Guest) -->
     <section class="composer card" id="composer" style="display:none;">
       <div class="composer-head">
-        <!-- Ẩn sau khi đã register -->
         <button id="register-account" class="btn ghost">Register (0.001 FROLL)</button>
       </div>
 
@@ -87,7 +90,7 @@
     </div>
   </main>
 
-  <!-- ===== SWAP VIEW ===== -->
+  <!-- ===== SWAP VIEW (ẩn mọi thứ khác khi mở) ===== -->
   <section id="swap-view" class="swap-wrap" style="display:none;">
     <div class="swap-head">
       <button id="btn-back-home" class="btn ghost small">← Back to Home</button>
@@ -140,21 +143,6 @@
       <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
     </div>
   </footer>
-
-  <!-- ===== Price chip (hiển thị cả mobile) ===== -->
-  <script>
-    (async function loadFrollPrice() {
-      const el = document.getElementById("froll-price-usd");
-      try {
-        const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT", { cache: "no-store" });
-        const j = await r.json();
-        const vic = parseFloat(j?.price || "0");
-        if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
-        const frollUsd = vic * 100; // nếu mô hình đổi, chỉ sửa hệ số này
-        el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
-      } catch { el.textContent = "1 FROLL ≈ — USD"; }
-    })();
-  </script>
 
   <script src="app.js"></script>
 </body>
