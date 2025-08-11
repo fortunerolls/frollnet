@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VinSocial.vin</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+</head>
+<body>
+
+  <!-- 🔼 Tip + Made with ❤️ chuyển lên đầu -->
+  <div class="top-message">
+    <p class="tip">
+      Tip: Use VIC chain in MetaMask. On mobile, open in the wallet's browser (e.g. Viction, MetaMask).
+    </p>
+    <p class="made">Made with ❤️ on the VIC blockchain</p>
+  </div>
+
+  <header>
+    <div class="logo-area">
+      <img src="logo.png" alt="VinSocial" class="logo"/>
+      <div>
+        <h1>VinSocial.vin</h1>
+        <p>Decentralized. Uncensored. Free Speech.</p>
+      </div>
+    </div>
+    <div class="wallet-area">
+      <span id="walletAddress">Not connected</span>
+      <button id="connectBtn">Connect Wallet</button>
+      <button id="disconnectBtn" style="display:none;">Disconnect</button>
+    </div>
+  </header>
+
+  <section class="info-bar">
+    <div id="vinPrice">1 VIN ≈ $-- USD</div>
+    <a href="https://vinswap.vin" class="trade-link" target="_blank">Trade VIN/VIC</a>
+    <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank">📘 Guide</a>
+  </section>
+
+  <nav id="mainNav" style="display: none;"></nav>
+
+  <main id="mainContent"></main>
+
+  <footer></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    async function fetchVinPrice() {
+      try {
+        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
+        const data = await res.json();
+        const vinUsd = (parseFloat(data.price) * 100).toFixed(2);
+        document.getElementById("vinPrice").innerText = `1 VIN ≈ $${vinUsd} USD`;
+      } catch {
+        document.getElementById("vinPrice").innerText = "1 VIN ≈ $-- USD";
+      }
+    }
+    fetchVinPrice();
+    setInterval(fetchVinPrice, 60000);
+  </script>
+</body>
+</html>
