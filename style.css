@@ -23,11 +23,6 @@ input, textarea, button { font-family: inherit; }
 .btn.small { padding: .35rem .6rem; font-size: .85rem; }
 .btn.tiny { padding: .28rem .5rem; font-size: .82rem; }
 
-.mini-badge {
-  display: inline-block; padding: .32rem .55rem; border-radius: .5rem;
-  border: 1px solid #e5e7eb; background: #fff; color: #334155; font-size: .85rem;
-}
-
 /* TIP BAR */
 .tipbar {
   background: #e0f2fe; border-bottom: 1px solid #bae6fd; color: #075985;
