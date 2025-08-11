@@ -31,7 +31,8 @@ const SOCIAL_ABI = [
   "function nextPostId() view returns (uint256)",
   "function getUserPosts(address) view returns (uint256[] memory)",
   "function getPost(uint256) view returns (tuple(uint256 id, address author, string content, uint64 timestamp))",
-  "function register()", "function createPost(string calldata content) returns (uint256 id)",
+  "function register()", 
+  "function createPost(string calldata content) returns (uint256 id)",
   "function tipPost(uint256 postId, uint256 amount)"
 ];
 
@@ -103,38 +104,6 @@ function softDisconnect(){
   setGuestUI(); refreshFeed();                 // ⬅️ render lại để ẩn nút hành động
   if (document.body.classList.contains("swap-open")) closeSwap();
 }
-if (window.ethereum){
-  window.ethereum.on?.("accountsChanged", async (accs)=>{
-    if(accs && accs.length){
-      account=accs[0]; if(provider) signer=provider.getSigner();
-      if(signer){ froll=new ethers.Contract(FROLL_ADDR,ERC20_ABI,signer); swap=new ethers.Contract(SWAP_ADDR,SWAP_ABI,signer); social=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,signer); }
-      setConnectedUI();
-      await refreshBalances();
-      await checkRegistered();        // ⬅️ cập nhật cờ và
-      await refreshFeed();            // ⬅️ vẽ lại feed
-      refreshSwapBalances().catch(()=>{});
-    } else { softDisconnect(); }
-  });
-  window.ethereum.on?.("chainChanged",(cid)=>{ if(cid?.toLowerCase()!==VIC_CHAIN.chainId) elStatus.textContent="Wrong network"; else if(account) elStatus.textContent=shorten(account); });
-}
-
-/* BALANCES & REGISTER */
-async function refreshBalances(){
-  try{
-    if (!provider || !account) return;
-    const vicWei=await provider.getBalance(account);
-    const frWei =await new ethers.Contract(FROLL_ADDR,ERC20_ABI,provider).balanceOf(account);
-    elBadgeVic.textContent=`${fmt(parseFloat(ethers.utils.formatEther(vicWei)),6)} VIC`;
-    elBadgeFroll.textContent=`${fmt(parseFloat(ethers.utils.formatUnits(frWei,FROLL_DECIMALS)),6)} FROLL`;
-    elBadgeVic.style.display="inline-block"; elBadgeFroll.style.display="inline-block";
-  }catch{}
-}
-async function checkRegistered(){
-  if (!social || !account){ isRegistered=false; elRegister.style.display="inline-block"; return false; }
-  isRegistered = await social.isRegistered(account).catch(()=>false);
-  elRegister.style.display = isRegistered ? "none" : "inline-block";
-  return isRegistered;
-}
 
 /* FEED (READ-ONLY) */
 async function latestIds(limit=20){
@@ -149,61 +118,6 @@ async function fetchLatestPosts(limit=20){
   const ids=await latestIds(limit); if(!ids.length) return [];
   const posts=await Promise.all(ids.map(async id=>{ try{ return await ro.getPost(id);}catch{return null;} }));
   return posts.filter(Boolean);
-}
-async function fetchPostsByAuthor(addr){
-  const ro=new ethers.Contract(SOCIAL_ADDR,SOCIAL_ABI,getRO());
-  const ids=await ro.getUserPosts(addr).catch(()=>[]);
-  const list=ids.map(n=>Number(n)).sort((a,b)=>b-a).slice(0,30);
-  const posts=await Promise.all(list.map(async id=>{ try{ return await ro.getPost(id);}catch{return null;} }));
-  return posts.filter(Boolean);
-}
-function detectMediaUrl(text=""){
-  const m=text.match(/(https?:\/\/[^\s)]+)$/im); if(!m) return null;
-  const url=m[1]; const isImg=/\.(png|jpe?g|gif|webp)$/i.test(url); const isVid=/\.(mp4|webm|ogg)$/i.test(url);
-  return {url,isImg,isVid};
-}
-function renderFeed(posts){
-  elFeedList.innerHTML = "";
-  if(!posts || !posts.length){ elFeedList.innerHTML = `<div class="meta meta-center">No posts yet.</div>`; return; }
-  for(const p of posts){
-    const t=new Date(Number(p.timestamp)*1000).toLocaleString();
-    const card=document.createElement("article"); card.className="post"; card.id=`post-${p.id}`;
-    const head=document.createElement("div"); head.className="post-header"; head.textContent=`${shorten(p.author)} • ${t} • #${p.id}`;
-    const content=document.createElement("div"); content.className="post-content"; const text=p.content||""; content.textContent=text;
-    const media=detectMediaUrl(text);
-    if (media){
-      const m=document.createElement("div"); m.className="post-media";
-      m.innerHTML = media.isImg ? `<img src="${media.url}" alt="media"/>` : (media.isVid ? `<video src="${media.url}" controls></video>` : "");
-      if (m.innerHTML) card.appendChild(m);
-    }
-    // Actions (giống VinSocial: Profile/Translate luôn hiển thị, thêm Like/Comment/Share khi đã đăng ký)
-    const act=document.createElement("div"); act.className="post-actions";
-    const btnProfile=document.createElement("button"); btnProfile.className="action-btn"; btnProfile.textContent="👤 Profile";
-    btnProfile.addEventListener("click",()=>{ elFeedAddr.value=p.author; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
-    const btnTrans=document.createElement("button"); btnTrans.className="action-btn"; btnTrans.textContent="🌐 Translate";
-    btnTrans.addEventListener("click",()=>{ const url=`https://translate.google.com/?sl=auto&tl=vi&text=${encodeURIComponent(text)}&op=translate`; window.open(url,"_blank"); });
-    act.appendChild(btnProfile); act.appendChild(btnTrans);
-    if (account && isRegistered){
-      const btnLike=document.createElement("button"); btnLike.className="action-btn"; btnLike.textContent="👍 Like";
-      btnLike.addEventListener("click",()=>tipFlow(p.id));
-      const btnCmt=document.createElement("button"); btnCmt.className="action-btn"; btnCmt.textContent="💬 Comment";
-      btnCmt.addEventListener("click",()=>commentFlow(p));
-      const btnShare=document.createElement("button"); btnShare.className="action-btn"; btnShare.textContent="🔁 Share";
-      btnShare.addEventListener("click",()=>shareFlow(p));
-      act.appendChild(btnLike); act.appendChild(btnCmt); act.appendChild(btnShare);
-    }
-    card.appendChild(head); card.appendChild(content); card.appendChild(act);
-    elFeedList.appendChild(card);
-  }
-}
-async function refreshFeed(){
-  try{
-    elFeedMsg.textContent="Loading on-chain posts…";
-    const q=(elFeedAddr.value||"").trim();
-    const posts = (q && /^0x[a-fA-F0-9]{40}$/.test(q)) ? await fetchPostsByAuthor(q) : await fetchLatestPosts(20);
-    renderFeed(posts);
-    elFeedMsg.textContent="Loaded from Social contract. No wallet required.";
-  }catch(e){ console.error(e); elFeedMsg.textContent="Failed to load posts."; }
 }
 
 /* WRITE */
@@ -220,6 +134,7 @@ elRegister.addEventListener("click", async ()=>{
     await Promise.all([refreshBalances(), refreshFeed()]);   // ⬅️ vẽ lại feed để xuất hiện nút
   }catch(e){ console.error(e); elComposeMsg.textContent=`Register failed.`; alert("Register failed or rejected."); }
 });
+
 elPublish.addEventListener("click", async ()=>{
   try{
     if(!account) await connectWallet();
@@ -248,6 +163,7 @@ async function tipFlow(postId){
     await tx.wait(); alert("Tipped ✔");
   }catch(e){ console.error(e); alert("Tip failed."); }
 }
+
 async function commentFlow(p){
   try{
     if(!account) await connectWallet(); if(!isRegistered) return alert("Please register first.");
@@ -258,6 +174,7 @@ async function commentFlow(p){
     const tx=await social.createPost(content); await tx.wait(); alert("Comment posted ✔"); refreshFeed();
   }catch(e){ console.error(e); alert("Comment failed."); }
 }
+
 function shareFlow(p){
   const url = `${location.origin}${location.pathname}#post-${p.id}`;
   const text = `Post #${p.id} by ${p.author}\n\n${p.content}`;
@@ -270,74 +187,9 @@ function shareFlow(p){
   }
 }
 
-/* QUICK NAV */
-$("qn-home").addEventListener("click", ()=>{ elFeedAddr.value=""; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); });
-$("qn-profile").addEventListener("click", async ()=>{ if(!account) await connectWallet(); if(account){ elFeedAddr.value=account; refreshFeed(); window.scrollTo({top:0,behavior:"smooth"}); } });
-$("qn-newpost").addEventListener("click", async ()=>{ if(!account) await connectWallet(); if(account){ document.getElementById("composer").scrollIntoView({behavior:"smooth"}); elPostContent.focus(); } });
-$("btn-search").addEventListener("click", refreshFeed);
-
 /* SWAP (overlay) */
 function openSwap(){ document.body.classList.add("swap-open"); elSwapView.style.display="block"; if(!account) connectWallet().then(()=>refreshSwapBalances()); else refreshSwapBalances(); }
 function closeSwap(){ document.body.classList.remove("swap-open"); elSwapView.style.display="none"; }
 elOpenSwap.addEventListener("click", openSwap);
 elBackHome.addEventListener("click", closeSwap);
 elBtnDisco.addEventListener("click", ()=>{ softDisconnect(); closeSwap(); });
-
-function setSwapDirection(dir){
-  swapDirection=dir;
-  if(dir==="VIC2FROLL"){ elFromLogo.src="vic_24.png"; elToLogo.src="froll_24.png"; }
-  else { elFromLogo.src="froll_24.png"; elToLogo.src="vic_24.png"; }
-  elFromAmount.value=""; elToAmount.value="";
-  refreshSwapBalances();
-}
-elSwapDir.addEventListener("click", ()=> setSwapDirection(swapDirection==="VIC2FROLL"?"FROLL2VIC":"VIC2FROLL") );
-function updatePreview(){
-  const v=parseFloat(elFromAmount.value||"0"); if(!(v>0)) return elToAmount.value="";
-  elToAmount.value = swapDirection==="VIC2FROLL" ? fmt(v/RATIO_VIC_PER_FROLL,6) : fmt(v*RATIO_VIC_PER_FROLL,6);
-}
-elFromAmount.addEventListener("input", updatePreview);
-elMaxBtn.addEventListener("click", async ()=>{
-  if(!account||!provider) return;
-  if(swapDirection==="VIC2FROLL"){
-    const vicWei=await provider.getBalance(account); let vic=parseFloat(ethers.utils.formatEther(vicWei)); vic=Math.max(0,vic-0.02);
-    elFromAmount.value = vic>0 ? vic.toFixed(6) : "";
-  } else {
-    const balRaw=await new ethers.Contract(FROLL_ADDR,ERC20_ABI,provider).balanceOf(account);
-    const fr=parseFloat(ethers.utils.formatUnits(balRaw,FROLL_DECIMALS));
-    elFromAmount.value = fr>0 ? fr.toFixed(6) : "";
-  }
-  updatePreview(); refreshSwapBalances();
-});
-async function refreshSwapBalances(){
-  try{
-    if(!provider||!account){ elFromInfo.textContent=swapDirection==="VIC2FROLL"?"VIC: —":"FROLL: —"; elToInfo.textContent=swapDirection==="VIC2FROLL"?"FROLL: —":"VIC: —"; return; }
-    const vicWei=await provider.getBalance(account); const frWei=await new ethers.Contract(FROLL_ADDR,ERC20_ABI,provider).balanceOf(account);
-    const vic=parseFloat(ethers.utils.formatEther(vicWei)); const fr=parseFloat(ethers.utils.formatUnits(frWei,FROLL_DECIMALS));
-    if(swapDirection==="VIC2FROLL"){ elFromInfo.textContent=`VIC: ${fmt(vic,6)}`; elToInfo.textContent=`FROLL: ${fmt(fr,6)}`; }
-    else { elFromInfo.textContent=`FROLL: ${fmt(fr,6)}`; elToInfo.textContent=`VIC: ${fmt(vic,6)}`; }
-  }catch{}
-}
-elSwapNow.addEventListener("click", async ()=>{
-  try{
-    if(!account) await connectWallet();
-    const v=parseFloat(elFromAmount.value||"0"); if(!(v>0)) return alert("Enter amount first.");
-    if(!swap) swap=new ethers.Contract(SWAP_ADDR,SWAP_ABI,signer);
-    if(swapDirection==="VIC2FROLL"){
-      const value=ethers.utils.parseEther(String(v)); elGasFee.textContent="Submitting…"; const tx=await swap.swapVicToFroll({value}); await tx.wait();
-    } else {
-      const amt=ethers.utils.parseUnits(String(v),FROLL_DECIMALS);
-      const erc=new ethers.Contract(FROLL_ADDR,ERC20_ABI,signer);
-      const allow=await erc.allowance(account,SWAP_ADDR); if(allow.lt(amt)){ elGasFee.textContent="Approving…"; const tx1=await erc.approve(SWAP_ADDR,amt); await tx1.wait(); }
-      elGasFee.textContent="Submitting…"; const tx=await swap.swapFrollToVic(amt); await tx.wait();
-    }
-    elGasFee.textContent="Done ✔"; elFromAmount.value=""; elToAmount.value=""; refreshSwapBalances(); refreshBalances();
-  }catch(e){ console.error(e); elGasFee.textContent="Error"; alert("Swap failed or rejected."); }
-});
-
-/* NAV */
-elConnectBtn.addEventListener("click", connectWallet);
-
-/* INIT */
-setGuestUI();
-setSwapDirection("VIC2FROLL");
-refreshFeed();
