@@ -114,6 +114,16 @@ input, textarea, button { font-family: inherit; }
 }
 .action-btn:hover { background: #f8fafc; }
 
+.post-actions button {
+  display: flex; align-items: center; gap: .3rem;
+}
+
+.post-actions .action-btn {
+  width: 30%;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
 /* ===== SWAP VIEW ===== */
 .swap-wrap { max-width: 680px; margin: 1rem auto; padding: 0 1rem; }
 .swap-head { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: .55rem .7rem; }
