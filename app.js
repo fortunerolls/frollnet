@@ -1,132 +1,88 @@
 // app.js — Froll.net (VinSocial-style Social + Swap overlay)
 
 /* NETWORK & CONTRACTS */
+// Định nghĩa các cấu hình mạng và hợp đồng cần thiết cho Froll
 const VIC_CHAIN = {
-  chainId: "0x58",
-  chainName: "Viction Mainnet",
-  nativeCurrency: { name: "VIC", symbol: "VIC", decimals: 18 },
-  rpcUrls: ["https://rpc.viction.xyz", "https://viction.blockpi.network/v1/rpc/public"],
-  blockExplorerUrls: ["https://vicscan.xyz"]
+  chainId: "0x58", // Chain ID của mạng Viction
+  chainName: "Viction Mainnet", // Tên mạng Viction
+  nativeCurrency: { name: "VIC", symbol: "VIC", decimals: 18 }, // Thông tin về VIC
+  rpcUrls: ["https://rpc.viction.xyz", "https://viction.blockpi.network/v1/rpc/public"], // URL RPC cho Viction
+  blockExplorerUrls: ["https://vicscan.xyz"] // Đường dẫn đến block explorer của Viction
 };
-const FROLL_ADDR  = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
-const SWAP_ADDR   = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068";
-const SOCIAL_ADDR = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";
-const FROLL_DECIMALS = 18;
-const RATIO_VIC_PER_FROLL = 100;
+
+const FROLL_ADDR  = "0xB4d562A8f811CE7F134a1982992Bd153902290BC"; // Địa chỉ hợp đồng FROLL
+const SWAP_ADDR   = "0x9197BF0813e0727df4555E8cb43a0977F4a3A068"; // Địa chỉ hợp đồng Swap
+const SOCIAL_ADDR = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82"; // Địa chỉ hợp đồng Mạng xã hội Froll
+
+const FROLL_DECIMALS = 18; // Số thập phân của FROLL
+const RATIO_VIC_PER_FROLL = 100; // Tỷ lệ VIC/FROLL cho swap
 
 /* ABIs */
+// ABI của các hợp đồng cần thiết cho giao diện frontend
 const ERC20_ABI = [
-  "function balanceOf(address) view returns (uint256)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)"
+  "function balanceOf(address) view returns (uint256)", // Lấy số dư của token
+  "function allowance(address owner, address spender) view returns (uint256)", // Kiểm tra số dư cho phép
+  "function approve(address spender, uint256 amount) returns (bool)" // Phê duyệt chi tiêu token
 ];
 const SWAP_ABI = [
-  "function swapVicToFroll() payable",
-  "function swapFrollToVic(uint256 frollAmount) returns (bool)"
+  "function swapVicToFroll() payable", // Hoán đổi VIC -> FROLL
+  "function swapFrollToVic(uint256 frollAmount) returns (bool)" // Hoán đổi FROLL -> VIC
 ];
 const SOCIAL_ABI = [
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "frollToken",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "frollToken", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
+  // Các function liên quan đến việc tạo bài viết, like, follow
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "content",
-        "type": "string"
-      }
-    ],
+    "inputs": [ { "internalType": "string", "name": "content", "type": "string" } ],
     "name": "createPost",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" } ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [ { "internalType": "uint256", "name": "postId", "type": "uint256" } ],
     "name": "likePost",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [ { "internalType": "uint256", "name": "postId", "type": "uint256" } ],
     "name": "followPost",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isRegistered",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nextPostId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ];
 
 /* STATE */
+// Biến để lưu trữ trạng thái và các hợp đồng đã kết nối
 let roProvider, provider, signer, account, froll, swap, social;
-let isRegistered = false;
-let swapDirection = "VIC2FROLL";
+let isRegistered = false; // Biến kiểm tra xem người dùng đã đăng ký chưa
+let swapDirection = "VIC2FROLL"; // Hướng swap VIC -> FROLL
 
 /* DOM */
+// Các phần tử DOM sẽ được sử dụng trong app.js
 const $ = (id) => document.getElementById(id);
+
 // brand / wallet
 const elBadgeFroll = $("badge-froll"),
   elBadgeVic = $("badge-vic"),
   elStatus = $("wallet-status"),
   elConnectBtn = $("connect-wallet");
+
 // quick nav
 const elQHome = $("qn-home"),
   elQProfile = $("qn-profile"),
   elQNew = $("qn-newpost"),
   elFeedAddr = $("feed-address"),
   elBtnSearch = $("btn-search");
+
 // composer
 const elComposer = $("composer"),
   elRegister = $("register-account"),
@@ -134,9 +90,11 @@ const elComposer = $("composer"),
   elPostMedia = $("post-media"),
   elPublish = $("btn-publish"),
   elComposeMsg = $("compose-msg");
+
 // feed
 const elFeedList = $("feed-list"),
   elFeedMsg = $("feed-msg");
+
 // swap
 const elOpenSwap = $("btn-open-swap"),
   elSwapView = $("swap-view"),
@@ -154,10 +112,12 @@ const elFromAmount = $("from-amount"),
   elGasFee = $("gas-fee");
 
 /* HELPERS */
+// Các hàm tiện ích
 const fmt = (n, d = 6) => Number(n).toLocaleString(undefined, { maximumFractionDigits: d });
 const shorten = (a = "") => a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "";
 const getRO = () => (roProvider ||= new ethers.providers.JsonRpcProvider(VIC_CHAIN.rpcUrls[0]));
 
+// Kiểm tra xem người dùng đã kết nối với mạng Viction chưa
 async function ensureViction(eth) {
   const cid = await eth.request({ method: "eth_chainId" });
   if (cid?.toLowerCase() === VIC_CHAIN.chainId) return;
@@ -170,6 +130,7 @@ async function ensureViction(eth) {
   }
 }
 
+// Giao diện khi chưa kết nối ví
 function setGuestUI() {
   elStatus.textContent = "Not connected";
   elConnectBtn.textContent = "Connect Wallet";
@@ -178,6 +139,7 @@ function setGuestUI() {
   elComposer.style.display = "none";
 }
 
+// Giao diện khi đã kết nối ví
 function setConnectedUI() {
   elStatus.textContent = shorten(account);
   elConnectBtn.textContent = "Disconnect";
@@ -185,44 +147,57 @@ function setConnectedUI() {
 }
 
 /* CONNECT / DISCONNECT */
+// Hàm kết nối ví MetaMask
 async function connectWallet() {
-  if (account) { softDisconnect(); return; } // toggle = disconnect
-  const eth = window.ethereum; if (!eth) return alert("MetaMask not detected.");
+  if (account) { 
+    softDisconnect(); 
+    return; // toggle = disconnect
+  }
+
+  const eth = window.ethereum; 
+  if (!eth) return alert("MetaMask not detected.");
+
   elConnectBtn.disabled = true;
   elConnectBtn.textContent = "Connecting…";
   elStatus.textContent = "Connecting…";
+
   try {
-    await ensureViction(eth);
+    await ensureViction(eth); // Kiểm tra và chuyển sang mạng Viction nếu cần
     provider = new ethers.providers.Web3Provider(eth, "any");
-    await provider.send("eth_requestAccounts", []);
+    await provider.send("eth_requestAccounts", []); // Yêu cầu quyền truy cập tài khoản
     signer = provider.getSigner();
     account = await signer.getAddress();
+
+    // Kết nối hợp đồng FROLL, SWAP và SOCIAL
     froll = new ethers.Contract(FROLL_ADDR, ERC20_ABI, signer);
     swap = new ethers.Contract(SWAP_ADDR, SWAP_ABI, signer);
     social = new ethers.Contract(SOCIAL_ADDR, SOCIAL_ABI, signer);
-    setConnectedUI();
+
+    setConnectedUI(); // Cập nhật giao diện khi kết nối thành công
     await Promise.all([refreshBalances()]);
-    await checkRegistered(); // ⬅️ đảm bảo cập nhật biến isRegistered
-    await refreshFeed(); // ⬅️ re-render feed để hiện nút 👍💬🔁
+    await checkRegistered(); // Kiểm tra người dùng đã đăng ký hay chưa
+    await refreshFeed(); // Làm mới feed
     if (document.body.classList.contains("swap-open")) await refreshSwapBalances();
   } catch (e) {
     console.error(e);
     alert("Connect failed or rejected.");
-    setGuestUI();
+    setGuestUI(); // Quay lại giao diện người dùng chưa kết nối
   } finally {
     elConnectBtn.disabled = false;
   }
 }
 
+// Hàm ngắt kết nối ví
 function softDisconnect() {
   provider = signer = froll = swap = social = undefined;
   account = undefined;
   isRegistered = false;
-  setGuestUI();
-  refreshFeed(); // ⬅️ render lại để ẩn nút hành động
+  setGuestUI(); // Quay lại giao diện khách
+  refreshFeed(); // Làm mới feed
   if (document.body.classList.contains("swap-open")) closeSwap();
 }
 
+// Kiểm tra thay đổi tài khoản hoặc mạng
 if (window.ethereum) {
   window.ethereum.on?.("accountsChanged", async (accs) => {
     if (accs && accs.length) {
@@ -259,6 +234,7 @@ async function refreshBalances() {
   } catch { }
 }
 
+// Kiểm tra xem người dùng đã đăng ký hay chưa
 async function checkRegistered() {
   if (!social || !account) { isRegistered = false; elRegister.style.display = "inline-block"; return false; }
   isRegistered = await social.isRegistered(account).catch(() => false);
@@ -267,6 +243,7 @@ async function checkRegistered() {
 }
 
 /* FEED (READ-ONLY) */
+// Lấy các bài viết mới nhất
 async function fetchLatestPosts(limit = 20) {
   const ro = new ethers.Contract(SOCIAL_ADDR, SOCIAL_ABI, getRO());
   const ids = await latestIds(limit);
@@ -276,6 +253,7 @@ async function fetchLatestPosts(limit = 20) {
   return posts.filter(Boolean);
 }
 
+// Render feed ra giao diện
 async function renderFeed(posts) {
   elFeedList.innerHTML = "";
   if (!posts || !posts.length) { elFeedList.innerHTML = `<div class="meta meta-center">No posts yet.</div>`; return; }
@@ -330,50 +308,3 @@ async function renderFeed(posts) {
   }
 }
 
-/* ACTIONS dưới bài — map theo hợp đồng FrollSocial */
-async function tipFlow(postId) {
-  try {
-    if (!account) await connectWallet(); if (!isRegistered) return alert("Please register first.");
-    const amountStr = prompt("Tip amount in FROLL (e.g., 0.01):", "0.01"); const v = parseFloat(amountStr || "0"); if (!(v > 0)) return;
-    const units = ethers.utils.parseUnits(String(v), FROLL_DECIMALS);
-    const erc = new ethers.Contract(FROLL_ADDR, ERC20_ABI, signer);
-    const allow = await erc.allowance(account, SOCIAL_ADDR);
-    if (allow.lt(units)) { const tx1 = await erc.approve(SOCIAL_ADDR, units); await tx1.wait(); }
-    const tx = await social.tipPost(postId, units);
-    await tx.wait(); alert("Tipped ✔");
-  } catch (e) { console.error(e); alert("Tip failed."); }
-}
-
-async function commentFlow(p) {
-  try {
-    if (!account) await connectWallet(); if (!isRegistered) return alert("Please register first.");
-    const text = prompt("Your comment:", ""); if (!text) return;
-    const content = `Reply to #${p.id} (${shorten(p.author)}):\n\n${text}`;
-    const maxBytes = await new ethers.Contract(SOCIAL_ADDR, SOCIAL_ABI, getRO()).MAX_POST_BYTES();
-    const enc = new TextEncoder().encode(content); if (enc.length > Number(maxBytes)) return alert("Comment too long.");
-    const tx = await social.createPost(content); await tx.wait(); alert("Comment posted ✔"); refreshFeed();
-  } catch (e) { console.error(e); alert("Comment failed."); }
-}
-
-function shareFlow(p) {
-  const url = `${location.origin}${location.pathname}#post-${p.id}`;
-  const text = `Post #${p.id} by ${p.author}\n\n${p.content}`;
-  if (navigator.share) { navigator.share({ title: `Post #${p.id}`, text, url }).catch(() => { }); }
-  else {
-    const payload = `${url}\n\n${text}`;
-    navigator.clipboard?.writeText(payload).then(() => alert("Copied to clipboard ✔")).catch(() => {
-      prompt("Copy this", payload);
-    });
-  }
-}
-
-/* QUICK NAV */
-$("qn-home").addEventListener("click", () => { elFeedAddr.value = ""; refreshFeed(); window.scrollTo({ top: 0, behavior: "smooth" }); });
-$("qn-profile").addEventListener("click", async () => { if (!account) await connectWallet(); if (account) { elFeedAddr.value = account; refreshFeed(); window.scrollTo({ top: 0, behavior: "smooth" }); } });
-$("qn-newpost").addEventListener("click", async () => { if (!account) await connectWallet(); if (account) { document.getElementById("composer").scrollIntoView({ behavior: "smooth" }); elPostContent.focus(); } });
-$("btn-search").addEventListener("click", refreshFeed);
-
-/* INIT */
-setGuestUI();
-setSwapDirection("VIC2FROLL");
-refreshFeed();
