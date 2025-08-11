@@ -1,19 +1,20 @@
-// 👉 VinSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
-const vinSocialAddress = "0xA86598807da8C76c5273A06d01C521252D5CDd17";
-const vinTokenAddress = "0x941F63807401efCE8afe3C9d88d368bAA287Fac4";
+// 👉 FrollSocial - Mạng xã hội phi tập trung Froll.net
+
+const frollSocialAddress = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";  // Địa chỉ hợp đồng FrollSocial
+const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // Địa chỉ hợp đồng FROLL
 
 let provider, signer, userAddress;
-let vinSocialContract, vinTokenContract, vinSocialReadOnly;
+let frollSocialContract, frollTokenContract, frollSocialReadOnly;
 let isRegistered = false;
 let lastPostId = 0;
 let seen = new Set();
 
-const vinTokenAbi = [
+const frollTokenAbi = [
   "function balanceOf(address account) view returns (uint256)",
   "function approve(address spender, uint256 amount) external returns (bool)"
 ];
 
-const vinSocialAbi = [
+const frollSocialAbi = [
   "function isRegistered(address) view returns (bool)",
   "function register(string,string,string,string) external",
   "function createPost(string,string,string) external",
@@ -40,11 +41,11 @@ window.onload = async () => {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     await tryAutoConnect();
   } else {
     provider = new ethers.providers.JsonRpcProvider("https://rpc.viction.xyz");
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     showHome(true); // vẫn cho xem bài khi chưa có ví
   }
 };
@@ -55,7 +56,7 @@ async function connectWallet() {
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
   await setupContracts();
-  vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
   await updateUI();
 }
 
@@ -72,8 +73,8 @@ function disconnectWallet() {
 
 // 👉 Gọi hợp đồng khi đã kết nối
 async function setupContracts() {
-  vinSocialContract = new ethers.Contract(vinSocialAddress, vinSocialAbi, signer);
-  vinTokenContract = new ethers.Contract(vinTokenAddress, vinTokenAbi, signer);
+  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer);
+  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer);
 }
 
 // 👉 Tự kết nối lại nếu đã từng kết nối
@@ -91,20 +92,20 @@ async function tryAutoConnect() {
 
 // 👉 Hiển thị số dư ví và cập nhật menu
 async function updateUI() {
-  const vinBal = await vinTokenContract.balanceOf(userAddress);
+  const frollBal = await frollTokenContract.balanceOf(userAddress);
   const vicBal = await provider.getBalance(userAddress);
-  const vin = parseFloat(ethers.utils.formatEther(vinBal)).toFixed(2);
+  const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
   document.getElementById("walletAddress").innerHTML = `
     <span style="font-family: monospace;">${userAddress}</span>
     <button onclick="copyToClipboard('${userAddress}')" title="Copy address">📋</button>
-    <span style="margin-left: 10px;">| ${vin} VIN | ${vic} VIC</span>
+    <span style="margin-left: 10px;">| ${froll} FROLL | ${vic} VIC</span>
   `;
 
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
-  isRegistered = await vinSocialContract.isRegistered(userAddress);
+  isRegistered = await frollSocialContract.isRegistered(userAddress);
   updateMenu();
   showHome(true);
 }
@@ -168,7 +169,7 @@ async function showHome(reset = false) {
   let html = "";
   if (lastPostId === 0) {
     try {
-      const next = await vinSocialReadOnly.nextPostId();
+      const next = await frollSocialReadOnly.nextPostId();
       lastPostId = next.toNumber();
     } catch (e) {
       console.error("Cannot fetch nextPostId", e);
@@ -186,7 +187,7 @@ async function showHome(reset = false) {
     }
 
     try {
-      const post = await vinSocialReadOnly.posts(i);
+      const post = await frollSocialReadOnly.posts(i);
       if (post[0] === "0x0000000000000000000000000000000000000000" || post[4] === 0) {
         seen.add(i);
         i--;
@@ -209,9 +210,9 @@ async function showHome(reset = false) {
       const time = new Date(post[4] * 1000).toLocaleString();
 
       const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(i),
-        vinSocialReadOnly.shareCount(i),
-        vinSocialReadOnly.viewCount(i)
+        frollSocialReadOnly.likeCount(i),
+        frollSocialReadOnly.shareCount(i),
+        frollSocialReadOnly.viewCount(i)
       ]);
 
       html += `
@@ -276,7 +277,7 @@ function showRegister() {
       <input type="text" id="regAvatar"/>
       <label>Website</label>
       <input type="text" id="regWebsite"/>
-      <button type="submit">Register (0.05 VIN)</button>
+      <button type="submit">Register (0.001 FROLL)</button>
     </form>
   `;
 }
@@ -287,12 +288,12 @@ async function registerUser() {
   const bio = document.getElementById("regBio").value.trim();
   const avatar = document.getElementById("regAvatar").value.trim();
   const website = document.getElementById("regWebsite").value.trim();
-  const fee = ethers.utils.parseEther("0.05");
+  const fee = ethers.utils.parseEther("0.001");
 
   try {
-    const approveTx = await vinTokenContract.approve(vinSocialAddress, fee);
+    const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
     await approveTx.wait();
-    const tx = await vinSocialContract.register(name, bio, avatar, website);
+    const tx = await frollSocialContract.register(name, bio, avatar, website);
     await tx.wait();
     alert("Registration successful!");
     await updateUI();
@@ -311,7 +312,7 @@ function showNewPost() {
       <label>Title</label>
       <input type="text" id="postTitle" maxlength="160"/>
       <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="1500" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
+      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
       <label>Image URL (optional)</label>
       <input type="text" id="postMedia"/>
       <button type="submit">Post</button>
@@ -325,7 +326,7 @@ async function createPost() {
   const content = document.getElementById("postContent").value.trim();
   const media = document.getElementById("postMedia").value.trim();
   try {
-    const tx = await vinSocialContract.createPost(title, content, media);
+    const tx = await frollSocialContract.createPost(title, content, media);
     await tx.wait();
     alert("Post created!");
     await showHome(true);
@@ -344,7 +345,7 @@ function autoResize(textarea) {
 // 👉 Like bài viết
 async function likePost(postId) {
   try {
-    const tx = await vinSocialContract.likePost(postId);
+    const tx = await frollSocialContract.likePost(postId);
     await tx.wait();
     alert("Liked!");
   } catch (err) {
@@ -362,7 +363,7 @@ async function showComments(postId) {
   }
 
   try {
-    const comments = await vinSocialReadOnly.getComments(postId);
+    const comments = await frollSocialReadOnly.getComments(postId);
     let html = `<div class="comments"><h4>Comments</h4>`;
     comments.forEach(c => {
       const time = new Date(c.timestamp * 1000).toLocaleString();
@@ -391,7 +392,7 @@ async function showComments(postId) {
 async function addComment(postId) {
   const msg = document.getElementById(`comment-${postId}`).value.trim();
   try {
-    const tx = await vinSocialContract.commentOnPost(postId, msg);
+    const tx = await frollSocialContract.commentOnPost(postId, msg);
     await tx.wait();
     alert("Comment added!");
     await showComments(postId); // refresh
@@ -404,115 +405,11 @@ async function addComment(postId) {
 // 👉 Share bài viết
 async function sharePost(postId) {
   try {
-    const tx = await vinSocialContract.sharePost(postId);
+    const tx = await frollSocialContract.sharePost(postId);
     await tx.wait();
     alert("Post shared!");
   } catch (err) {
     alert("Share failed.");
     console.error(err);
-  }
-}
-
-// 👉 Xem hồ sơ người dùng
-async function viewProfile(addr) {
-  try {
-    const user = await vinSocialReadOnly.users(addr);
-    const posts = await vinSocialReadOnly.getUserPosts(addr);
-    const [followers, following] = await Promise.all([
-      vinSocialReadOnly.getFollowers(addr),
-      vinSocialReadOnly.getFollowing(addr)
-    ]);
-
-    let html = `<h2>${user[0]}'s Profile</h2>`;
-    html += `<p><strong>Bio:</strong> ${user[1]}</p>`;
-    html += `<p><strong>Website:</strong> <a href="${user[3]}" target="_blank">${user[3]}</a></p>`;
-    html += `<p>👥 ${followers.length} Followers • ${following.length} Following</p>`;
-    html += `<img src="${user[2]}" alt="avatar" style="max-width:100px;border-radius:50%;margin:10px 0"/>`;
-    html += `<div class="actions">`;
-
-    if (isRegistered && addr.toLowerCase() !== userAddress.toLowerCase()) {
-      html += `
-        <button onclick="followUser('${addr}')">👤 Follow</button>
-        <button onclick="unfollowUser('${addr}')">🙅‍♂️ Unfollow</button>
-      `;
-    }
-
-    html += `</div><h3>Posts</h3>`;
-
-    for (const id of [...posts].reverse()) {
-      const post = await vinSocialReadOnly.posts(id);
-      const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(id),
-        vinSocialReadOnly.shareCount(id),
-        vinSocialReadOnly.viewCount(id)
-      ]);
-      const time = new Date(post[4] * 1000).toLocaleString();
-
-      html += `
-        <div class="post">
-          <div class="title">${post[1]}</div>
-          <div class="author">${shorten(post[0])} • ${time}</div>
-          <div class="content">${post[2]}</div>
-          ${post[3] ? `<img src="${post[3]}" alt="media"/>` : ""}
-          <div class="metrics">❤️ ${likes} • 🔁 ${shares} • 👁️ ${views}</div>
-        </div>
-      `;
-    }
-
-    document.getElementById("mainContent").innerHTML = html;
-  } catch (err) {
-    alert("Profile not available.");
-    console.error(err);
-  }
-}
-
-// 👉 Xem hồ sơ chính mình
-async function showProfile() {
-  if (!userAddress) return alert("Wallet not connected");
-  await viewProfile(userAddress);
-}
-
-// 👉 Follow người dùng khác
-async function followUser(addr) {
-  try {
-    const tx = await vinSocialContract.follow(addr);
-    await tx.wait();
-    alert("Now following!");
-    await viewProfile(addr);
-  } catch (err) {
-    alert("Follow failed.");
-    console.error(err);
-  }
-}
-
-// 👉 Unfollow người dùng khác
-async function unfollowUser(addr) {
-  try {
-    const tx = await vinSocialContract.unfollow(addr);
-    await tx.wait();
-    alert("Unfollowed.");
-    await viewProfile(addr);
-  } catch (err) {
-    alert("Unfollow failed.");
-    console.error(err);
-  }
-}
-
-// 👉 (Chuẩn bị tương lai) Gợi ý người dùng nổi bật
-async function suggestUsers() {
-  return [];
-}
-
-// 👉 (Chuẩn bị tương lai) Gợi ý bài viết nổi bật
-async function suggestPosts() {
-  return [];
-}
-
-// 👉 Tìm kiếm mở rộng (ý tưởng tương lai)
-async function searchByAddressOrKeyword(input) {
-  if (ethers.utils.isAddress(input)) {
-    await viewProfile(input);
-  } else {
-    alert("Currently only wallet address search is supported.");
   }
 }
