@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VinSocial.vin</title>
+  <title>Froll.net</title>
   <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="icon" type="image/png" href="froll_48.png"/>
 </head>
 <body>
 
@@ -19,9 +19,9 @@
 
   <header>
     <div class="logo-area">
-      <img src="logo.png" alt="VinSocial" class="logo"/>
+      <img src="froll_48.png" alt="Froll.net" class="logo"/>
       <div>
-        <h1>VinSocial.vin</h1>
+        <h1>Froll.net</h1>
         <p>Decentralized. Uncensored. Free Speech.</p>
       </div>
     </div>
@@ -33,8 +33,8 @@
   </header>
 
   <section class="info-bar">
-    <div id="vinPrice">1 VIN ≈ $-- USD</div>
-    <a href="https://vinswap.vin" class="trade-link" target="_blank">Trade VIN/VIC</a>
+    <div id="frollPrice">1 FROLL ≈ $-- USD</div>
+    <a href="https://lottery.vin" class="trade-link" target="_blank">Trade FROLL/VIC</a>
     <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank">📘 Guide</a>
   </section>
 
@@ -48,18 +48,18 @@
   <script src="app.js"></script>
 
   <script>
-    async function fetchVinPrice() {
+    async function fetchFrollPrice() {
       try {
-        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
+        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=FROLLUSDT');  <!-- Đảm bảo URL đúng -->
         const data = await res.json();
-        const vinUsd = (parseFloat(data.price) * 100).toFixed(2);
-        document.getElementById("vinPrice").innerText = `1 VIN ≈ $${vinUsd} USD`;
+        const frollUsd = (parseFloat(data.price)).toFixed(2);  <!-- Tính giá trực tiếp -->
+        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
       } catch {
-        document.getElementById("vinPrice").innerText = "1 VIN ≈ $-- USD";
+        document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
     }
-    fetchVinPrice();
-    setInterval(fetchVinPrice, 60000);
+    fetchFrollPrice();
+    setInterval(fetchFrollPrice, 60000);  <!-- Cập nhật giá mỗi phút -->
   </script>
 </body>
 </html>
