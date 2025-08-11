@@ -55,7 +55,7 @@ async function connectWallet() {
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
   await setupContracts();
-  vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider); // Đổi từ vinSocialReadOnly sang frollSocialReadOnly
   await updateUI();
 }
 
@@ -72,8 +72,8 @@ function disconnectWallet() {
 
 // 👉 Gọi hợp đồng khi đã kết nối
 async function setupContracts() {
-  vinSocialContract = new ethers.Contract(vinSocialAddress, vinSocialAbi, signer);
-  vinTokenContract = new ethers.Contract(vinTokenAddress, vinTokenAbi, signer);
+  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer); // Đổi từ vinSocialContract sang frollSocialContract
+  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer); // Đổi từ vinTokenContract sang frollTokenContract
 }
 
 // 👉 Tự kết nối lại nếu đã từng kết nối
