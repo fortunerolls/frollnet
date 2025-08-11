@@ -57,6 +57,20 @@ const SOCIAL_ABI = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "postId", "type": "uint256" } ],
+    "name": "getPostLikesCount",
+    "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [ { "internalType": "uint256", "name": "postId", "type": "uint256" } ],
+    "name": "getPostFollowersCount",
+    "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 
@@ -291,7 +305,7 @@ async function renderFeed(posts) {
     if (account && isRegistered) {
       const btnLike = document.createElement("button");
       btnLike.className = "action-btn";
-      btnLike.textContent = "👍 Like";
+      btnLike.textContent = `👍 Like (${await getPostLikesCount(p.id)})`;  // Đếm lượt like
       btnLike.addEventListener("click", () => tipFlow(p.id));
       const btnCmt = document.createElement("button");
       btnCmt.className = "action-btn";
@@ -308,3 +322,14 @@ async function renderFeed(posts) {
   }
 }
 
+// Lấy số lượt Like của bài viết
+async function getPostLikesCount(postId) {
+  const count = await social.getPostLikesCount(postId);
+  return count.toString();
+}
+
+// Lấy số lượt theo dõi của bài viết
+async function getPostFollowersCount(postId) {
+  const count = await social.getPostFollowersCount(postId);
+  return count.toString();
+}
