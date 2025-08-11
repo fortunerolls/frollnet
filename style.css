@@ -23,12 +23,6 @@ input, textarea, button { font-family: inherit; }
 .btn.small { padding: .35rem .6rem; font-size: .85rem; }
 .btn.tiny { padding: .28rem .5rem; font-size: .82rem; }
 
-.badge, .mini-badge {
-  display: inline-block; padding: .32rem .55rem; border-radius: .5rem;
-  border: 1px solid #e5e7eb; background: #fff; color: #334155; font-size: .85rem;
-}
-.mini-badge { font-weight: 700; }
-
 /* ===== TIP BAR ===== */
 .tipbar {
   background: #e0f2fe; border-bottom: 1px solid #bae6fd; color: #075985;
@@ -70,14 +64,6 @@ input, textarea, button { font-family: inherit; }
 .qn-search { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
 .input { width: 260px; border: 1px solid #e5e7eb; border-radius: .6rem; padding: .5rem .6rem; font-size: .95rem; outline: none; background: #fff; }
 
-/* ===== TRADE BAR ===== */
-.tradebar { background: #fff7ed; border-bottom: 1px solid #fed7aa; }
-.trade-btn {
-  display: block; margin: .6rem auto; padding: .5rem .95rem; border-radius: .6rem;
-  background: #fb923c; color: #fff; border: 1px solid #f97316; font-weight: 800; cursor: pointer; max-width: 220px;
-}
-.trade-btn:hover { background: #f97316; }
-
 /* ===== MAIN & CARDS ===== */
 .container { max-width: 900px; margin: 1rem auto; padding: 0 1rem; }
 .section-title { margin: 0 0 .7rem; font-size: 1.25rem; font-weight: 800; color: #111827; }
@@ -106,7 +92,7 @@ input, textarea, button { font-family: inherit; }
   max-width: 100%; border-radius: .5rem; border: 1px solid #e5e7eb;
 }
 
-/* ===== ACTIONS dưới bài (Profile, Translate, Like, Comment, Share) */
+/* ===== ACTIONS dưới bài (Profile, Translate, Like, Comment, Share, Follow) */
 .post-actions { margin-top: .5rem; display: flex; gap: .5rem; flex-wrap: wrap; }
 .action-btn {
   border: 1px solid #e5e7eb; background: #fff; color: #0f172a;
@@ -137,11 +123,18 @@ body.swap-open .container,
 body.swap-open .footer { display: none !important; }
 body.swap-open #swap-view { display: block !important; }
 
+/* Responsive Fixes for Price and Swap Arrow */
 @media (max-width: 860px) {
   .swap-box { grid-template-columns: 1fr; }
-  .swap-direction { font-size: 1.8rem; }
+  .swap-direction { font-size: 2rem; }
   .input { width: 180px; }
+  #froll-price-usd {
+    font-size: 1rem; /* Adjust price display for mobile */
+    padding: 0.5rem; 
+    display: block;
+  }
 }
+
 @media (max-width: 640px) {
   .tip-inner { flex-direction: column; align-items: flex-start; gap: .35rem; }
   .brand-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
