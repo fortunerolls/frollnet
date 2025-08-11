@@ -426,3 +426,37 @@ body.swap-open #swap-view {
     width: 100%;
   }
 }
+
+/* ===== CENTER FROLL ECOSYSTEM TEXT ===== */
+.footer-inner {
+  display: flex;
+  justify-content: center; /* Căn giữa */
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+/* ===== STYLE TRADE BUTTON ===== */
+.trade-btn {
+  display: block;
+  margin: .6rem auto;
+  padding: .6rem 1rem; /* Tăng kích thước nút */
+  border-radius: .8rem; /* Đường viền bo tròn hơn */
+  background: #fb923c;
+  color: #fff;
+  border: 1px solid #f97316;
+  font-weight: 800;
+  cursor: pointer;
+  max-width: 240px; /* Đảm bảo nút không quá rộng */
+  font-size: 1rem; /* Cải thiện kích thước chữ */
+  transition: background 0.3s ease, transform 0.2s ease; /* Thêm hiệu ứng chuyển động */
+}
+
+.trade-btn:hover {
+  background: #f97316; /* Màu nền khi hover */
+  transform: translateY(-3px); /* Hiệu ứng khi hover */
+}
+
+.trade-btn:active {
+  transform: translateY(1px); /* Hiệu ứng khi nhấn */
+}
