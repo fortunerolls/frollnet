@@ -1,6 +1,6 @@
 // 👉 VinSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
-const vinSocialAddress = "0xA86598807da8C76c5273A06d01C521252D5CDd17";
-const vinTokenAddress = "0x941F63807401efCE8afe3C9d88d368bAA287Fac4";
+const vinSocialAddress = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";
+const vinTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";
 
 let provider, signer, userAddress;
 let vinSocialContract, vinTokenContract, vinSocialReadOnly;
