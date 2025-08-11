@@ -168,7 +168,7 @@ async function showHome(reset = false) {
   let html = "";
   if (lastPostId === 0) {
     try {
-      const next = await vinSocialReadOnly.nextPostId();
+      const next = await frollSocialReadOnly.nextPostId(); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
       lastPostId = next.toNumber();
     } catch (e) {
       console.error("Cannot fetch nextPostId", e);
@@ -186,7 +186,7 @@ async function showHome(reset = false) {
     }
 
     try {
-      const post = await vinSocialReadOnly.posts(i);
+      const post = await frollSocialReadOnly.posts(i); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
       if (post[0] === "0x0000000000000000000000000000000000000000" || post[4] === 0) {
         seen.add(i);
         i--;
@@ -209,9 +209,9 @@ async function showHome(reset = false) {
       const time = new Date(post[4] * 1000).toLocaleString();
 
       const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(i),
-        vinSocialReadOnly.shareCount(i),
-        vinSocialReadOnly.viewCount(i)
+        frollSocialReadOnly.likeCount(i),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.shareCount(i),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.viewCount(i)   // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
       ]);
 
       html += `
@@ -276,7 +276,7 @@ function showRegister() {
       <input type="text" id="regAvatar"/>
       <label>Website</label>
       <input type="text" id="regWebsite"/>
-      <button type="submit">Register (0.05 VIN)</button>
+      <button type="submit">Register (0.05 FROLL)</button>
     </form>
   `;
 }
@@ -290,9 +290,9 @@ async function registerUser() {
   const fee = ethers.utils.parseEther("0.05");
 
   try {
-    const approveTx = await vinTokenContract.approve(vinSocialAddress, fee);
+    const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
     await approveTx.wait();
-    const tx = await vinSocialContract.register(name, bio, avatar, website);
+    const tx = await frollSocialContract.register(name, bio, avatar, website);
     await tx.wait();
     alert("Registration successful!");
     await updateUI();
@@ -311,7 +311,7 @@ function showNewPost() {
       <label>Title</label>
       <input type="text" id="postTitle" maxlength="160"/>
       <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="1500" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
+      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
       <label>Image URL (optional)</label>
       <input type="text" id="postMedia"/>
       <button type="submit">Post</button>
@@ -322,10 +322,17 @@ function showNewPost() {
 // 👉 Gửi bài viết
 async function createPost() {
   const title = document.getElementById("postTitle").value.trim();
-  const content = document.getElementById("postContent").value.trim();
+  let content = document.getElementById("postContent").value.trim();
   const media = document.getElementById("postMedia").value.trim();
+
+  // Kiểm tra độ dài bài viết
+  if (content.length > 20000) {
+    alert("Post content exceeds the maximum limit of 20,000 characters.");
+    return;
+  }
+
   try {
-    const tx = await vinSocialContract.createPost(title, content, media);
+    const tx = await frollSocialContract.createPost(title, content, media);  // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Post created!");
     await showHome(true);
@@ -344,7 +351,7 @@ function autoResize(textarea) {
 // 👉 Like bài viết
 async function likePost(postId) {
   try {
-    const tx = await vinSocialContract.likePost(postId);
+    const tx = await frollSocialContract.likePost(postId);  // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Liked!");
   } catch (err) {
@@ -362,7 +369,7 @@ async function showComments(postId) {
   }
 
   try {
-    const comments = await vinSocialReadOnly.getComments(postId);
+    const comments = await frollSocialReadOnly.getComments(postId); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
     let html = `<div class="comments"><h4>Comments</h4>`;
     comments.forEach(c => {
       const time = new Date(c.timestamp * 1000).toLocaleString();
@@ -391,7 +398,7 @@ async function showComments(postId) {
 async function addComment(postId) {
   const msg = document.getElementById(`comment-${postId}`).value.trim();
   try {
-    const tx = await vinSocialContract.commentOnPost(postId, msg);
+    const tx = await frollSocialContract.commentOnPost(postId, msg); // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Comment added!");
     await showComments(postId); // refresh
@@ -404,7 +411,7 @@ async function addComment(postId) {
 // 👉 Share bài viết
 async function sharePost(postId) {
   try {
-    const tx = await vinSocialContract.sharePost(postId);
+    const tx = await frollSocialContract.sharePost(postId);  // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Post shared!");
   } catch (err) {
@@ -416,11 +423,11 @@ async function sharePost(postId) {
 // 👉 Xem hồ sơ người dùng
 async function viewProfile(addr) {
   try {
-    const user = await vinSocialReadOnly.users(addr);
-    const posts = await vinSocialReadOnly.getUserPosts(addr);
+    const user = await frollSocialReadOnly.users(addr);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+    const posts = await frollSocialReadOnly.getUserPosts(addr);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
     const [followers, following] = await Promise.all([
-      vinSocialReadOnly.getFollowers(addr),
-      vinSocialReadOnly.getFollowing(addr)
+      frollSocialReadOnly.getFollowers(addr),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+      frollSocialReadOnly.getFollowing(addr)   // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
     ]);
 
     let html = `<h2>${user[0]}'s Profile</h2>`;
@@ -440,11 +447,11 @@ async function viewProfile(addr) {
     html += `</div><h3>Posts</h3>`;
 
     for (const id of [...posts].reverse()) {
-      const post = await vinSocialReadOnly.posts(id);
+      const post = await frollSocialReadOnly.posts(id);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
       const [likes, shares, views] = await Promise.all([
-        vinSocialReadOnly.likeCount(id),
-        vinSocialReadOnly.shareCount(id),
-        vinSocialReadOnly.viewCount(id)
+        frollSocialReadOnly.likeCount(id),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.shareCount(id),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.viewCount(id)    // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
       ]);
       const time = new Date(post[4] * 1000).toLocaleString();
 
@@ -475,7 +482,7 @@ async function showProfile() {
 // 👉 Follow người dùng khác
 async function followUser(addr) {
   try {
-    const tx = await vinSocialContract.follow(addr);
+    const tx = await frollSocialContract.follow(addr);  // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Now following!");
     await viewProfile(addr);
@@ -488,7 +495,7 @@ async function followUser(addr) {
 // 👉 Unfollow người dùng khác
 async function unfollowUser(addr) {
   try {
-    const tx = await vinSocialContract.unfollow(addr);
+    const tx = await frollSocialContract.unfollow(addr);  // Cập nhật từ vinSocialContract thành frollSocialContract
     await tx.wait();
     alert("Unfollowed.");
     await viewProfile(addr);
