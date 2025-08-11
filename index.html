@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Froll.net — Decentralized Social</title>
-  <link rel="icon" href="froll_48.png" type="image/png"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="froll_48.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Ethers v5 (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
+
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- TIP BAR -->
+  <!-- ===== TIP BAR ===== -->
   <div class="tipbar">
     <div class="tip-inner">
       <span>Tip: Use the Viction (VIC) network in MetaMask. On mobile, open in the wallet’s browser.</span>
@@ -19,11 +22,11 @@
     </div>
   </div>
 
-  <!-- BRAND BAR -->
+  <!-- ===== BRAND BAR ===== -->
   <header class="brandbar">
     <div class="brand-inner">
       <div class="brand-left">
-        <img src="froll_48.png" alt="FROLL" class="logo"/>
+        <img src="froll_48.png" alt="FROLL" class="logo" />
         <div class="brand-meta">
           <div class="brand-title">Froll.net</div>
           <div class="brand-sub">Decentralized. Uncensored. Free Speech.</div>
@@ -31,44 +34,53 @@
       </div>
       <div class="brand-right">
         <span id="froll-price-usd" class="chip">1 FROLL ≈ — USD</span>
+
+        <!-- Balances (ẩn khi Guest) -->
         <span id="badge-froll" class="mini-badge" style="display:none;">0.00 FROLL</span>
         <span id="badge-vic" class="mini-badge" style="display:none;">0.00 VIC</span>
+
+        <!-- Trạng thái + Connect/Disconnect -->
         <span id="wallet-status" class="status">Not connected</span>
         <button id="connect-wallet" class="btn">Connect Wallet</button>
+
+        <!-- Guide (để trống link, bạn thay sau) -->
         <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
       </div>
     </div>
   </header>
 
-  <!-- TRADE BAR -->
+  <!-- ===== TRADE BAR ===== -->
   <div class="tradebar">
     <button id="btn-open-swap" class="trade-btn">Trade FROLL/VIC</button>
   </div>
 
-  <!-- QUICK NAV -->
+  <!-- ===== QUICK NAV (giống vibe VinSocial) ===== -->
   <div class="quicknav">
     <div class="quicknav-inner">
       <button id="qn-home" class="qn-btn">🏠 Home</button>
       <button id="qn-profile" class="qn-btn">👤 My Profile</button>
       <button id="qn-newpost" class="qn-btn">✍️ New Post</button>
       <div class="qn-search">
-        <input id="feed-address" class="input" type="text" placeholder="Search wallet... (0x…)"/>
+        <input id="feed-address" class="input" type="text" placeholder="Search wallet... (0x…)" />
         <button id="btn-search" class="btn small" title="Search">🔍</button>
       </div>
     </div>
   </div>
 
-  <!-- MAIN (SOCIAL) -->
+  <!-- ===== MAIN (SOCIAL) ===== -->
   <main id="home-view" class="container">
     <h2 class="section-title">Latest Posts</h2>
 
-    <!-- Composer -->
+    <!-- Composer (ẩn khi Guest) -->
     <section class="composer card" id="composer" style="display:none;">
       <div class="composer-head">
+        <!-- Ẩn sau khi đã register -->
         <button id="register-account" class="btn ghost">Register (0.001 FROLL)</button>
       </div>
+
       <textarea id="post-content" rows="6" placeholder="Write your post… (up to ~60KB). Line breaks are preserved."></textarea>
-      <input id="post-media" type="url" class="input" placeholder="Media URL (image/video) — optional"/>
+      <input id="post-media" type="url" class="input" placeholder="Media URL (image/video) — optional" />
+
       <div class="composer-actions">
         <button id="btn-publish" class="btn primary">New Post</button>
       </div>
@@ -77,23 +89,27 @@
 
     <!-- Feed list -->
     <section id="feed-list" class="feed"></section>
-    <div id="feed-msg" class="meta meta-center">Reading posts from the Social contract. No wallet required.</div>
+    <div id="feed-msg" class="meta meta-center">
+      Reading posts from the Social contract. No wallet required.
+    </div>
   </main>
 
-  <!-- SWAP VIEW -->
+  <!-- ===== SWAP VIEW (ẩn mọi thứ khác khi mở) ===== -->
   <section id="swap-view" class="swap-wrap" style="display:none;">
     <div class="swap-head">
       <button id="btn-back-home" class="btn ghost small">← Back to Home</button>
       <button id="btn-disconnect" class="btn small">Disconnect</button>
     </div>
+
     <h2 class="swap-title">Swap</h2>
+
     <div class="swap-box">
       <!-- From -->
       <div class="token-input">
-        <img id="from-token-logo" src="vic_24.png" alt="From"/>
+        <img id="from-token-logo" src="vic_24.png" alt="From" />
         <div class="token-col">
           <p id="from-token-info" class="token-info">VIC: 0.000000000000000000</p>
-          <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
+          <input type="number" id="from-amount" placeholder="0.0" min="0" step="any" />
         </div>
         <button id="max-button" class="btn tiny">Max</button>
       </div>
@@ -103,10 +119,10 @@
 
       <!-- To -->
       <div class="token-input">
-        <img id="to-token-logo" src="froll_24.png" alt="To"/>
+        <img id="to-token-logo" src="froll_24.png" alt="To" />
         <div class="token-col">
           <p id="to-token-info" class="token-info">FROLL: 0.000000000000000000</p>
-          <input type="text" id="to-amount" placeholder="0.0" disabled/>
+          <input type="text" id="to-amount" placeholder="0.0" disabled />
         </div>
       </div>
     </div>
@@ -121,7 +137,7 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="footer-inner">
       <span>FROLL ecosystem:</span>
@@ -132,6 +148,7 @@
     </div>
   </footer>
 
+  <!-- ===== Price chip (hiển thị cả mobile) ===== -->
   <script>
     (async function loadFrollPrice() {
       const el = document.getElementById("froll-price-usd");
@@ -148,4 +165,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
