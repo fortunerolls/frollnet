@@ -1,19 +1,19 @@
-// 👉 VinSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
-const vinSocialAddress = "0xA86598807da8C76c5273A06d01C521252D5CDd17";
-const vinTokenAddress = "0x941F63807401efCE8afe3C9d88d368bAA287Fac4";
+// 👉 FrollSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
+const frollSocialAddress = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";  // Địa chỉ hợp đồng FrollSocial
+const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // Địa chỉ hợp đồng FROLL
 
 let provider, signer, userAddress;
-let vinSocialContract, vinTokenContract, vinSocialReadOnly;
+let frollSocialContract, frollTokenContract, frollSocialReadOnly;
 let isRegistered = false;
 let lastPostId = 0;
 let seen = new Set();
 
-const vinTokenAbi = [
+const frollTokenAbi = [
   "function balanceOf(address account) view returns (uint256)",
   "function approve(address spender, uint256 amount) external returns (bool)"
 ];
 
-const vinSocialAbi = [
+const frollSocialAbi = [
   "function isRegistered(address) view returns (bool)",
   "function register(string,string,string,string) external",
   "function createPost(string,string,string) external",
@@ -40,11 +40,11 @@ window.onload = async () => {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     await tryAutoConnect();
   } else {
     provider = new ethers.providers.JsonRpcProvider("https://rpc.viction.xyz");
-    vinSocialReadOnly = new ethers.Contract(vinSocialAddress, vinSocialAbi, provider);
+    frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
     showHome(true); // vẫn cho xem bài khi chưa có ví
   }
 };
