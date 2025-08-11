@@ -6,13 +6,13 @@
   <title>Froll.net — Decentralized Social</title>
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
-  <!-- Ethers v5 (CDN) -->
+  <!-- Ethers.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- ===== TIP BAR ===== -->
+  <!-- TIP BAR -->
   <div class="tipbar">
     <div class="tip-inner">
       <span>Tip: Use the Viction (VIC) network in MetaMask. On mobile, open in the wallet’s browser.</span>
@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <!-- ===== BRAND BAR ===== -->
+  <!-- BRAND BAR -->
   <header class="brandbar">
     <div class="brand-inner">
       <div class="brand-left">
@@ -48,7 +48,7 @@
     </div>
   </header>
 
-  <!-- ===== QUICK NAV ===== -->
+  <!-- QUICK NAV -->
   <div class="quicknav">
     <div class="quicknav-inner">
       <button id="qn-home" class="qn-btn">🏠 Home</button>
@@ -61,14 +61,13 @@
     </div>
   </div>
 
-  <!-- ===== MAIN (SOCIAL) ===== -->
+  <!-- MAIN (SOCIAL) -->
   <main id="home-view" class="container">
     <h2 class="section-title">Latest Posts</h2>
 
-    <!-- Composer (ẩn khi Guest) -->
+    <!-- Composer (hidden for guest users) -->
     <section class="composer card" id="composer" style="display:none;">
       <div class="composer-head">
-        <!-- Ẩn sau khi đã register -->
         <button id="register-account" class="btn ghost">Register (0.001 FROLL)</button>
       </div>
 
@@ -88,7 +87,7 @@
     </div>
   </main>
 
-  <!-- ===== SWAP VIEW (ẩn mọi thứ khác khi mở) ===== -->
+  <!-- SWAP VIEW (hidden when not in use) -->
   <section id="swap-view" class="swap-wrap" style="display:none;">
     <div class="swap-head">
       <button id="btn-back-home" class="btn ghost small">← Back to Home</button>
@@ -131,7 +130,7 @@
     </div>
   </section>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-inner">
       <span>FROLL ecosystem:</span>
@@ -142,7 +141,7 @@
     </div>
   </footer>
 
-  <!-- ===== Price chip (hiển thị cả mobile) ===== -->
+  <!-- Price chip (shown on mobile too) -->
   <script>
     (async function loadFrollPrice() {
       const el = document.getElementById("froll-price-usd");
@@ -151,7 +150,7 @@
         const j = await r.json();
         const vic = parseFloat(j?.price || "0");
         if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
-        const frollUsd = vic * 100; // nếu mô hình đổi, chỉ sửa hệ số này
+        const frollUsd = vic * 100; // Adjust this factor if needed
         el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
       } catch { el.textContent = "1 FROLL ≈ — USD"; }
     })();
