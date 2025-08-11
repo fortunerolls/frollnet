@@ -1,4 +1,4 @@
-// 👉 FrollSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
+// 👉 FrollSocial (Froll.net) – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
 const frollSocialAddress = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";  // Địa chỉ hợp đồng FrollSocial
 const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // Địa chỉ hợp đồng FROLL
 
@@ -55,7 +55,7 @@ async function connectWallet() {
   signer = provider.getSigner();
   userAddress = await signer.getAddress();
   await setupContracts();
-  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider); // Đổi từ vinSocialReadOnly sang frollSocialReadOnly
+  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider); 
   await updateUI();
 }
 
@@ -72,8 +72,8 @@ function disconnectWallet() {
 
 // 👉 Gọi hợp đồng khi đã kết nối
 async function setupContracts() {
-  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer); // Đổi từ vinSocialContract sang frollSocialContract
-  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer); // Đổi từ vinTokenContract sang frollTokenContract
+  frollSocialContract = new ethers.Contract(frollSocialAddress, frollSocialAbi, signer); 
+  frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenAbi, signer); 
 }
 
 // 👉 Tự kết nối lại nếu đã từng kết nối
@@ -91,9 +91,9 @@ async function tryAutoConnect() {
 
 // 👉 Hiển thị số dư ví và cập nhật menu
 async function updateUI() {
-  const frollBal = await frollTokenContract.balanceOf(userAddress); // Đổi từ vinTokenContract sang frollTokenContract
+  const frollBal = await frollTokenContract.balanceOf(userAddress); 
   const vicBal = await provider.getBalance(userAddress);
-  const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);  // Đổi từ vin thành froll
+  const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);  
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
   document.getElementById("walletAddress").innerHTML = `
@@ -104,7 +104,7 @@ async function updateUI() {
 
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
-  isRegistered = await frollSocialContract.isRegistered(userAddress);  // Đổi từ vinSocialContract sang frollSocialContract
+  isRegistered = await frollSocialContract.isRegistered(userAddress);  
   updateMenu();
   showHome(true);
 }
@@ -168,7 +168,7 @@ async function showHome(reset = false) {
   let html = "";
   if (lastPostId === 0) {
     try {
-      const next = await frollSocialReadOnly.nextPostId(); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+      const next = await frollSocialReadOnly.nextPostId(); 
       lastPostId = next.toNumber();
     } catch (e) {
       console.error("Cannot fetch nextPostId", e);
@@ -186,7 +186,7 @@ async function showHome(reset = false) {
     }
 
     try {
-      const post = await frollSocialReadOnly.posts(i); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+      const post = await frollSocialReadOnly.posts(i); 
       if (post[0] === "0x0000000000000000000000000000000000000000" || post[4] === 0) {
         seen.add(i);
         i--;
@@ -209,9 +209,9 @@ async function showHome(reset = false) {
       const time = new Date(post[4] * 1000).toLocaleString();
 
       const [likes, shares, views] = await Promise.all([
-        frollSocialReadOnly.likeCount(i),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-        frollSocialReadOnly.shareCount(i),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-        frollSocialReadOnly.viewCount(i)   // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.likeCount(i),  
+        frollSocialReadOnly.shareCount(i),  
+        frollSocialReadOnly.viewCount(i)   
       ]);
 
       html += `
@@ -332,7 +332,7 @@ async function createPost() {
   }
 
   try {
-    const tx = await frollSocialContract.createPost(title, content, media);  // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.createPost(title, content, media);  
     await tx.wait();
     alert("Post created!");
     await showHome(true);
@@ -351,7 +351,7 @@ function autoResize(textarea) {
 // 👉 Like bài viết
 async function likePost(postId) {
   try {
-    const tx = await frollSocialContract.likePost(postId);  // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.likePost(postId);  
     await tx.wait();
     alert("Liked!");
   } catch (err) {
@@ -369,7 +369,7 @@ async function showComments(postId) {
   }
 
   try {
-    const comments = await frollSocialReadOnly.getComments(postId); // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+    const comments = await frollSocialReadOnly.getComments(postId); 
     let html = `<div class="comments"><h4>Comments</h4>`;
     comments.forEach(c => {
       const time = new Date(c.timestamp * 1000).toLocaleString();
@@ -398,7 +398,7 @@ async function showComments(postId) {
 async function addComment(postId) {
   const msg = document.getElementById(`comment-${postId}`).value.trim();
   try {
-    const tx = await frollSocialContract.commentOnPost(postId, msg); // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.commentOnPost(postId, msg); 
     await tx.wait();
     alert("Comment added!");
     await showComments(postId); // refresh
@@ -411,7 +411,7 @@ async function addComment(postId) {
 // 👉 Share bài viết
 async function sharePost(postId) {
   try {
-    const tx = await frollSocialContract.sharePost(postId);  // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.sharePost(postId);  
     await tx.wait();
     alert("Post shared!");
   } catch (err) {
@@ -423,11 +423,11 @@ async function sharePost(postId) {
 // 👉 Xem hồ sơ người dùng
 async function viewProfile(addr) {
   try {
-    const user = await frollSocialReadOnly.users(addr);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-    const posts = await frollSocialReadOnly.getUserPosts(addr);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+    const user = await frollSocialReadOnly.users(addr);  
+    const posts = await frollSocialReadOnly.getUserPosts(addr);  
     const [followers, following] = await Promise.all([
-      frollSocialReadOnly.getFollowers(addr),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-      frollSocialReadOnly.getFollowing(addr)   // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+      frollSocialReadOnly.getFollowers(addr),  
+      frollSocialReadOnly.getFollowing(addr)   
     ]);
 
     let html = `<h2>${user[0]}'s Profile</h2>`;
@@ -447,11 +447,11 @@ async function viewProfile(addr) {
     html += `</div><h3>Posts</h3>`;
 
     for (const id of [...posts].reverse()) {
-      const post = await frollSocialReadOnly.posts(id);  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+      const post = await frollSocialReadOnly.posts(id);  
       const [likes, shares, views] = await Promise.all([
-        frollSocialReadOnly.likeCount(id),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-        frollSocialReadOnly.shareCount(id),  // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
-        frollSocialReadOnly.viewCount(id)    // Cập nhật từ vinSocialReadOnly thành frollSocialReadOnly
+        frollSocialReadOnly.likeCount(id),   
+        frollSocialReadOnly.shareCount(id),  
+        frollSocialReadOnly.viewCount(id)    
       ]);
       const time = new Date(post[4] * 1000).toLocaleString();
 
@@ -482,7 +482,7 @@ async function showProfile() {
 // 👉 Follow người dùng khác
 async function followUser(addr) {
   try {
-    const tx = await frollSocialContract.follow(addr);  // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.follow(addr);  
     await tx.wait();
     alert("Now following!");
     await viewProfile(addr);
@@ -495,7 +495,7 @@ async function followUser(addr) {
 // 👉 Unfollow người dùng khác
 async function unfollowUser(addr) {
   try {
-    const tx = await frollSocialContract.unfollow(addr);  // Cập nhật từ vinSocialContract thành frollSocialContract
+    const tx = await frollSocialContract.unfollow(addr);  
     await tx.wait();
     alert("Unfollowed.");
     await viewProfile(addr);
