@@ -41,7 +41,7 @@ const SOCIAL_ABI = [
 /* STATE */
 let provider, signer, account, froll, swap, social;
 let isRegistered = false;
-let swapDirection = "VIC2FROLL"; // Đặt mặc định là VIC2FROLL
+let swapDirection = "VIC2FROLL";
 
 /* DOM */
 const $ = (id) => document.getElementById(id);
@@ -308,7 +308,6 @@ async function refreshFeed() {
   }
 }
 
-/* WRITE */
 elRegister.addEventListener("click", async () => {
   try {
     if (!account) await connectWallet();
@@ -360,4 +359,3 @@ elPublish.addEventListener("click", async () => {
     alert("Publish failed or rejected.");
   }
 });
-
