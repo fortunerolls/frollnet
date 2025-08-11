@@ -1,4 +1,5 @@
-// 👉 FrollSocial.v3 – hỗ trợ xem bài khi chưa kết nối ví, copy ví, tìm kiếm
+// 👉 FrollSocial - Mạng xã hội phi tập trung Froll.net
+
 const frollSocialAddress = "0x8F7A9ca5c84A02acA6415Ec0367f64EFeB0C7f82";  // Địa chỉ hợp đồng FrollSocial
 const frollTokenAddress = "0xB4d562A8f811CE7F134a1982992Bd153902290BC";  // Địa chỉ hợp đồng FROLL
 
@@ -208,7 +209,7 @@ async function showHome(reset = false) {
       const media = post[3];
       const time = new Date(post[4] * 1000).toLocaleString();
 
-      const [likes, shares, views] = await Promise.all([ 
+      const [likes, shares, views] = await Promise.all([
         frollSocialReadOnly.likeCount(i),
         frollSocialReadOnly.shareCount(i),
         frollSocialReadOnly.viewCount(i)
@@ -305,13 +306,13 @@ async function registerUser() {
 // 👉 Hiển thị form đăng bài
 function showNewPost() {
   if (!isRegistered) return alert("You must register to post.");
-  document.getElementById("mainContent").innerHTML = ` 
+  document.getElementById("mainContent").innerHTML = `
     <h2>New Post</h2>
     <form onsubmit="createPost(); return false;">
       <label>Title</label>
       <input type="text" id="postTitle" maxlength="160"/>
       <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="1500" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
+      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
       <label>Image URL (optional)</label>
       <input type="text" id="postMedia"/>
       <button type="submit">Post</button>
