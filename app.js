@@ -43,40 +43,68 @@ const elOpenSwap = $("btn-open-swap");
 
 // CONNECT / DISCONNECT
 async function connectWallet() {
-  if (account) { softDisconnect(); return; }
-  const eth = window.ethereum;
-  if (!eth) return alert("MetaMask not detected.");
+  if (account) { 
+    softDisconnect(); 
+    return; 
+  }
+  
+  const eth = window.ethereum; 
+  if (!eth) {
+    alert("MetaMask not detected. Please install MetaMask.");  // Thông báo nếu MetaMask không được phát hiện
+    return;
+  }
 
-  elConnectBtn.disabled = true;
+  elConnectBtn.disabled = true; 
   elConnectBtn.textContent = "Connecting…"; 
   elStatus.textContent = "Connecting…";
+
   try {
+    // Đảm bảo ví đang kết nối với mạng Viction
     await ensureViction(eth);
-    provider = new ethers.providers.Web3Provider(eth, "any");
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    account = await signer.getAddress();
-    froll = new ethers.Contract(FROLL_ADDR, ERC20_ABI, signer);
-    swap = new ethers.Contract(SWAP_ADDR, SWAP_ABI, signer);
-    social = new ethers.Contract(SOCIAL_ADDR, SOCIAL_ABI, signer);
+
+    provider = new ethers.providers.Web3Provider(eth, "any");  // Cung cấp thông tin provider cho Ethers.js
+    await provider.send("eth_requestAccounts", []);  // Gửi yêu cầu kết nối ví
+    signer = provider.getSigner();  // Lấy signer từ provider
+    account = await signer.getAddress();  // Lấy địa chỉ ví của người dùng
+    froll = new ethers.Contract(FROLL_ADDR, ERC20_ABI, signer);  // Tạo hợp đồng FROLL
+    swap = new ethers.Contract(SWAP_ADDR, SWAP_ABI, signer);  // Tạo hợp đồng Swap
+    social = new ethers.Contract(SOCIAL_ADDR, SOCIAL_ABI, signer);  // Tạo hợp đồng mạng xã hội
+    
     setConnectedUI();
     await Promise.all([refreshBalances()]);
   } catch (e) {
     console.error(e);
-    alert("Connect failed or rejected.");
+    alert("Connection failed or rejected. Please try again.");
     setGuestUI();
   } finally {
     elConnectBtn.disabled = false;
   }
 }
 
+/* Kiểm tra và chuyển sang mạng Viction nếu chưa có */
+async function ensureViction(eth) {
+  const cid = await eth.request({ method: "eth_chainId" });
+  if (cid?.toLowerCase() === VIC_CHAIN.chainId) return;
+  
+  try {
+    await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: VIC_CHAIN.chainId }] });
+  } catch (e) {
+    if (e?.code === 4902) {
+      await eth.request({ method: "wallet_addEthereumChain", params: [VIC_CHAIN] });
+    } else {
+      alert("Failed to switch to Viction network.");
+      throw e;
+    }
+  }
+}
+
 function setConnectedUI() {
   elStatus.textContent = shorten(account);
-  elConnectBtn.textContent = "Disconnect";
+  elConnectBtn.textContent = "Disconnect";  
 }
 
 function setGuestUI() {
-  elStatus.textContent = "Not connected";
+  elStatus.textContent = "Not connected"; 
   elConnectBtn.textContent = "Connect Wallet";
 }
 
@@ -85,16 +113,4 @@ function softDisconnect() {
   account = undefined;
   isRegistered = false;
   setGuestUI();
-}
-
-async function ensureViction(eth) {
-  const cid = await eth.request({method:"eth_chainId"});
-  if (cid?.toLowerCase() === VIC_CHAIN.chainId) return;
-  try {
-    await eth.request({method:"wallet_switchEthereumChain", params:[{chainId:VIC_CHAIN.chainId}]});
-  } catch (e) {
-    if (e?.code === 4902) {
-      await eth.request({method:"wallet_addEthereumChain", params:[VIC_CHAIN]});
-    } else throw e;
-  }
 }
