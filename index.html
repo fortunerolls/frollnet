@@ -40,7 +40,7 @@
         <span id="wallet-status" class="status">Not connected</span>
         <button id="connect-wallet" class="btn">Connect Wallet</button>
 
-        <!-- Guide (để trống link, bạn thay sau) -->
+        <!-- Guide -->
         <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
       </div>
     </div>
@@ -143,6 +143,21 @@
       <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
     </div>
   </footer>
+
+  <!-- ===== Price chip (hiển thị cả mobile) ===== -->
+  <script>
+    (async function loadFrollPrice() {
+      const el = document.getElementById("froll-price-usd");
+      try {
+        const r = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT", { cache: "no-store" });
+        const j = await r.json();
+        const vic = parseFloat(j?.price || "0");
+        if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
+        const frollUsd = vic * 100; // if swap model changes, adjust the factor here
+        el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
+      } catch { el.textContent = "1 FROLL ≈ — USD"; }
+    })();
+  </script>
 
   <script src="app.js"></script>
 </body>
