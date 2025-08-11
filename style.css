@@ -23,12 +23,6 @@ input, textarea, button { font-family: inherit; }
 .btn.small { padding: .35rem .6rem; font-size: .85rem; }
 .btn.tiny { padding: .28rem .5rem; font-size: .82rem; }
 
-.badge, .mini-badge {
-  display: inline-block; padding: .32rem .55rem; border-radius: .5rem;
-  border: 1px solid #e5e7eb; background: #fff; color: #334155; font-size: .85rem;
-}
-.mini-badge { font-weight: 700; }
-
 /* ===== TIP BAR ===== */
 .tipbar {
   background: #e0f2fe; border-bottom: 1px solid #bae6fd; color: #075985;
@@ -113,40 +107,3 @@ input, textarea, button { font-family: inherit; }
   padding: .28rem .5rem; border-radius: .5rem; cursor: pointer; font-size: .85rem;
 }
 .action-btn:hover { background: #f8fafc; }
-
-/* ===== SWAP VIEW ===== */
-.swap-wrap { max-width: 680px; margin: 1rem auto; padding: 0 1rem; }
-.swap-head { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: .55rem .7rem; }
-.swap-title { text-align: center; margin: .8rem 0 .6rem; }
-.swap-box { display: grid; grid-template-columns: 1fr 64px 1fr; gap: .8rem; align-items: center; }
-.token-input { display: grid; grid-template-columns: 40px 1fr auto; gap: .6rem; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: .6rem .7rem; }
-.token-input img { width: 24px; height: 24px; }
-.token-col { display: grid; gap: .35rem; }
-.token-info { margin: 0; font-size: .86rem; color: #64748b; }
-.token-input input { width: 100%; border: 1px solid #e5e7eb; border-radius: .5rem; padding: .5rem .6rem; font-size: .95rem; }
-.swap-direction { border: 1px solid #e5e7eb; background: #f8fafc; color: #0f172a; padding: .6rem .75rem; border-radius: .65rem; cursor: pointer; font-size: 1.5rem; }
-.swap-meta { margin-top: .7rem; display: flex; justify-content: space-between; gap: .75rem; flex-wrap: wrap; color: #6b7280; font-size: .9rem; }
-.swap-actions { text-align: center; margin-top: .6rem; }
-
-/* HIDE-ALL WHEN SWAP OPEN */
-body.swap-open .tipbar,
-body.swap-open .brandbar,
-body.swap-open .tradebar,
-body.swap-open .quicknav,
-body.swap-open .container,
-body.swap-open .footer { display: none !important; }
-body.swap-open #swap-view { display: block !important; }
-
-@media (max-width: 860px) {
-  .swap-box { grid-template-columns: 1fr; }
-  .swap-direction { font-size: 1.8rem; }
-  .input { width: 180px; }
-}
-@media (max-width: 640px) {
-  .tip-inner { flex-direction: column; align-items: flex-start; gap: .35rem; }
-  .brand-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
-  .chip { display: none; }
-  .quicknav-inner { flex-wrap: wrap; gap: .4rem; }
-  .qn-search { width: 100%; }
-  .qn-search .input { width: 100%; }
-}
