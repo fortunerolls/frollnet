@@ -19,7 +19,7 @@
 
   <header>
     <div class="logo-area">
-      <img src="froll_48.png" alt="VinSocial" class="logo"/>
+      <img src="froll_48.png" alt="Froll.net" class="logo"/>
       <div>
         <h1>Froll.net</h1>
         <p>Decentralized. Uncensored. Free Speech.</p>
@@ -33,7 +33,7 @@
   </header>
 
   <section class="info-bar">
-    <div id="vinPrice">1 FROLL ≈ $-- USD</div>
+    <div id="frollPrice">1 FROLL ≈ $-- USD</div>
     <a href="https://lottery.vin" class="trade-link" target="_blank">Trade FROLL/VIC</a>
     <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank">📘 Guide</a>
   </section>
@@ -48,18 +48,18 @@
   <script src="app.js"></script>
 
   <script>
-    async function fetchVinPrice() {
+    async function fetchFrollPrice() {
       try {
-        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
+        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=FROLLUSDT');  <!-- Thay đổi từ VICUSDT thành FROLLUSDT -->
         const data = await res.json();
-        const vinUsd = (parseFloat(data.price) * 100).toFixed(2);
-        document.getElementById("vinPrice").innerText = `1 VIN ≈ $${vinUsd} USD`;
+        const frollUsd = (parseFloat(data.price) * 100).toFixed(2);  <!-- Điều chỉnh tỷ lệ -->
+        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
       } catch {
-        document.getElementById("vinPrice").innerText = "1 VIN ≈ $-- USD";
+        document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
     }
-    fetchVinPrice();
-    setInterval(fetchVinPrice, 60000);
+    fetchFrollPrice();
+    setInterval(fetchFrollPrice, 60000);  <!-- Cập nhật giá mỗi phút -->
   </script>
 </body>
 </html>
