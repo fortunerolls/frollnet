@@ -402,3 +402,12 @@ body.swap-open #swap-view {
     width: 100%;
   }
 }
+
+/* ===== CENTER FROLL ECOSYSTEM TEXT ===== */
+.footer-inner {
+  display: flex;
+  justify-content: center; /* Căn giữa */
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+}
