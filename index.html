@@ -6,6 +6,7 @@
   <title>Froll.net — Decentralized Social</title>
   <link rel="icon" href="froll_48.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
+  <!-- Ethers v5 (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -30,28 +31,24 @@
         </div>
       </div>
       <div class="brand-right">
-        <span id="froll-price-usd" class="chip">1 FROLL ≈ — USD</span>
-
-        <!-- Balances (ẩn khi Guest) -->
-        <span id="badge-froll" class="mini-badge" style="display:none;">0.00 FROLL</span>
-        <span id="badge-vic" class="mini-badge" style="display:none;">0.00 VIC</span>
-
-        <!-- Trạng thái + Connect/Disconnect -->
-        <span id="wallet-status" class="status">Not connected</span>
-        <button id="connect-wallet" class="btn">Connect Wallet</button>
-
-        <!-- Guide -->
-        <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
+        <!-- Upper Row: Connect Wallet and Balances -->
+        <div class="brand-top-row">
+          <span id="froll-price-usd" class="chip">1 FROLL ≈ — USD</span>
+          <span id="badge-froll" class="mini-badge" style="display:none;">0.00 FROLL</span>
+          <span id="badge-vic" class="mini-badge" style="display:none;">0.00 VIC</span>
+          <span id="wallet-status" class="status">Not connected</span>
+          <button id="connect-wallet" class="btn">Connect Wallet</button>
+        </div>
+        <!-- Lower Row: Trade Button, Guide -->
+        <div class="brand-bottom-row">
+          <button id="btn-open-swap" class="trade-btn">Trade FROLL/VIC</button>
+          <a id="guide-link" class="guide" href="#" target="_blank" rel="noopener">Guide</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- ===== TRADE BAR ===== -->
-  <div class="tradebar">
-    <button id="btn-open-swap" class="trade-btn">Trade FROLL/VIC</button>
-  </div>
-
-  <!-- ===== QUICK NAV (giống vibe VinSocial) ===== -->
+  <!-- ===== QUICK NAV ===== -->
   <div class="quicknav">
     <div class="quicknav-inner">
       <button id="qn-home" class="qn-btn">🏠 Home</button>
@@ -71,6 +68,7 @@
     <!-- Composer (ẩn khi Guest) -->
     <section class="composer card" id="composer" style="display:none;">
       <div class="composer-head">
+        <!-- Ẩn sau khi đã register -->
         <button id="register-account" class="btn ghost">Register (0.001 FROLL)</button>
       </div>
 
@@ -153,7 +151,7 @@
         const j = await r.json();
         const vic = parseFloat(j?.price || "0");
         if (!isFinite(vic) || vic <= 0) throw new Error("Bad price");
-        const frollUsd = vic * 100; // if swap model changes, adjust the factor here
+        const frollUsd = vic * 100; // nếu mô hình đổi, chỉ sửa hệ số này
         el.textContent = `1 FROLL ≈ ${frollUsd.toFixed(2)} USD`;
       } catch { el.textContent = "1 FROLL ≈ — USD"; }
     })();
