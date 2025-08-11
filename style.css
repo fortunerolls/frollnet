@@ -81,14 +81,23 @@ input, textarea, button { font-family: inherit; }
   font-size: 0.9rem;
 }
 
-.brand-right .chip {
+.brand-right .chip,
+.brand-right .btn,
+.brand-right .guide {
   padding: .35rem .7rem;
   border-radius: .5rem;
   font-weight: 700;
   text-align: center;
   color: #fff;
-  background: #facc15;
+  background: #0ea5e9;
   font-size: 0.85rem;
+  transition: background 0.3s ease;
+}
+
+.brand-right .chip {
+  background: #111827;
+  color: #facc15;
+  border-radius: 999px;
 }
 
 .brand-right .btn {
@@ -98,31 +107,16 @@ input, textarea, button { font-family: inherit; }
   font-size: 0.9rem;
 }
 
-.brand-right .btn:hover {
-  background: #f97316;
-}
-
 .brand-right .guide {
   background: transparent;
   color: #111827;
   text-decoration: underline;
   border: none;
-  font-size: 0.85rem;
 }
 
-/* ===== CONNECT BUTTON ===== */
-#connect-wallet {
-  background-color: #10b981; /* Nền màu xanh lá */
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.6rem;
-  transition: background 0.3s ease;
-}
-
-#connect-wallet:hover {
-  background-color: #047857; /* Màu xanh lá đậm khi hover */
+.brand-right .btn:hover,
+.brand-right .guide:hover {
+  background: #f97316;
 }
 
 /* ===== QUICK NAV ===== */
