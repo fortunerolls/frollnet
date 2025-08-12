@@ -188,16 +188,18 @@ form textarea {
   border-radius: 6px;
 }
 
+/* Điều chỉnh textarea */
 form textarea {
-  resize: vertical;
+  resize: none;  /* Tắt chức năng resize của textarea */
   min-height: 80px;
-  overflow: hidden;
+  max-height: 500px;  /* Giới hạn chiều cao tối đa của textarea */
+  overflow-y: hidden;
   transition: height 0.2s ease;
 }
 
 /* Hiệu ứng khi ô textarea tự động thay đổi chiều cao */
-form textarea {
-  transition: height 0.2s ease;
+form textarea:focus {
+  outline: none;
 }
 
 /* Nút đăng bài */
