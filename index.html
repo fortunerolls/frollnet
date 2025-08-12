@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VinSocial.vin</title>
+  <title>Froll.net - Your Voice. Your Platform.</title>
   <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="icon" type="image/png" href="froll_48.png"/>
 </head>
 <body>
 
@@ -17,49 +17,74 @@
     <p class="made">Made with ❤️ on the VIC blockchain</p>
   </div>
 
+  <!-- Header -->
   <header>
     <div class="logo-area">
-      <img src="logo.png" alt="VinSocial" class="logo"/>
+      <img src="froll_48.png" alt="Froll.net" class="logo"/>
       <div>
-        <h1>VinSocial.vin</h1>
-        <p>Decentralized. Uncensored. Free Speech.</p>
+        <h1>Froll.net</h1>
+        <p>Your Voice. Your Platform. Your Rules</p>
       </div>
     </div>
     <div class="wallet-area">
       <span id="walletAddress">Not connected</span>
+      <span id="frollBalance"></span>
+      <span id="vicBalance"></span>
       <button id="connectBtn">Connect Wallet</button>
       <button id="disconnectBtn" style="display:none;">Disconnect</button>
     </div>
   </header>
 
+  <!-- Thanh thông tin giá FROLL và các liên kết -->
   <section class="info-bar">
-    <div id="vinPrice">1 VIN ≈ $-- USD</div>
-    <a href="https://vinswap.vin" class="trade-link" target="_blank">Trade VIN/VIC</a>
-    <a href="https://docs.google.com/document/d/1OxPMY35kBH3VyEJ3HHtqfD18LZcUdZht/edit?usp=sharing" class="guide-link" target="_blank">📘 Guide</a>
+    <div id="frollPrice">1 FROLL ≈ $-- USD</div>
+    <a href="https://lottery.vin" class="trade-link" target="_blank">Swap FROLL/VIC</a>
+    <a href="https://docs.google.com" class="guide-link" target="_blank">📘 Guide</a>
   </section>
 
+  <!-- Thanh điều hướng chính (ẩn khi chưa đăng ký) -->
   <nav id="mainNav" style="display: none;"></nav>
 
-  <main id="mainContent"></main>
-
-  <footer></footer>
+  <!-- Nội dung chính -->
+  <main id="mainContent">
+    <h2>Welcome to Froll.net</h2>
+    <p>Connect your wallet and start creating posts, liking, commenting, and sharing with others.</p>
+    <button onclick="showNewPost()">Create a Post</button>
+    <!-- Nội dung bài viết và các bài đăng sẽ được hiển thị tại đây -->
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="app.js"></script>
 
   <script>
-    async function fetchVinPrice() {
+    // Hàm lấy giá FROLL từ API Binance
+    async function fetchFrollPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
         const data = await res.json();
-        const vinUsd = (parseFloat(data.price) * 100).toFixed(2);
-        document.getElementById("vinPrice").innerText = `1 VIN ≈ $${vinUsd} USD`;
-      } catch {
-        document.getElementById("vinPrice").innerText = "1 VIN ≈ $-- USD";
+        const vicUsd = parseFloat(data.price);
+        const frollUsd = (vicUsd * 100).toFixed(2);
+        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
+      } catch (error) {
+        document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
       }
     }
-    fetchVinPrice();
-    setInterval(fetchVinPrice, 60000);
+
+    fetchFrollPrice();
+    setInterval(fetchFrollPrice, 60000);  // Cập nhật giá mỗi phút
+
+    // Hàm tự động thay đổi chiều cao của textarea khi người dùng nhập
+    function autoResize(textarea) {
+      // Đặt chiều cao ban đầu là 'auto' để nó có thể thay đổi theo nội dung
+      textarea.style.height = 'auto';
+      // Cập nhật chiều cao để khớp với nội dung
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    // Gán sự kiện cho ô tạo bài viết để tự động thay đổi chiều cao
+    document.getElementById("postContent").addEventListener("input", function() {
+      autoResize(this);
+    });
   </script>
 </body>
 </html>
