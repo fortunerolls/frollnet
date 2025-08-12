@@ -48,7 +48,7 @@
     <h2>Create a Post</h2>
     <form id="postForm">
       <label for="postContent">Post Content (max 20,000 characters)</label>
-      <textarea id="postContent" placeholder="Enter your post content here..." required></textarea>
+      <textarea id="postContent" placeholder="Enter your post content here..." required oninput="autoResize(this)" style="resize:none;"></textarea>
       <label for="postLink">Attach Image/Video URL</label>
       <input type="text" id="postLink" placeholder="Enter URL of image or video"/>
       <button type="submit">Create Post</button>
@@ -82,6 +82,12 @@
 
     fetchFrollPrice();
     setInterval(fetchFrollPrice, 60000);  // Cập nhật giá mỗi phút
+
+    // Hàm tự động thay đổi chiều cao của textarea khi người dùng nhập
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
   </script>
 </body>
 </html>
