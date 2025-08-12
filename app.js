@@ -24,7 +24,7 @@ const frollSocialAbi = [
   "function unfollow(address) external",
   "function getUserPosts(address) view returns (uint256[])",
   "function getComments(uint256) view returns (tuple(address commenter,string message,uint256 timestamp)[])",
-  "function posts(uint256) view returns (address,string,string,string,uint256) ",
+  "function posts(uint256) view returns (address,string,string,string,uint256)",
   "function nextPostId() view returns (uint256)",
   "function likeCount(uint256) view returns (uint256)",
   "function shareCount(uint256) view returns (uint256)",
@@ -262,6 +262,7 @@ function translatePost(text) {
 function showRegister() {
   if (isRegistered) return alert("You are already registered.");
   document.getElementById("mainContent").innerHTML = `
+
     <h2>Register Account</h2>
     <form onsubmit="registerUser(); return false;">
       <label>Name*</label>
@@ -272,7 +273,7 @@ function showRegister() {
       <input type="text" id="regAvatar"/>
       <label>Website</label>
       <input type="text" id="regWebsite"/>
-      <button type="submit">Register (0.05 FROLL)</button>
+      <button type="submit">Register (0.001 FROLL)</button>
     </form>
   `;
 }
@@ -283,7 +284,7 @@ async function registerUser() {
   const bio = document.getElementById("regBio").value.trim();
   const avatar = document.getElementById("regAvatar").value.trim();
   const website = document.getElementById("regWebsite").value.trim();
-  const fee = ethers.utils.parseEther("0.05");
+  const fee = ethers.utils.parseEther("0.001"); // Phí đăng ký = 0.001 FROLL
 
   try {
     const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
@@ -307,7 +308,7 @@ function showNewPost() {
       <label>Title</label>
       <input type="text" id="postTitle" maxlength="160"/>
       <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="1500" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
+      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;"></textarea>
       <label>Image URL (optional)</label>
       <input type="text" id="postMedia"/>
       <button type="submit">Post</button>
