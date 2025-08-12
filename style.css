@@ -1,393 +1,321 @@
-/* 🌐 Reset và cấu trúc chung */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
+/* RESET & BASE FONT */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
 }
 
-body {
-  background-color: #f5f8fa;
-  color: #222;
-  line-height: 1.6;
-  font-size: 15px;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* 🧾 Thông điệp đầu trang (tip + made) */
-.top-message {
-  text-align: center;
-  padding: 8px 12px;
-  background-color: #eaf6ff;
-  border-bottom: 1px solid #ccc;
-}
-
-.top-message .tip {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 4px;
-}
-
-.top-message .made {
-  font-size: 12px;
-  color: #888;
-  font-style: italic;
-}
-
-/* 🎯 Header */
-header {
-  background: #ffffff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  border-bottom: 1px solid #ddd;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-}
-
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo {
-  height: 40px;
-  width: 40px;
-  border-radius: 8px;
-}
-
-header h1 {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-header p {
-  font-size: 12px;
-  color: #666;
-}
-
-/* 👛 Khu vực ví */
-.wallet-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  flex-wrap: wrap;
-}
-
-.wallet-area button {
-  padding: 6px 12px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.wallet-area button:hover {
-  background: #0056b3;
-}
-
-.wallet-area span {
-  font-family: monospace;
-}
-
-/* 💰 Thanh thông tin giá FROLL và các liên kết */
-.info-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 20px;
-  font-size: 14px;
-  background: #fffbe6;
-  border-bottom: 1px solid #ffe58f;
-}
-
-.trade-link,
-.guide-link {
-  color: #d35400;
-  font-weight: bold;
-}
-
-.trade-link:hover,
-.guide-link:hover {
-  text-decoration: underline;
-}
-
-/* 📂 Thanh menu chính */
-nav {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  background: #ffffff;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
-}
-
-.nav-btn {
-  background: transparent;
-  border: none;
-  padding: 6px 10px;
-  font-weight: bold;
-  font-size: 15px;
-  color: #007bff;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.nav-btn:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
-/* 🧾 Bài viết */
-.post {
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.post .title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.post .author {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 10px;
-  word-break: break-word;
-}
-
-.post .content {
-  margin-bottom: 10px;
-}
-
-.post img {
-  max-width: 100%;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.post .metrics {
-  font-size: 13px;
-  color: #777;
-  margin-top: 5px;
-}
-
-/* 🎯 Hành động */
-.post .actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.post .actions button {
-  background: none;
-  border: none;
-  font-weight: bold;
-  font-size: 14px;
-  color: #007bff;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s ease;
-}
-
-.post .actions button:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
-/* 📝 Form (đăng ký, đăng bài, comment) */
-form {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-}
-
-form input,
-form textarea {
-  width: 100%;
-  margin-top: 6px;
-  margin-bottom: 12px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-form label {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-form button {
-  padding: 8px 16px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-form button:hover {
-  background: #1e7e34;
-}
-
-/* 💬 Bình luận */
-.comments {
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.comments h4 {
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-
-.comments p {
-  margin: 6px 0;
-  font-size: 14px;
-}
-
-/* 💡 Gợi ý & tip */
-.tip {
-  text-align: center;
-  font-size: 13px;
-  color: #777;
-  margin: 20px;
-}
-
-/* ⬇️ Nút tải thêm bài */
-main button {
-  padding: 8px 16px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-main button:hover {
-  background: #0056b3;
-}
-
-/* 📍 Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 13px;
-  color: #888;
-}
-
-/* ✅ Responsive cho điện thoại */
-@media (max-width: 600px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .wallet-area {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .info-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  nav {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .nav-btn,
-  .wallet-area button,
-  form button,
-  main button {
-    width: 100%;
+/* NAVBAR */
+.navbar {
+    display: block; /* Đảm bảo navbar hiển thị mặc định */
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: #fff;
     text-align: center;
-  }
+}
 
-  form input,
-  form textarea {
+/* LOGO */
+.logo {
+    height: 80px; /* Tăng kích thước logo */
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Giá FROLL theo USD */
+.froll-price {
+    font-weight: bold; /* Làm đậm chữ để giá nổi bật */
+    font-size: 28px; /* Kích thước chữ lớn hơn để dễ nhìn */
+    color: #FFD700; /* Màu vàng ánh kim */
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2); /* Giảm đổ bóng nhẹ để giá vẫn rõ nét */
+    letter-spacing: 1px; /* Thêm khoảng cách giữa các chữ để giá dễ đọc hơn */
+    line-height: 1.2; /* Điều chỉnh khoảng cách dòng để cân đối */
+}
+
+
+/* INTERFACE BLOCKS */
+.interface {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+/* REMOVE WELCOME SECTION AND NAVBAR */
+#connect-interface, #new-content {
+    display: block;
+}
+
+#swap-interface:not([style*="display: none"]) ~ #connect-interface,
+#swap-interface:not([style*="display: none"]) ~ #new-content {
+    display: none !important;
+}
+
+/* BUTTON */
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
+
+/* FOOTER */
+.footer {
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+    display: block; /* Đảm bảo footer hiển thị mặc định */
+}
+
+.footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer .social-links a {
+    margin: 0;
+    color: white;
+    text-decoration: none;
+}
+
+.footer .social-links a:hover {
+    text-decoration: underline;
+}
+
+/* HOME CONTENT */
+#new-content {
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    margin-top: 0;
+}
+
+#new-content h2 {
+    font-size: 20px;
+    color: #007bff;
+    text-align: center;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.feature-list li {
+    padding: 8px 0;
     font-size: 15px;
-  }
+    line-height: 1.5;
 }
 
-/* 📋 Nút copy địa chỉ ví */
-.wallet-area button[title="Copy"],
-.post .author button {
-  padding: 2px 6px;
-  background: #ddd;
-  color: #333;
-  font-size: 12px;
-  margin-left: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  border: none;
-  transition: background 0.2s ease;
+.feature-list code,
+.copyable {
+    background-color: #eef3fc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    cursor: pointer;
+    display: inline-block;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
-.wallet-area button[title="Copy"]:hover,
-.post .author button:hover {
-  background: #bbb;
+.copyable:hover {
+    color: #d9534f;
+    text-decoration: underline;
 }
 
-/* 🔍 Ô tìm kiếm ví */
-#searchInput {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 13px;
-  min-width: 180px;
+/* SWAP INTERFACE */
+.swap-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px;
 }
 
-/* 🔘 Nút tìm kiếm */
-nav form button {
-  padding: 6px 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  margin-left: 6px;
+.token-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f1f1f1;
 }
 
-nav form button:hover {
-  background: #0056b3;
+.token-input img {
+    height: 24px;
+    width: 24px;
+}
+
+.token-input input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.token-input input:focus {
+    outline: none;
+}
+
+.token-input .button {
+    margin-left: -5px;
+}
+
+.swap-direction {
+    font-size: 24px;
+    color: #007bff;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.swap-direction:hover {
+    transform: rotate(180deg);
+}
+
+.swap-details {
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+    margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .interface {
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .swap-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .token-input {
+        width: 100%;
+    }
+
+    .feature-list li,
+    .feature-list code,
+    .copyable {
+        font-size: 14px;
+    }
+
+    .footer .social-links a {
+        display: block;
+        margin-bottom: 10px;
+    }
+}
+
+/* FADE-IN */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Đảm bảo footer luôn ở dưới cùng của trang */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của trang là 100% chiều cao màn hình */
+}
+
+main {
+    flex-grow: 1; /* Phần thân chính (content) sẽ chiếm không gian còn lại */
+}
+
+/* Footer */
+.footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng của trang */
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
+
+/* Định dạng dòng chữ "Please open Froll.net" */
+.italic-bold {
+    font-weight: bold; /* In đậm */
+    font-style: italic; /* Nghiêng chữ */
+    font-size: 12px; /* Giữ cỡ chữ nhỏ như yêu cầu */
+    color: #555;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Đảm bảo hai đoạn văn bản có độ rộng bằng nhau */
+.equal-width-segments {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.equal-width-segments .segment {
+    width: 48%; /* Đảm bảo mỗi phần chiếm 48% chiều rộng để có độ rộng bằng nhau */
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Đảm bảo các phần hiển thị đẹp trên màn hình nhỏ (responsive) */
+@media (max-width: 768px) {
+    .equal-width-segments {
+        flex-direction: column; /* Chuyển thành cột khi trên màn hình nhỏ */
+    }
+
+    .equal-width-segments .segment {
+        width: 100%; /* Mỗi đoạn chiếm toàn bộ chiều rộng khi trên màn hình nhỏ */
+        margin-bottom: 10px;
+    }
+}
+
+/* Tinh chỉnh phần hiển thị giá FROLL cho mượt mà và dễ nhìn */
+#froll-price {
+    font-weight: bold; /* Làm đậm giá để nổi bật */
+    font-size: 24px;
+    color: #FFD700; /* Màu vàng ánh kim */
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.5;
 }
