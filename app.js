@@ -45,6 +45,8 @@ async function connectWallet() {
     userAddress = await signer.getAddress();
     await setupContracts();
     await updateUI();
+    document.getElementById("connectBtn").style.display = "none";  // Ẩn nút kết nối
+    document.getElementById("disconnectBtn").style.display = "inline-block";  // Hiện nút ngắt kết nối
   } catch (error) {
     console.error("Error connecting wallet:", error);
   }
