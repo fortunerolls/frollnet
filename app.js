@@ -14,23 +14,13 @@ const frollTokenAbi = [
 
 const frollSocialAbi = [
   "function isRegistered(address) view returns (bool)",
-  "function register(string,string,string,string) external",
-  "function createPost(string,string,string) external",
-  "function likePost(uint256) external",
-  "function commentOnPost(uint256,string) external",
-  "function sharePost(uint256) external",
-  "function viewPost(uint256) external",
-  "function follow(address) external",
-  "function unfollow(address) external",
+  "function register(string name, string bio, string avatar, string website) external",
+  "function createPost(string calldata content) external returns (uint256 id)",
+  "function likePost(uint256 postId) external",
+  "function followPost(uint256 postId) external",
   "function getUserPosts(address) view returns (uint256[])",
-  "function getComments(uint256) view returns (tuple(address commenter,string message,uint256 timestamp)[])",
-  "function posts(uint256) view returns (address,string,string,string,uint256)",
-  "function nextPostId() view returns (uint256)",
-  "function likeCount(uint256) view returns (uint256)",
-  "function shareCount(uint256) view returns (uint256)",
-  "function viewCount(uint256) view returns (uint256)",
-  "function getFollowers(address) view returns (address[])",
-  "function getFollowing(address) view returns (address[])"
+  "function posts(uint256) view returns (address author, string content, uint256 timestamp, uint256 likes)",
+  "function users(address) view returns (string name, string bio, string avatar, string website)"
 ];
 
 // 👉 Load giao diện khi mở trang
@@ -147,28 +137,48 @@ function updateMenu() {
 document.getElementById("connectBtn").onclick = connectWallet;
 document.getElementById("disconnectBtn").onclick = disconnectWallet;
 
-// 👉 Hiển thị form đăng bài
-function showNewPost() {
-  if (!isRegistered) return alert("You must register to post.");
+// 👉 Hiển thị form đăng ký tài khoản
+function showRegister() {
   document.getElementById("mainContent").innerHTML = `
-    <h2>New Post</h2>
-    <form onsubmit="createPost(); return false;">
-      <label>Title</label>
-      <input type="text" id="postTitle" maxlength="160"/>
-      <label>What's on your mind?</label>
-      <textarea id="postContent" maxlength="20000" oninput="autoResize(this)" style="overflow:hidden; resize:none;" placeholder="Enter your post content here..."></textarea>
-      <label>Image/Video URL (optional)</label>
-      <input type="text" id="postMedia" placeholder="Enter URL of image or video"/>
-      <button type="submit">Post</button>
+    <h2>Register Account</h2>
+    <form onsubmit="registerUser(); return false;">
+      <label>Name*</label>
+      <input type="text" id="regName" maxlength="160" required/>
+      <label>Bio</label>
+      <input type="text" id="regBio" maxlength="160"/>
+      <label>Avatar URL</label>
+      <input type="text" id="regAvatar"/>
+      <label>Website</label>
+      <input type="text" id="regWebsite"/>
+      <button type="submit">Register (0.001 FROLL)</button>
     </form>
   `;
 }
 
+// 👉 Gửi yêu cầu đăng ký tài khoản
+async function registerUser() {
+  const name = document.getElementById("regName").value.trim();
+  const bio = document.getElementById("regBio").value.trim();
+  const avatar = document.getElementById("regAvatar").value.trim();
+  const website = document.getElementById("regWebsite").value.trim();
+  const fee = ethers.utils.parseEther("0.001"); // Phí đăng ký = 0.001 FROLL
+
+  try {
+    const approveTx = await frollTokenContract.approve(frollSocialAddress, fee);
+    await approveTx.wait(); // Chờ xác nhận việc phê duyệt
+    const tx = await frollSocialContract.register(name, bio, avatar, website);
+    await tx.wait(); // Chờ xác nhận việc đăng ký tài khoản
+    alert("Registration successful!");
+    await updateUI();
+  } catch (err) {
+    alert("Registration failed.");
+    console.error(err);
+  }
+}
+
 // 👉 Tạo bài viết
 async function createPost() {
-  const title = document.getElementById("postTitle").value.trim();
   const content = document.getElementById("postContent").value.trim();
-  const media = document.getElementById("postMedia").value.trim();
 
   if (content.length === 0) {
     alert("Post content cannot be empty.");
@@ -181,33 +191,17 @@ async function createPost() {
   }
 
   try {
-    const tx = await frollSocialContract.createPost(title, content, media);
-    await tx.wait();
+    const tx = await frollSocialContract.createPost(content);
+    await tx.wait(); // Đợi giao dịch xác nhận
     alert("Post created!");
-    await showHome(true);
+    await showHome(true); // Hiển thị lại các bài viết mới
   } catch (err) {
     alert("Post failed.");
     console.error(err);
   }
 }
 
-// 👉 Tự động giãn chiều cao textarea khi người dùng nhập
-function autoResize(textarea) {
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
-}
-
-// 👉 Đảm bảo rằng nội dung được dán không mất định dạng (bao gồm ký tự xuống dòng, liên kết, v.v.)
-function handlePaste(event) {
-  const pastedContent = event.clipboardData.getData('text');
-  const formattedContent = pastedContent.replace(/\n/g, '<br/>');
-  document.getElementById("postContent").value += formattedContent; // Append to content area
-}
-
-// 👉 Sự kiện khi người dùng dán nội dung vào textarea
-document.getElementById("postContent").addEventListener('paste', handlePaste);
-
-// 👉 Hiển thị bài viết mới nhất (gồm ❤️, 💬, 🔁)
+// 👉 Hiển thị bài viết mới nhất
 async function showHome(reset = false) {
   if (reset) {
     lastPostId = 0;
@@ -258,7 +252,11 @@ async function showHome(reset = false) {
       const media = post[3];
       const time = new Date(post[4] * 1000).toLocaleString();
 
-      const [likes, shares, views] = await Promise.all([frollSocialReadOnly.likeCount(i), frollSocialReadOnly.shareCount(i), frollSocialReadOnly.viewCount(i)]);
+      // Lấy số lượng likes, shares
+      const [likes, shares] = await Promise.all([
+        frollSocialReadOnly.likeCount(i), 
+        frollSocialReadOnly.shareCount(i)
+      ]);
 
       html += `
         <div class="post">
@@ -270,7 +268,7 @@ async function showHome(reset = false) {
           </div>
           <div class="content">${content}</div>
           ${media ? `<img src="${media}" alt="media"/>` : ""}
-          <div class="metrics">❤️ ${likes} • 🔁 ${shares} • 👁️ ${views}</div>
+          <div class="metrics">❤️ ${likes} • 🔁 ${shares}</div>
           <div class="actions">
             ${isRegistered ? `
               <button onclick="likePost(${i})">👍 Like</button>
