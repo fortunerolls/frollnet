@@ -192,6 +192,7 @@ form textarea {
   resize: vertical;
   min-height: 80px;
   overflow: hidden;
+  transition: height 0.2s ease;
 }
 
 /* Hiệu ứng khi ô textarea tự động thay đổi chiều cao */
