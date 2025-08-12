@@ -119,11 +119,7 @@ function updateMenu() {
     nav.innerHTML = `
       <button class="nav-btn" onclick="showHome(true)">🏠 Home</button>
       <button class="nav-btn" onclick="showProfile()">👤 My Profile</button>
-      <button class="nav-btn" onclick="showNewPost()">✍️ New Post</button>
-      <form onsubmit="searchByAddress(); return false;" style="margin-left: 10px;">
-        <input type="text" id="searchInput" placeholder="Search wallet..." style="padding:4px; font-size:13px; border-radius:6px; border:1px solid #ccc;" />
-        <button type="submit" style="padding:4px 8px; margin-left:5px; border-radius:6px; background:#007bff; color:white; border:none;">🔍</button>
-      </form>
+      <button class="nav-btn" onclick="showMyPosts()">📝 My Posts</button>
     `;
   } else {
     nav.innerHTML = `
@@ -132,10 +128,6 @@ function updateMenu() {
     `;
   }
 }
-
-// 👉 Gán sự kiện kết nối / ngắt kết nối
-document.getElementById("connectBtn").onclick = connectWallet;
-document.getElementById("disconnectBtn").onclick = disconnectWallet;
 
 // 👉 Hiển thị form đăng ký tài khoản
 function showRegister() {
@@ -253,10 +245,7 @@ async function showHome(reset = false) {
       const time = new Date(post[4] * 1000).toLocaleString();
 
       // Lấy số lượng likes, shares
-      const [likes, shares] = await Promise.all([
-        frollSocialReadOnly.likeCount(i), 
-        frollSocialReadOnly.shareCount(i)
-      ]);
+      const [likes, shares] = await Promise.all([frollSocialReadOnly.likeCount(i), frollSocialReadOnly.shareCount(i)]);
 
       html += `
         <div class="post">
