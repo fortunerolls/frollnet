@@ -1,91 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Froll.net - Your Voice. Your Platform.</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="icon" type="image/png" href="froll_48.png"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froll.net - Swap FROLL/VIC</title>
+    <link rel="icon" href="froll_48.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <!-- Kết nối ví -->
+    <div id="connect-interface" class="interface">
+        <img src="128.png" alt="FrollSwap Logo" class="logo" style="display: block; margin: 0 auto;">
+        
+        <!-- Thêm div bao quanh giá FROLL và đoạn thông báo để có độ rộng bằng nhau -->
+        <div class="equal-width-segments">
+            <div class="segment">
+                <span id="froll-price" class="froll-price">Loading price...</span>
+            </div>
+            <div class="segment">
+                <p class="italic-bold">Please open Froll.net in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
+            </div>
+        </div>
 
-  <!-- Thông điệp đầu trang -->
-  <div class="top-message">
-    <p class="tip">
-      Tip: Use VIC chain in MetaMask. On mobile, open in the wallet's browser (e.g. Viction, MetaMask).
-    </p>
-    <p class="made">Made with ❤️ on the VIC blockchain</p>
-  </div>
-
-  <!-- Header -->
-  <header>
-    <div class="logo-area">
-      <img src="froll_48.png" alt="Froll.net" class="logo"/>
-      <div>
-        <h1>Froll.net</h1>
-        <p>Your Voice. Your Platform. Your Rules</p>
-      </div>
+        <div class="button-container">
+            <button id="connect-wallet" class="button">Connect Wallet</button>
+        </div>
     </div>
-    <div class="wallet-area">
-      <span id="walletAddress">Not connected</span>
-      <span id="frollBalance"></span>
-      <span id="vicBalance"></span>
-      <button id="connectBtn">Connect Wallet</button>
-      <button id="disconnectBtn" style="display:none;">Disconnect</button>
+
+    <!-- Nội dung khi kết nối -->
+    <div id="new-content" class="interface" style="display: none;">
+        <h2>🧭 Add Viction Network & FROLL Token to MetaMask</h2>
+        <ul class="feature-list">
+            <li>🧩 <strong>Add Viction Network</strong><br>
+                RPC: <span class="copy-box" onclick="copyText(this)">https://rpc.viction.xyz</span><br>
+                Chain ID: <span class="copy-box" onclick="copyText(this)">88</span><br>
+                Symbol: <span class="copy-box" onclick="copyText(this)">VIC</span><br>
+                Explorer: <span class="copy-box" onclick="copyText(this)">https://vicscan.xyz</span>
+            </li>
+            <li>🔔 <strong>Add FROLL Token</strong><br>
+                Contract: <span class="copy-box" onclick="copyText(this)">0xB4d562A8f811CE7F134a1982992Bd153902290BC</span><br>
+                Symbol: <span class="copy-box" onclick="copyText(this)">FROLL</span><br>
+                Decimals: <span class="copy-box" onclick="copyText(this)">18</span>
+            </li>
+        </ul>
+
+        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
+        <p><strong>Name:</strong> FortuneRolls</p>
+        <p><strong>Symbol:</strong> FROLL</p>
+        <p><strong>Blockchain:</strong> Viction (VIC)</p>
+        <p><strong>Max Supply:</strong> 1,000,000</p>
+        <p><strong>Contract:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View on VicScan</a></p>
+    
+        <h2>🎮 Explore the FROLL Ecosystem</h2>
+        <ul class="feature-list">
+            <li>🎟️ <a href="https://Lottery.vin" target="_blank">Lottery.vin</a> – Fully on-chain decentralized lottery</li>
+            <li>🎲 <a href="https://Froll.org" target="_blank">Froll.org</a> – Provably fair blockchain dice game</li>
+        </ul>
     </div>
-  </header>
 
-  <!-- Thanh thông tin giá FROLL và các liên kết -->
-  <section class="info-bar">
-    <div id="frollPrice">1 FROLL ≈ $-- USD</div>
-    <a href="https://lottery.vin" class="trade-link" target="_blank">Swap FROLL/VIC</a>
-    <a href="https://docs.google.com" class="guide-link" target="_blank">📘 Guide</a>
-  </section>
-
-  <!-- Nội dung chính -->
-  <main id="mainContent">
-    <h2>Create a Post</h2>
-    <form id="postForm">
-      <label for="postContent">Post Content (max 20,000 characters)</label>
-      <textarea id="postContent" placeholder="Enter your post content here..." required oninput="autoResize(this)" style="resize:none;"></textarea>
-      <label for="postLink">Attach Image/Video URL</label>
-      <input type="text" id="postLink" placeholder="Enter URL of image or video"/>
-      <button type="submit">Create Post</button>
-    </form>
-
-    <!-- Danh sách bài đăng -->
-    <div id="postList">
-      <!-- Các bài đăng sẽ được hiển thị ở đây -->
+    <!-- Giao diện Swap -->
+    <div id="swap-interface" class="interface" style="display: none;">
+        <header class="swap-header">
+            <div id="wallet-address" class="wallet-address"></div>
+            <button id="disconnect-wallet" class="button">Disconnect Wallet</button>
+        </header>
+        <h1>Swap</h1>
+        <div class="swap-container">
+            <div class="token-input">
+                <img id="from-token-logo" src="vic_24.png" alt="From Token">
+                <div>
+                    <p id="from-token-info">VIC: 0.0000</p>
+                    <input type="number" id="from-amount" placeholder="0.0">
+                </div>
+                <button id="max-button" class="button">Max</button>
+            </div>
+            <button id="swap-direction" class="swap-direction">↔️</button>
+            <div class="token-input">
+                <img id="to-token-logo" src="froll_24.png" alt="To Token">
+                <div>
+                    <p id="to-token-info">FROLL: 0.0000</p>
+                    <input type="text" id="to-amount" placeholder="0.0" disabled>
+                </div>
+            </div>
+        </div>
+        <div class="swap-details">
+            <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
+            <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
+        </div>
+        <button id="swap-now" class="button">Swap Now</button>
     </div>
-  </main>
 
-  <footer></footer>
+    <!-- Chân trang và mạng xã hội -->
+    <footer id="footer" class="footer">
+        <div class="social-links">
+            <a href="https://t.me/FortuneRolls" target="_blank">Join Telegram</a>
+            <a href="https://x.com/FortuneRolls" target="_blank">Follow X</a>
+        </div>
+    </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="app.js"></script>
-
-  <script>
-    // Hàm lấy giá FROLL từ API Binance
-    async function fetchFrollPrice() {
-      try {
-        const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
-        const data = await res.json();
-        const vicUsd = parseFloat(data.price);
-        const frollUsd = (vicUsd * 100).toFixed(2);
-        document.getElementById("frollPrice").innerText = `1 FROLL ≈ $${frollUsd} USD`;
-      } catch (error) {
-        document.getElementById("frollPrice").innerText = "1 FROLL ≈ $-- USD";
-      }
-    }
-
-    fetchFrollPrice();
-    setInterval(fetchFrollPrice, 60000);  // Cập nhật giá mỗi phút
-
-    // Hàm tự động thay đổi chiều cao của textarea khi người dùng nhập
-    function autoResize(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  </script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        function copyText(el) {
+            const t = el.textContent.trim();
+            navigator.clipboard.writeText(t)
+                .then(() => alert("✅ Copied: " + t))
+                .catch(err => console.error("Copy failed!", err));
+        }
+    </script>
+    <script src="app.js"></script>
 </body>
+
 </html>
