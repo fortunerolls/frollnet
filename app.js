@@ -5,6 +5,17 @@ let provider, signer, userAddress;
 let frollSocialContract, frollTokenContract;
 let isRegistered = false;
 
+const frollTokenAbi = [
+  "function balanceOf(address account) view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)"
+];
+
+const frollSocialAbi = [
+  "function isRegistered(address) view returns (bool)",
+  "function register(string name, string bio, string avatar, string website) external",
+  "function createPost(string content) external returns (uint256 id)"
+];
+
 // 👉 Hàm kết nối ví MetaMask
 async function connectWallet() {
   try {
@@ -65,9 +76,9 @@ function updateMenu() {
 }
 
 // 👉 Hàm tạo bài viết
-async function createPost() {
+async function createPost(event) {
+  event.preventDefault();
   const content = document.getElementById("postContent").value.trim();
-  const media = document.getElementById("postLink").value.trim();
   if (content.length === 0 || content.length > 20000) {
     alert("Content should not be empty or exceed 20,000 characters");
     return;
@@ -102,7 +113,7 @@ async function registerUser() {
   }
 }
 
-// 👉 Chức năng hiển thị bài viết
+// 👉 Hiển thị bài viết mới nhất
 async function showHome() {
   const posts = await frollSocialContract.getPosts();
   const postList = document.getElementById("postList");
@@ -142,3 +153,4 @@ async function sharePost(postId) {
     console.error("Error sharing post:", error);
   }
 }
+
