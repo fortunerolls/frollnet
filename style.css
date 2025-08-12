@@ -100,7 +100,7 @@ header p {
   font-family: monospace;
 }
 
-/* 💰 Thanh thông tin giá VIN + liên kết */
+/* 💰 Thanh thông tin giá FROLL và các liên kết */
 .info-bar {
   display: flex;
   flex-wrap: wrap;
