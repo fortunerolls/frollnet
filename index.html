@@ -17,7 +17,6 @@
     <p class="made">Made with ❤️ on the VIC blockchain</p>
   </div>
 
-  <!-- Header -->
   <header>
     <div class="logo-area">
       <img src="froll_48.png" alt="Froll.net" class="logo"/>
@@ -42,22 +41,24 @@
     <a href="https://docs.google.com" class="guide-link" target="_blank">📘 Guide</a>
   </section>
 
-  <!-- Thanh điều hướng chính (ẩn khi chưa đăng ký) -->
-  <nav id="mainNav" style="display: none;"></nav>
+  <!-- Thanh điều hướng chính -->
+  <nav id="mainNav" style="display:none;">
+    <button class="nav-btn" onclick="showHome()">🏠 Home</button>
+    <button class="nav-btn" onclick="showProfile()">👤 My Profile</button>
+    <button class="nav-btn" onclick="showNewPost()">✍️ New Post</button>
+  </nav>
 
   <!-- Nội dung chính -->
   <main id="mainContent">
-    <h2>Welcome to Froll.net</h2>
-    <p>Connect your wallet and start creating posts, liking, commenting, and sharing with others.</p>
-    <button onclick="showNewPost()">Create a Post</button>
-    <!-- Nội dung bài viết và các bài đăng sẽ được hiển thị tại đây -->
+    <!-- Các bài viết sẽ hiển thị ở đây -->
   </main>
+
+  <footer></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="app.js"></script>
 
   <script>
-    // Hàm lấy giá FROLL từ API Binance
     async function fetchFrollPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT');
@@ -72,19 +73,6 @@
 
     fetchFrollPrice();
     setInterval(fetchFrollPrice, 60000);  // Cập nhật giá mỗi phút
-
-    // Hàm tự động thay đổi chiều cao của textarea khi người dùng nhập
-    function autoResize(textarea) {
-      // Đặt chiều cao ban đầu là 'auto' để nó có thể thay đổi theo nội dung
-      textarea.style.height = 'auto';
-      // Cập nhật chiều cao để khớp với nội dung
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-
-    // Gán sự kiện cho ô tạo bài viết để tự động thay đổi chiều cao
-    document.getElementById("postContent").addEventListener("input", function() {
-      autoResize(this);
-    });
   </script>
 </body>
 </html>
