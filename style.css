@@ -79,7 +79,6 @@ header p {
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  flex-wrap: wrap;
 }
 
 .wallet-area button {
@@ -125,40 +124,13 @@ header p {
   text-decoration: underline;
 }
 
-/* 📂 Thanh menu chính */
-nav {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  background: #ffffff;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
-}
-
-.nav-btn {
-  background: transparent;
-  border: none;
-  padding: 6px 10px;
-  font-weight: bold;
-  font-size: 15px;
-  color: #007bff;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.nav-btn:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
 /* 🧾 Bài viết */
 .post {
   background: #fff;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .post .title {
@@ -171,7 +143,6 @@ nav {
   font-size: 13px;
   color: #555;
   margin-bottom: 10px;
-  word-break: break-word;
 }
 
 .post .content {
@@ -219,7 +190,7 @@ form {
   background: white;
   padding: 15px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   margin-bottom: 20px;
 }
 
