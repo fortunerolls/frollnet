@@ -101,7 +101,7 @@ header p {
   font-family: monospace;
 }
 
-/* 💰 Thanh thông tin giá VIN + liên kết */
+/* 💰 Thanh thông tin giá FROLL và các liên kết */
 .info-bar {
   display: flex;
   flex-wrap: wrap;
@@ -152,22 +152,13 @@ nav {
   text-decoration: underline;
 }
 
-
-
-/* 📰 Khu vực nội dung chính */
-main {
-  max-width: 720px;
-  margin: 20px auto;
-  padding: 0 15px;
-}
-
 /* 🧾 Bài viết */
 .post {
   background: #fff;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .post .title {
@@ -228,7 +219,7 @@ form {
   background: white;
   padding: 15px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
