@@ -19,18 +19,9 @@ const frollSocialAbi = [
   "function likePost(uint256 postId) external",
   "function commentOnPost(uint256 postId, string message) external",
   "function sharePost(uint256 postId) external",
-  "function viewPost(uint256 postId) external",
-  "function follow(address) external",
-  "function unfollow(address) external",
   "function getUserPosts(address) view returns (uint256[])",
-  "function posts(uint256) view returns (address author, string content, uint256 timestamp, uint256 likes)",
-  "function users(address) view returns (string name, string bio, string avatar, string website)",
-  "function nextPostId() view returns (uint256)",
-  "function likeCount(uint256) view returns (uint256)",
-  "function shareCount(uint256) view returns (uint256)",
-  "function viewCount(uint256) view returns (uint256)",
-  "function getFollowers(address) view returns (address[])",
-  "function getFollowing(address) view returns (address[])"
+  "function posts(uint256) view returns (address author, string content, uint64 timestamp, uint256 likes)",
+  "function users(address) view returns (string name, string bio, string avatar, string website)"
 ];
 
 // 👉 Load giao diện khi mở trang
@@ -49,11 +40,15 @@ window.onload = async () => {
 
 // 👉 Kết nối ví
 async function connectWallet() {
-  await provider.send("eth_requestAccounts", []);  // Yêu cầu kết nối ví MetaMask
-  signer = provider.getSigner();
-  userAddress = await signer.getAddress();
-  await setupContracts();
-  await updateUI();
+  try {
+    await provider.send("eth_requestAccounts", []); // yêu cầu kết nối ví MetaMask
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    await setupContracts();
+    await updateUI();
+  } catch (error) {
+    console.error("Error connecting wallet:", error);
+  }
 }
 
 // 👉 Ngắt kết nối ví
@@ -93,14 +88,18 @@ async function updateUI() {
   const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
+  // Hiển thị ví và số dư
   document.getElementById("walletAddress").innerHTML = `
     <span style="font-family: monospace;">${userAddress}</span>
     <button onclick="copyToClipboard('${userAddress}')" title="Copy address">📋</button>
     <span style="margin-left: 10px;">| ${froll} FROLL | ${vic} VIC</span>
   `;
 
+  // Hiển thị nút kết nối / ngắt kết nối
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
+  
+  // Kiểm tra trạng thái đăng ký
   isRegistered = await frollSocialContract.isRegistered(userAddress);
   updateMenu();
   showHome(true);
@@ -135,12 +134,23 @@ function updateMenu() {
   }
 }
 
+// 👉 Tìm kiếm theo địa chỉ ví
+function searchByAddress() {
+  const input = document.getElementById("searchInput").value.trim();
+  if (!ethers.utils.isAddress(input)) {
+    alert("Please enter a valid wallet address.");
+    return;
+  }
+  viewProfile(input);
+}
+
 // 👉 Gán sự kiện kết nối / ngắt kết nối
 document.getElementById("connectBtn").onclick = connectWallet;
 document.getElementById("disconnectBtn").onclick = disconnectWallet;
 
 // 👉 Hiển thị form đăng ký tài khoản
 function showRegister() {
+  if (isRegistered) return alert("You are already registered.");
   document.getElementById("mainContent").innerHTML = `
     <h2>Register Account</h2>
     <form onsubmit="registerUser(); return false;">
@@ -254,7 +264,11 @@ async function showHome(reset = false) {
       const media = post[3];
       const time = new Date(post[4] * 1000).toLocaleString();
 
-      const [likes, shares] = await Promise.all([frollSocialReadOnly.likeCount(i), frollSocialReadOnly.shareCount(i)]);
+      // Lấy số lượng likes, shares
+      const [likes, shares] = await Promise.all([
+        frollSocialReadOnly.likeCount(i),
+        frollSocialReadOnly.shareCount(i)
+      ]);
 
       html += `
         <div class="post">
@@ -303,4 +317,3 @@ function translatePost(text) {
   const url = `https://translate.google.com/?sl=auto&tl=en&text=${encodeURIComponent(text)}&op=translate`;
   window.open(url, "_blank");
 }
-
