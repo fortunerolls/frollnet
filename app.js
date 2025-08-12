@@ -49,12 +49,15 @@ window.onload = async () => {
 
 // 👉 Kết nối ví
 async function connectWallet() {
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  userAddress = await signer.getAddress();
-  await setupContracts();
-  frollSocialReadOnly = new ethers.Contract(frollSocialAddress, frollSocialAbi, provider);
-  await updateUI();
+  try {
+    await provider.send("eth_requestAccounts", []); // yêu cầu kết nối ví MetaMask
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    await setupContracts();
+    await updateUI();
+  } catch (error) {
+    console.error("Error connecting wallet:", error);
+  }
 }
 
 // 👉 Ngắt kết nối ví
@@ -94,14 +97,18 @@ async function updateUI() {
   const froll = parseFloat(ethers.utils.formatEther(frollBal)).toFixed(2);
   const vic = parseFloat(ethers.utils.formatEther(vicBal)).toFixed(4);
 
+  // Hiển thị ví và số dư
   document.getElementById("walletAddress").innerHTML = `
     <span style="font-family: monospace;">${userAddress}</span>
     <button onclick="copyToClipboard('${userAddress}')" title="Copy address">📋</button>
     <span style="margin-left: 10px;">| ${froll} FROLL | ${vic} VIC</span>
   `;
 
+  // Hiển thị nút kết nối / ngắt kết nối
   document.getElementById("connectBtn").style.display = "none";
   document.getElementById("disconnectBtn").style.display = "inline-block";
+  
+  // Kiểm tra trạng thái đăng ký
   isRegistered = await frollSocialContract.isRegistered(userAddress);
   updateMenu();
   showHome(true);
@@ -434,4 +441,67 @@ async function viewProfile(addr) {
         <div class="post">
           <div class="title">${post[1]}</div>
           <div class="author">${shorten(post[0])} • ${time}</div>
-          <div class="content">${post[2
+          <div class="content">${post[2]}</div>
+          ${post[3] ? `<img src="${post[3]}" alt="media"/>` : ""}
+          <div class="metrics">❤️ ${likes} • 🔁 ${shares} • 👁️ ${views}</div>
+        </div>
+      `;
+    }
+
+    document.getElementById("mainContent").innerHTML = html;
+  } catch (err) {
+    alert("Profile not available.");
+    console.error(err);
+  }
+}
+
+// 👉 Xem hồ sơ chính mình
+async function showProfile() {
+  if (!userAddress) return alert("Wallet not connected");
+  await viewProfile(userAddress);
+}
+
+// 👉 Follow người dùng khác
+async function followUser(addr) {
+  try {
+    const tx = await frollSocialContract.follow(addr);
+    await tx.wait();
+    alert("Now following!");
+    await viewProfile(addr);
+  } catch (err) {
+    alert("Follow failed.");
+    console.error(err);
+  }
+}
+
+// 👉 Unfollow người dùng khác
+async function unfollowUser(addr) {
+  try {
+    const tx = await frollSocialContract.unfollow(addr);
+    await tx.wait();
+    alert("Unfollowed.");
+    await viewProfile(addr);
+  } catch (err) {
+    alert("Unfollow failed.");
+    console.error(err);
+  }
+}
+
+// 👉 (Chuẩn bị tương lai) Gợi ý người dùng nổi bật
+async function suggestUsers() {
+  return [];
+}
+
+// 👉 (Chuẩn bị tương lai) Gợi ý bài viết nổi bật
+async function suggestPosts() {
+  return [];
+}
+
+// 👉 Tìm kiếm mở rộng (ý tưởng tương lai)
+async function searchByAddressOrKeyword(input) {
+  if (ethers.utils.isAddress(input)) {
+    await viewProfile(input);
+  } else {
+    alert("Currently only wallet address search is supported.");
+  }
+}
