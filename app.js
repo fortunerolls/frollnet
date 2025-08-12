@@ -262,7 +262,6 @@ function translatePost(text) {
 function showRegister() {
   if (isRegistered) return alert("You are already registered.");
   document.getElementById("mainContent").innerHTML = `
-
     <h2>Register Account</h2>
     <form onsubmit="registerUser(); return false;">
       <label>Name*</label>
