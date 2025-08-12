@@ -191,8 +191,15 @@ form textarea {
 form textarea {
   resize: vertical;
   min-height: 80px;
+  overflow: hidden;
 }
 
+/* Hiệu ứng khi ô textarea tự động thay đổi chiều cao */
+form textarea {
+  transition: height 0.2s ease;
+}
+
+/* Nút đăng bài */
 form button {
   padding: 8px 16px;
   background: #28a745;
