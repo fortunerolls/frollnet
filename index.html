@@ -4,33 +4,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swap FROLL/VIC</title>
+    <title>FortuneRolls Ecosystem</title>
     <link rel="icon" href="froll_48.png" type="image/png">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Kết nối ví -->
-    <div id="connect-interface" class="interface">
-        <img src="froll_48.png" alt="FrollSwap Logo" class="logo" style="display: block; margin: 0 auto;">
-        
-        <!-- Thêm div bao quanh giá FROLL và đoạn thông báo để có độ rộng bằng nhau -->
-        <div class="equal-width-segments">
-            <div class="segment">
-                <span id="froll-price" class="froll-price">Loading price...</span>
-            </div>
-            <div class="segment">
-                <p class="italic-bold">Please open https://bit.ly/FortuneRolls in your MetaMask browser (on Viction Network) to connect and swap FROLL/VIC</p>
-            </div>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <img src="froll_48.png" alt="FrollSwap Logo" class="logo">
+            <h1>Welcome to the FortuneRolls Ecosystem</h1>
+            <p>Your gateway to decentralized, transparent gaming.</p>
         </div>
+    </header>
 
+    <!-- Giới thiệu FROLL -->
+    <section id="intro-section" class="section">
+        <h2>Why FROLL?</h2>
+        <p>In every game, players want a <strong>transparent</strong>, <strong>fair</strong> experience where no one can interfere with the results. Unfortunately, this is not always guaranteed on traditional platforms, where issues like fraud and lack of transparency are common. Players cannot always be sure if the game's results are fair, or if they are receiving their rewards fairly.</p>
+        <p><strong>FROLL</strong> was created to solve this problem. By leveraging <strong>blockchain technology</strong> and integrating with <strong>MetaMask</strong>, FROLL ensures that every transaction, result, and interaction in the ecosystem is <strong>publicly verifiable</strong> and <strong>transparent</strong>. Everything is recorded on the blockchain, immutable and fully auditable.</p>
+        <p>With FROLL, games like <strong>Dice Game</strong> and <strong>Lottery</strong> are no longer just a gamble—every roll, every ticket, and every reward is backed by blockchain, ensuring fairness for everyone.</p>
+        <p>Join the FROLL ecosystem today and enjoy the most transparent and secure games!</p>
+    </section>
+
+    <!-- Kết nối ví và Swap FROLL/VIC -->
+    <section id="connect-section" class="section">
+        <h2>Swap FROLL/VIC</h2>
+        <p>Swap FROLL for VIC and participate in our exciting decentralized games!</p>
         <div class="button-container">
-            <button id="connect-wallet" class="button">Connect Wallet</button>
+            <button id="connect-wallet" class="button">Swap FROLL/VIC</button>
         </div>
-    </div>
+    </section>
 
-    <!-- Nội dung khi kết nối -->
-    <div id="new-content" class="interface" style="display: none;">
+    <!-- Hệ sinh thái FROLL -->
+    <section id="ecosystem" class="section">
+        <h2>🎮 Explore the FROLL Ecosystem</h2>
+        
+        <!-- Nút chơi xổ số -->
+        <div class="ecosystem-item">
+            <h3>Decentralized & Provably Fair Lottery</h3>
+            <p>Play the decentralized lottery and try your luck. It's fully on-chain, ensuring fairness and transparency.</p>
+            <button onclick="window.location.href='https://Lottery.vin'" class="button">Play Lottery</button>
+        </div>
+
+        <!-- Nút chơi xóc đĩa -->
+        <div class="ecosystem-item">
+            <h3>Provably Fair Blockchain Dice Game</h3>
+            <p>Play the blockchain-based dice game. Provably fair and fun with every roll.</p>
+            <button onclick="window.location.href='https://ipfs.io/ipfs/bafybeihenwnc6oov7wixdnglznc4heiqbuxs3ntq6si2bqwcdku3qqxci4'" class="button">Play Dice</button>
+        </div>
+    </section>
+
+    <!-- Hướng dẫn thêm mạng Viction vào MetaMask -->
+    <section id="metaMask-section" class="section">
         <h2>🧭 Add Viction Network & FROLL Token to MetaMask</h2>
         <ul class="feature-list">
             <li>🧩 <strong>Add Viction Network</strong><br>
@@ -45,20 +72,7 @@
                 Decimals: <span class="copy-box" onclick="copyText(this)">18</span>
             </li>
         </ul>
-
-        <h2>💎 FROLL Token – A Scarce Asset on VIC Blockchain</h2>
-        <p><strong>Name:</strong> FortuneRolls</p>
-        <p><strong>Symbol:</strong> FROLL</p>
-        <p><strong>Blockchain:</strong> Viction (VIC)</p>
-        <p><strong>Max Supply:</strong> 1,000,000</p>
-        <p><strong>Contract:</strong> <a href="https://www.vicscan.xyz/token/0xB4d562A8f811CE7F134a1982992Bd153902290BC" target="_blank">View on VicScan</a></p>
-    
-        <h2>🎮 Explore the FROLL Ecosystem</h2>
-        <ul class="feature-list">
-            <li>🎟️ <a href="https://Lottery.vin" target="_blank">Lottery.vin</a> – Fully on-chain decentralized lottery</li>
-            <li>🎲 <a href="https://Froll.org" target="_blank">Froll.org</a> – Provably fair blockchain dice game</li>
-        </ul>
-    </div>
+    </section>
 
     <!-- Giao diện Swap -->
     <div id="swap-interface" class="interface" style="display: none;">
@@ -100,6 +114,7 @@
         </div>
     </footer>
 
+    <!-- Script -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
         function copyText(el) {
