@@ -1,4 +1,4 @@
-/* Toàn bộ trang */
+/* Reset các giá trị mặc định của trình duyệt */
 * {
     margin: 0;
     padding: 0;
@@ -6,10 +6,10 @@
     font-family: 'Arial', sans-serif;
 }
 
-/* Body của trang */
+/* Toàn bộ trang */
 body {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #f4f7fc; /* Màu nền sáng */
+    color: #333; /* Màu chữ chính */
     font-size: 16px;
     line-height: 1.6;
 }
@@ -18,13 +18,14 @@ body {
 header {
     background-color: #2d3e50; /* Màu nền tối cho header */
     color: #fff;
-    padding: 40px 0;
+    padding: 40px 20px;
     text-align: center;
+    border-bottom: 2px solid #ffcc00;
 }
 
 header .logo {
     width: 100px; /* Logo đẹp mắt */
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 header h1 {
@@ -36,7 +37,7 @@ header #froll-price {
     font-size: 1.5rem;
     font-weight: bold;
     color: #ffcc00; /* Màu vàng cho giá FROLL */
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 header p {
@@ -44,7 +45,44 @@ header p {
     margin-bottom: 20px;
 }
 
-/* Section - Giới thiệu */
+/* Nút "Play Now" */
+.play-now-section {
+    background-color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: 10px;
+    margin: 30px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.play-now-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.button {
+    background-color: #ffcc00;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 200px;
+}
+
+.button:hover {
+    background-color: #e6a800;
+}
+
+/* Section Giới thiệu FROLL */
 .section {
     padding: 40px 20px;
     text-align: center;
@@ -66,45 +104,7 @@ header p {
     margin-top: 30px;
 }
 
-/* Chỉnh các link, button */
-a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-.button {
-    background-color: #007bff;
-    color: white;
-    padding: 15px 30px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.button:hover {
-    background-color: #0056b3;
-}
-
-/* Các phần danh sách sao chép */
-.copy-box {
-    background-color: #e9ecef;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 5px;
-}
-
-.copy-box:hover {
-    background-color: #d6d8db;
-}
-
-/* Thêm mạng Viction và Token vào MetaMask */
+/* Thêm mạng Viction vào MetaMask */
 .metaMask-section ul {
     list-style: none;
     padding: 0;
@@ -115,39 +115,11 @@ a:hover {
     font-size: 1.1rem;
 }
 
-/* Section Ecosystem */
-.ecosystem-section h2 {
-    font-size: 2rem;
-    margin-bottom: 30px;
-}
-
-.ecosystem-item {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-.ecosystem-item h3 {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-}
-
-.ecosystem-item p {
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-.ecosystem-item .button {
-    margin-top: 20px;
-}
-
 /* Footer */
 footer {
     background-color: #2d3e50;
     color: #fff;
-    padding: 30px 0;
+    padding: 30px 20px;
     text-align: center;
 }
 
@@ -155,6 +127,7 @@ footer .social-links a {
     color: #fff;
     margin: 0 10px;
     font-size: 1.2rem;
+    text-decoration: none;
 }
 
 footer .social-links a:hover {
@@ -190,13 +163,8 @@ footer .social-links a:hover {
         font-size: 1.1rem;
     }
 
-    .ecosystem-item {
-        padding: 20px;
-        margin-bottom: 15px;
-    }
-
-    .ecosystem-item h3 {
-        font-size: 1.3rem;
+    .play-now-section {
+        padding: 30px;
     }
 
     footer .social-links a {
@@ -217,11 +185,16 @@ footer .social-links a:hover {
         font-size: 1rem;
     }
 
-    .ecosystem-item {
-        padding: 15px;
+    .section {
+        padding: 20px 15px;
     }
 
-    .copy-box {
+    .button {
         font-size: 1rem;
+        padding: 12px;
+    }
+
+    footer .social-links a {
+        font-size: 0.9rem;
     }
 }
