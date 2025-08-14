@@ -25,39 +25,25 @@ html, body {
     animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Giá FROLL theo USD */
-.froll-price {
-    font-weight: bold; /* Làm đậm chữ để giá nổi bật */
-    font-size: 28px; /* Kích thước chữ lớn hơn để dễ nhìn */
-    color: #FFD700; /* Màu vàng ánh kim */
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2); /* Giảm đổ bóng nhẹ để giá vẫn rõ nét */
-    letter-spacing: 1px; /* Thêm khoảng cách giữa các chữ để giá dễ đọc hơn */
-    line-height: 1.2; /* Điều chỉnh khoảng cách dòng để cân đối */
-}
-
-
-/* INTERFACE BLOCKS */
-.interface {
-    max-width: 640px;
-    margin: 40px auto;
-    padding: 25px;
+/* GIỚI THIỆU FROLL */
+#intro-section {
     background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    padding: 30px;
     text-align: center;
+    margin-top: 40px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
-/* REMOVE WELCOME SECTION AND NAVBAR */
-#connect-interface, #new-content {
-    display: block;
+#intro-section h2 {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 20px;
 }
 
-#swap-interface:not([style*="display: none"]) ~ #connect-interface,
-#swap-interface:not([style*="display: none"]) ~ #new-content {
-    display: none !important;
+#intro-section p {
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 /* BUTTON */
@@ -83,74 +69,15 @@ html, body {
     transform: scale(0.97);
 }
 
-/* FOOTER */
-.footer {
-    padding: 20px 0;
-    background-color: #007bff;
-    text-align: center;
-    color: white;
-    display: block; /* Đảm bảo footer hiển thị mặc định */
-}
-
-.footer .social-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.footer .social-links a {
-    margin: 0;
-    color: white;
-    text-decoration: none;
-}
-
-.footer .social-links a:hover {
-    text-decoration: underline;
-}
-
-/* HOME CONTENT */
-#new-content {
+/* INTERFACE BLOCKS */
+.interface {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 25px;
     background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
     border-radius: 12px;
-    padding: 20px;
-    text-align: left;
-    margin-top: 0;
-}
-
-#new-content h2 {
-    font-size: 20px;
-    color: #007bff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-align: center;
-}
-
-.feature-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-}
-
-.feature-list li {
-    padding: 8px 0;
-    font-size: 15px;
-    line-height: 1.5;
-}
-
-.feature-list code,
-.copyable {
-    background-color: #eef3fc;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
-    cursor: pointer;
-    display: inline-block;
-    color: #007bff;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.copyable:hover {
-    color: #d9534f;
-    text-decoration: underline;
 }
 
 /* SWAP INTERFACE */
@@ -212,6 +139,114 @@ html, body {
     font-size: 14px;
     color: #555;
     margin-top: 20px;
+}
+
+/* Hệ sinh thái FROLL */
+#ecosystem {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.ecosystem-item {
+    margin-bottom: 30px;
+}
+
+.ecosystem-item h3 {
+    color: #007bff;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.ecosystem-item p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#ecosystem .button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#ecosystem .button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#ecosystem .button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
+
+/* Thêm mạng Viction vào MetaMask */
+#metaMask-section {
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 40px;
+    text-align: left;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.feature-list code,
+.copyable {
+    background-color: #eef3fc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    cursor: pointer;
+    display: inline-block;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.copyable:hover {
+    color: #d9534f;
+    text-decoration: underline;
+}
+
+/* FOOTER */
+.footer {
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
+
+.footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer .social-links a {
+    margin: 0;
+    color: white;
+    text-decoration: none;
+}
+
+.footer .social-links a:hover {
+    text-decoration: underline;
 }
 
 /* RESPONSIVE */
