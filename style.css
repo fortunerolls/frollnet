@@ -1,0 +1,356 @@
+/* RESET & BASE FONT */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* NAVBAR */
+.navbar {
+    display: block; /* Đảm bảo navbar hiển thị mặc định */
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+/* LOGO */
+.logo {
+    height: 80px; /* Tăng kích thước logo */
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* GIỚI THIỆU FROLL */
+#intro-section {
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 40px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+#intro-section h2 {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+#intro-section p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* BUTTON */
+.button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
+
+/* INTERFACE BLOCKS */
+.interface {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+/* SWAP INTERFACE */
+.swap-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.token-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+}
+
+.token-input img {
+    height: 24px;
+    width: 24px;
+}
+
+.token-input input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.token-input input:focus {
+    outline: none;
+}
+
+.token-input .button {
+    margin-left: -5px;
+}
+
+.swap-direction {
+    font-size: 24px;
+    color: #007bff;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.swap-direction:hover {
+    transform: rotate(180deg);
+}
+
+.swap-details {
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+    margin-top: 20px;
+}
+
+/* Hệ sinh thái FROLL */
+#ecosystem {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.ecosystem-item {
+    margin-bottom: 30px;
+}
+
+.ecosystem-item h3 {
+    color: #007bff;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.ecosystem-item p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#ecosystem .button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+#ecosystem .button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#ecosystem .button:active {
+    background-color: #004085;
+    transform: scale(0.97);
+}
+
+/* Thêm mạng Viction vào MetaMask */
+#metaMask-section {
+    background: rgba(255, 255, 255, 0.8); /* Nền trắng trong suốt */
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 40px;
+    text-align: left;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.feature-list code,
+.copyable {
+    background-color: #eef3fc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    cursor: pointer;
+    display: inline-block;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.copyable:hover {
+    color: #d9534f;
+    text-decoration: underline;
+}
+
+/* FOOTER */
+.footer {
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
+
+.footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer .social-links a {
+    margin: 0;
+    color: white;
+    text-decoration: none;
+}
+
+.footer .social-links a:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .interface {
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .swap-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .token-input {
+        width: 100%;
+    }
+
+    .feature-list li,
+    .feature-list code,
+    .copyable {
+        font-size: 14px;
+    }
+
+    .footer .social-links a {
+        display: block;
+        margin-bottom: 10px;
+    }
+}
+
+/* FADE-IN */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Đảm bảo footer luôn ở dưới cùng của trang */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của trang là 100% chiều cao màn hình */
+}
+
+main {
+    flex-grow: 1; /* Phần thân chính (content) sẽ chiếm không gian còn lại */
+}
+
+/* Footer */
+.footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng của trang */
+    padding: 20px 0;
+    background-color: #007bff;
+    text-align: center;
+    color: white;
+}
+
+/* Định dạng dòng chữ "Please open Froll.net" */
+.italic-bold {
+    font-weight: bold; /* In đậm */
+    font-style: italic; /* Nghiêng chữ */
+    font-size: 12px; /* Giữ cỡ chữ nhỏ như yêu cầu */
+    color: #555;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Đảm bảo hai đoạn văn bản có độ rộng bằng nhau */
+.equal-width-segments {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.equal-width-segments .segment {
+    width: 48%; /* Đảm bảo mỗi phần chiếm 48% chiều rộng để có độ rộng bằng nhau */
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Đảm bảo các phần hiển thị đẹp trên màn hình nhỏ (responsive) */
+@media (max-width: 768px) {
+    .equal-width-segments {
+        flex-direction: column; /* Chuyển thành cột khi trên màn hình nhỏ */
+    }
+
+    .equal-width-segments .segment {
+        width: 100%; /* Mỗi đoạn chiếm toàn bộ chiều rộng khi trên màn hình nhỏ */
+        margin-bottom: 10px;
+    }
+}
+
+/* Tinh chỉnh phần hiển thị giá FROLL cho mượt mà và dễ nhìn */
+#froll-price {
+    font-weight: bold; /* Làm đậm giá để nổi bật */
+    font-size: 24px;
+    color: #FFD700; /* Màu vàng ánh kim */
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.5;
+}
