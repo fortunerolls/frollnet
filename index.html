@@ -17,11 +17,19 @@
             <h1>Welcome to the FortuneRolls Ecosystem</h1>
             <!-- Giá FROLL theo USD -->
             <p id="froll-price" class="price-tag">Loading price...</p>
-            <p>Your gateway to decentralized, transparent gaming powered by blockchain technology.</p>
         </div>
     </header>
 
-    <!-- Section Giới thiệu -->
+    <!-- Section Nút chơi ngay (Lottery và Dice Game) -->
+    <section id="play-now" class="section play-now-section">
+        <h2>Start Playing Now</h2>
+        <div class="button-container">
+            <button onclick="window.location.href='https://Lottery.vin'" class="button">Play Lottery</button>
+            <button onclick="window.location.href='https://ipfs.io/ipfs/bafybeihenwnc6oov7wixdnglznc4heiqbuxs3ntq6si2bqwcdku3qqxci4'" class="button">Play Dice</button>
+        </div>
+    </section>
+
+    <!-- Section Giới thiệu FROLL -->
     <section id="intro-section" class="section intro-section">
         <h2>What is FROLL?</h2>
         <p>FROLL is more than just a token—it's a new way of gaming. Powered by the <strong>Viction Blockchain (VIC)</strong>, FROLL is a decentralized, transparent, and secure token used in various blockchain-based games like <strong>Dice Game</strong> and <strong>Lottery</strong>.</p>
@@ -54,26 +62,6 @@
         </ul>
     </section>
 
-    <!-- Section Ecosystem -->
-    <section id="ecosystem" class="section ecosystem-section">
-        <h2>🎮 Explore the FROLL Ecosystem</h2>
-        
-        <!-- Nút chơi xổ số -->
-        <div class="ecosystem-item">
-            <h3>Decentralized & Provably Fair Lottery</h3>
-            <p>Play the decentralized lottery and try your luck. Fully on-chain, ensuring transparency and fairness.</p>
-            <button onclick="window.location.href='https://Lottery.vin'" class="button">Play Lottery</button>
-        </div>
-
-        <!-- Nút chơi xóc đĩa với link gốc và hướng dẫn link rút gọn -->
-        <div class="ecosystem-item">
-            <h3>Provably Fair Blockchain Dice Game</h3>
-            <p>Play the blockchain-based dice game. Enjoy the thrill of fair gameplay with every roll.</p>
-            <p>If you want an easier-to-remember link, use: <strong><a href="https://bit.ly/FrollDice" target="_blank">bit.ly/FrollDice</a></strong></p>
-            <button onclick="window.location.href='https://ipfs.io/ipfs/bafybeihenwnc6oov7wixdnglznc4heiqbuxs3ntq6si2bqwcdku3qqxci4'" class="button">Play Dice</button>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer id="footer" class="footer">
         <div class="social-links">
@@ -84,7 +72,6 @@
 
     <!-- Script -->
     <script>
-        // Hàm sao chép văn bản vào clipboard
         function copyText(el) {
             const t = el.textContent.trim();
             navigator.clipboard.writeText(t)
