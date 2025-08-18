@@ -1,7 +1,8 @@
 /* ============================================================
-   FROLL Dice — app.js (No SWAP)
+   FROLL Dice — app.js (No SWAP) + Dex-Trade Price Ticker
    - Giữ nguyên logic ví + Dice
-   - ĐÃ GỠ: toàn bộ logic/cấu hình liên quan đến Swap
+   - GỠ HOÀN TOÀN: mọi phần liên quan Swap
+   - THÊM: Lấy giá FROLL từ Dex-Trade (auto-detect USD/USDT)
    ============================================================ */
 
 /** [0] Ethers fallback (nếu trang chưa load ethers) */
@@ -24,7 +25,7 @@ const CONFIG = {
   blockExplorer: 'https://vicscan.xyz',
 
   // Địa chỉ hợp đồng
-  FROLL: '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // token FROLL
+  FROLL: '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // token FROLL (VIC)
   DICE:  '0x85A12591d3BA2A7148d18e9Ca44E0D778e458906', // hợp đồng xóc đĩa
 
   logsLookbackBlocks: 5000,
@@ -504,7 +505,53 @@ function bindSideButtons(){
   if (bo) bo.addEventListener('click', ()=>{ currentSide='odd';  bo.classList.add('active');  be?.classList.remove('active'); });
 }
 
-/** [11] Khởi tạo & bind UI */
+/** [11] Dex-Trade Price Ticker (auto-detect pair) */
+(function dexTradePriceTicker(){
+  // Chỉ chạy khi DOM có phần tử hiển thị giá
+  const el = document.getElementById('price-text') || document.getElementById('froll-price');
+  if (!el) return;
+
+  const SYMBOLS_URL = 'https://api.dex-trade.com/v1/public/symbols';
+  async function detectPair(){
+    try{
+      const res = await fetch(SYMBOLS_URL, { cache: 'no-store' });
+      const json = await res.json();
+      if (json && json.status && Array.isArray(json.data)) {
+        const hasUSD  = json.data.find(p => p.pair === 'FROLLUSD');
+        const hasUSDT = json.data.find(p => p.pair === 'FROLLUSDT');
+        if (hasUSD)  return 'FROLLUSD';
+        if (hasUSDT) return 'FROLLUSDT';
+      }
+    }catch(e){
+      console.warn('[Dex-Trade] symbols fetch error:', e);
+    }
+    return 'FROLLUSDT'; // fallback
+  }
+
+  async function fetchPriceOnce(){
+    try{
+      const pair = await detectPair();
+      const url = `https://api.dex-trade.com/v1/public/ticker?pair=${pair}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json();
+      const last = Number(data?.last);
+      if (!Number.isFinite(last)) throw new Error('No numeric "last"');
+
+      const unit = pair.endsWith('USDT') ? 'USDT' : 'USD';
+      el.textContent = `1 FROLL = ${last.toLocaleString(undefined, { maximumSignificantDigits: 6 })} ${unit}`;
+      el.classList.remove('skeleton');
+    }catch(err){
+      console.error('[Dex-Trade] price fetch error:', err);
+      el.textContent = 'Price unavailable';
+      el.classList.remove('skeleton');
+    }
+  }
+
+  fetchPriceOnce();
+  setInterval(fetchPriceOnce, 15000); // cập nhật mỗi 15 giây
+})();
+
+/** [12] Khởi tạo & bind UI */
 async function init(){
   // chờ ethers nếu đang load fallback
   let tries=0; while (typeof window.ethers==='undefined' && tries<30){ await new Promise(r=>setTimeout(r,150)); tries++; }
