@@ -14,12 +14,12 @@
 <body>
   <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- ===== HOME (giữ nguyên, chỉ thêm id để ẩn/hiện) ===== -->
+  <!-- ===== HOME ===== -->
   <div class="container" id="home-interface">
     <!-- Header -->
     <header class="header">
       <div class="brand">
-        <img src="128.png" alt="FROLL" class="logo"/>
+        <img src="froll_48.png" alt="FROLL" class="logo"/>
         <div class="brand-text">
           <h1>FROLL Dice</h1>
           <p class="subtitle">Provably-fair on VIC • Parity comes from the smart contract</p>
@@ -32,8 +32,12 @@
           Guide / How to play
         </a>
 
-        <!-- NÚT MỚI: Swap FROLL/VIC -->
-        <button id="btn-open-swap" class="btn accent">Swap FROLL/VIC</button>
+        <!-- THAY NÚT SWAP = LINK TRADE DEX-TRADE -->
+        <a id="btn-trade" class="btn accent"
+           href="https://dex-trade.com/spot/trading/FROLLUSDT?interface=classic"
+           target="_blank" rel="noopener">
+          Trade FROLL/USDT on Dex-Trade.com
+        </a>
 
         <!-- Wallet -->
         <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Play Dice Game</button>
@@ -44,7 +48,7 @@
       </div>
     </header>
 
-    <!-- DÒNG GIÁ (thêm mới, rất gọn, không ảnh hưởng layout cũ) -->
+    <!-- DÒNG GIÁ -->
     <section class="panel" id="price-panel">
       <strong id="price-text" class="skeleton">Loading price...</strong>
     </section>
@@ -103,7 +107,7 @@
         <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
         <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
 
-        <!-- Approve amount input + button (người chơi tự gõ) -->
+        <!-- Approve amount input + button -->
         <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (FROLL)"/>
         <button id="btn-approve" class="btn accent" title="Approve FROLL to the contract">Approve FROLL</button>
 
@@ -147,7 +151,7 @@
       <p class="note">After you play, the bowl shakes and reveals the exact on-chain parity.</p>
     </section>
 
-    <!-- Footer -->
+    <!-- Footer (giữ nguyên) -->
     <footer class="footer">
       <div class="links">
         <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
@@ -163,65 +167,24 @@
   </div>
   <!-- ===== END HOME ===== -->
 
-  <!-- ===== SWAP UI (ẩn mặc định, show khi bấm nút) ===== -->
-  <section id="swap-interface" class="interface" style="display:none">
-    <header class="swap-header">
-      <div id="wallet-address" class="wallet-address">—</div>
-      <div>
-        <button id="btn-back-to-game" class="btn ghost">Back to Game</button>
-        <button id="disconnect-wallet" class="btn">Disconnect Wallet</button>
-      </div>
-    </header>
+  <!-- ===== (ĐÃ GỠ BỎ SWAP UI) ===== -->
 
-    <h2 class="center">Swap</h2>
-    <div class="swap-container">
-      <div class="token-input">
-        <img id="from-token-logo" src="vic_24.png" alt="From Token"/>
-        <div>
-          <p id="from-token-info">VIC: 0.000000000000000000</p>
-          <input type="number" id="from-amount" placeholder="0.0" min="0" step="any"/>
-        </div>
-        <button id="max-button" class="btn">Max</button>
-      </div>
-
-      <button id="swap-direction" class="swap-direction" aria-label="Change direction">↔️</button>
-
-      <div class="token-input">
-        <img id="to-token-logo" src="froll_24.png" alt="To Token"/>
-        <div>
-          <p id="to-token-info">FROLL: 0.000000000000000000</p>
-          <input type="text" id="to-amount" placeholder="0.0" disabled/>
-        </div>
-      </div>
-    </div>
-
-    <div class="swap-details">
-      <p id="transaction-fee">Transaction Fee: 0.01 VIC</p>
-      <p id="gas-fee">Estimated Gas Fee: ~0.000029 VIC</p>
-    </div>
-
-    <div class="mt16 center">
-      <button id="swap-now" class="btn primary">Swap Now</button>
-    </div>
-  </section>
-  <!-- ===== END SWAP UI ===== -->
-
-  <!-- ===== PRICE SCRIPT (trong index.html, không phụ thuộc app.js) ===== -->
+  <!-- ===== PRICE SCRIPT (Dex-Trade) ===== -->
   <script>
     (function priceTicker(){
       const el = document.getElementById('price-text');
       if (!el) return;
-      const url = 'https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT';
+      const url = 'https://api.dex-trade.com/v1/public/ticker?pair=FROLLUSDT';
       async function tick(){
         try{
           const res = await fetch(url, { cache: 'no-store' });
           const data = await res.json();
-          const vic = parseFloat(data.price);
-          if (isNaN(vic)) throw new Error('Bad price');
-          const frollUsd = (vic * 100).toFixed(2);
-          el.textContent = `1 FROLL = ${frollUsd} USD`;
+          const price = parseFloat(data.last);
+          if (!Number.isFinite(price)) throw new Error('Bad price');
+          el.textContent = `1 FROLL = ${price.toFixed(4)} USD`;
           el.classList.remove('skeleton');
         }catch(e){
+          console.error('Dex-Trade price fetch error:', e);
           el.textContent = 'Price unavailable';
           el.classList.remove('skeleton');
         }
