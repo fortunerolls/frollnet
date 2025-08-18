@@ -1,62 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Froll.org — Transparent & Fair</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="app.js" defer></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FROLL Dice – On-Chain Even/Odd (VIC)</title>
+  <meta name="description" content="Provably-fair even/odd with FROLL on VIC. Bowl reveal matches on-chain parity."/>
+  <link rel="icon" href="froll_48.png" type="image/png"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Ethers.js v5 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="logo">
-      <img src="images/logo.png" alt="FROLL Logo">
-      <h1>FROLL</h1>
-    </div>
-    <div class="price-box">
-      <span id="price">Loading price...</span>
-    </div>
-    <button id="connectButton">Connect Wallet</button>
-  </header>
+  <noscript>This app requires JavaScript to run.</noscript>
 
-  <!-- Main Content -->
-  <main>
-    <section class="intro">
-      <h2>Transparent, Fair & Fully On-Chain</h2>
-      <p>
-        FROLL runs on the <strong>Viction Blockchain</strong>.  
-        Play games, swap tokens, and explore the decentralized ecosystem with trust and fairness.
-      </p>
+  <!-- ===== HOME (giữ nguyên cấu trúc/ID/class) ===== -->
+  <div class="container" id="home-interface">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="froll_48.png" alt="FROLL" class="logo"/>
+        <div class="brand-text">
+          <h1>FROLL Dice</h1>
+          <p class="subtitle">Provably-fair on VIC • Parity comes from the smart contract</p>
+        </div>
+      </div>
+
+      <div class="wallet-box">
+        <!-- Guide -->
+        <a id="btn-guide" class="btn accent" href="https://docs.google.com/document/d/1IEUP8x_xSOUhbFBAuG012VA5HW_O9MuI/edit" target="_blank" rel="noopener">
+          Guide / How to play
+        </a>
+
+        <!-- Nút Trade (thay cho Swap) -->
+        <a id="btn-trade" class="btn accent"
+           href="https://dex-trade.com/spot/trading/FROLLUSDT?interface=classic"
+           target="_blank" rel="noopener">
+          Trade FROLL/USDT on Dex-Trade.com
+        </a>
+
+        <!-- Wallet -->
+        <button id="btn-connect" class="btn primary" onclick="window.connectWallet && window.connectWallet()">Play Dice Game</button>
+        <div id="wallet-info" class="wallet-info hidden">
+          <span id="addr-short">—</span>
+          <button id="btn-disconnect" class="btn ghost" onclick="window.disconnectWallet && window.disconnectWallet()">Disconnect</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dòng giá (giữ nguyên ID để cập nhật) -->
+    <section class="panel" id="price-panel">
+      <strong id="price-text" class="skeleton">Loading price...</strong>
     </section>
 
-    <section class="features">
-      <div class="feature">
-        <h3>🎲 Play Dice</h3>
-        <p>Bet even/odd with full transparency — powered by blockchain randomness.</p>
-        <button id="playDiceBtn">Play Now</button>
+    <!-- Balances -->
+    <section class="panel" id="balances-panel">
+      <h2>Balances</h2>
+      <div class="balances-grid">
+        <div class="card">
+          <div class="label">VIC</div>
+          <div id="vic-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">FROLL</div>
+          <div id="froll-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">Contract Pool</div>
+          <div id="pool-balance" class="value">—</div>
+        </div>
       </div>
-      <div class="feature">
-        <h3>🔁 Swap</h3>
-        <p>Swap FROLL/VIC directly on-chain. Simple, secure, and fixed rate.</p>
-        <button id="swapBtn">Swap Now</button>
-      </div>
+      <p class="note">Token: FROLL (18 decimals) • Network: VIC • Results are from on-chain events.</p>
     </section>
-  </main>
 
-  <!-- Footer (giữ nguyên) -->
-  <footer class="footer">
-    <div class="links">
-      <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
-      <span>•</span>
-      <a href="https://Froll.net" target="_blank" rel="noopener">Froll.net</a>
-      <span>•</span>
-      <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
-      <span>•</span>
-      <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
-    </div>
-    <div class="fine">No admins. No tricks. Just code and trust.</div>
-  </footer>
+    <!-- Table -->
+    <section class="panel" id="table-panel">
+      <h2>Select Table (enter Min)</h2>
+      <div class="custom-table">
+        <label for="minBet">Min Bet (FROLL) — minimum 0.001</label>
+        <input id="minBet" type="number" min="0.001" step="0.001" placeholder="e.g., 1.25"/>
+        <button id="btn-set-table" class="btn accent">Set Table</button>
+      </div>
+      <div class="current-table">
+        Current table: <span id="current-table">Not set</span>
+      </div>
+      <p class="note">Max Bet = Min Bet × 50 (on-chain rule).</p>
+    </section>
+
+    <!-- Play -->
+    <section class="panel" id="play-panel">
+      <h2>Play Even / Odd</h2>
+      <div class="bet-row">
+        <div class="toggle">
+          <button id="btn-even" class="btn toggle active" data-side="even">Even</button>
+          <button id="btn-odd" class="btn toggle" data-side="odd">Odd</button>
+        </div>
+        <div class="amount-box">
+          <label for="bet-amount">Bet Amount (FROLL)</label>
+          <input id="bet-amount" type="number" min="0.001" step="0.001" placeholder="e.g., 0.005"/>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-clear" class="btn ghost" title="Clear amount">Clear</button>
+        <button id="btn-half" class="btn ghost" title="Half the amount">½</button>
+        <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
+        <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
+
+        <!-- Approve amount input + button -->
+        <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (FROLL)"/>
+        <button id="btn-approve" class="btn accent" title="Approve FROLL to the contract">Approve FROLL</button>
+
+        <button id="btn-play" class="btn primary fire" title="Shake & Play">Place Bet</button>
+      </div>
+
+      <div class="limits">
+        Table limits: <span id="limit-min">—</span> – <span id="limit-max">—</span> FROLL
+      </div>
+
+      <div id="tx-status" class="status"></div>
+    </section>
+
+    <!-- Latest result -->
+    <section class="panel" id="result-panel">
+      <h2>Latest Result</h2>
+      <div class="result-grid">
+        <div class="card">
+          <div class="label">Outcome</div>
+          <div id="last-outcome" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Win / Lose</div>
+          <div id="last-payout" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Tx Hash</div>
+          <div id="last-tx" class="value ellipsis">—</div>
+        </div>
+      </div>
+      <p class="note">On page load, bowl reveals the most recent contract round.</p>
+    </section>
+
+    <!-- Stage -->
+    <section class="panel" id="stage-panel">
+      <h2>Stage</h2>
+      <div class="stage">
+        <div id="bowl" class="bowl" aria-label="Shaking bowl"></div>
+        <div id="coins" class="coins"></div>
+      </div>
+      <p class="note">After you play, the bowl shakes and reveals the exact on-chain parity.</p>
+    </section>
+
+    <!-- Footer (giữ nguyên) -->
+    <footer class="footer">
+      <div class="links">
+        <a href="https://Lottery.vin" target="_blank" rel="noopener">Lottery.vin</a>
+        <span>•</span>
+        <a href="https://Froll.net" target="_blank" rel="noopener">Froll.net</a>
+        <span>•</span>
+        <a href="https://t.me/FortuneRolls" target="_blank" rel="noopener">Telegram</a>
+        <span>•</span>
+        <a href="https://x.com/FortuneRolls" target="_blank" rel="noopener">X</a>
+      </div>
+      <div class="fine">No admins. No tricks. Just code and trust.</div>
+    </footer>
+  </div>
+  <!-- ===== END HOME ===== -->
+
+  <!-- ===== SWAP UI: ĐÃ GỠ BỎ ===== -->
+
+  <!-- ===== PRICE SCRIPT (Dex-Trade, chạy ngay trong index.html) ===== -->
+  <script>
+    (function dexTradePriceInIndex(){
+      const el = document.getElementById('price-text');
+      if (!el) return;
+
+      const SYMBOLS_URL = 'https://api.dex-trade.com/v1/public/symbols';
+
+      async function detectPair(){
+        try{
+          const res = await fetch(SYMBOLS_URL, { cache: 'no-store' });
+          const json = await res.json();
+          if (json && json.status && Array.isArray(json.data)) {
+            const hasUSD  = json.data.find(p => p.pair === 'FROLLUSD');
+            const hasUSDT = json.data.find(p => p.pair === 'FROLLUSDT');
+            if (hasUSD)  return 'FROLLUSD';
+            if (hasUSDT) return 'FROLLUSDT';
+          }
+        }catch(e){
+          console.warn('[Dex-Trade] symbols fetch error:', e);
+        }
+        return 'FROLLUSDT'; // fallback
+      }
+
+      async function tick(){
+        try{
+          const pair = await detectPair();
+          const url  = `https://api.dex-trade.com/v1/public/ticker?pair=${pair}`;
+          const res  = await fetch(url, { cache: 'no-store' });
+          const data = await res.json();
+
+          const last = Number(data?.last);
+          if (!Number.isFinite(last)) throw new Error('No numeric "last"');
+
+          const unit = pair.endsWith('USDT') ? 'USDT' : 'USD';
+          el.textContent = `1 FROLL = ${last.toLocaleString(undefined, { maximumSignificantDigits: 6 })} ${unit}`;
+          el.classList.remove('skeleton');
+        }catch(err){
+          console.error('[Dex-Trade] price fetch error:', err);
+          el.textContent = 'Price unavailable';
+          el.classList.remove('skeleton');
+        }
+      }
+
+      tick();
+      setInterval(tick, 15000);
+    })();
+  </script>
+
+  <!-- App logic (Dice, ví, v.v.) -->
+  <script src="app.js"></script>
 </body>
 </html>
