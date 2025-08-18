@@ -1,9 +1,7 @@
 /* ============================================================
-   froll.org — app.js (FINAL PATCHED)
-   - Giữ nguyên logic xóc đĩa & swap
-   - Vá:
-     [P1] Không cần F5 sau lỗi: uiSoftReset() + global error listeners + gọi ở các catch
-     [P2] Hết NaN (mobile) ở Swap: updateSwapBalances() dùng số "thô"
+   FROLL Dice — app.js (No SWAP)
+   - Giữ nguyên logic ví + Dice
+   - ĐÃ GỠ: toàn bộ logic/cấu hình liên quan đến Swap
    ============================================================ */
 
 /** [0] Ethers fallback (nếu trang chưa load ethers) */
@@ -17,7 +15,7 @@
   document.head.appendChild(s);
 })();
 
-/** [1] Cấu hình mạng + hợp đồng (sửa 3 dòng này nếu địa chỉ của bạn khác) */
+/** [1] Cấu hình mạng + hợp đồng */
 const CONFIG = {
   chainIdHex: '0x58', // Viction mainnet (88)
   chainIdDec: 88,
@@ -25,10 +23,9 @@ const CONFIG = {
   rpcUrl: 'https://rpc.viction.xyz',
   blockExplorer: 'https://vicscan.xyz',
 
-  // === SỬA NẾU CẦN ===
+  // Địa chỉ hợp đồng
   FROLL: '0xB4d562A8f811CE7F134a1982992Bd153902290BC', // token FROLL
   DICE:  '0x85A12591d3BA2A7148d18e9Ca44E0D778e458906', // hợp đồng xóc đĩa
-  SWAP:  '0x9197BF0813e0727df4555E8cb43a0977F4a3A068', // hợp đồng swap
 
   logsLookbackBlocks: 5000,
   minMinBet: '0.001',
@@ -51,18 +48,12 @@ const DICE_ABI = [
   'event Played(address indexed player, uint256 amount, bool guessEven, bool resultEven, bool win)'
 ];
 
-const SWAP_ABI = [
-  { "inputs": [], "name": "swapVicToFroll", "outputs": [], "stateMutability": "payable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "frollAmount", "type": "uint256" }], "name": "swapFrollToVic", "outputs": [], "stateMutability": "nonpayable", "type": "function" }
-];
-
 /** [3] Trạng thái runtime */
 let injected, providerRW, providerRO, signer, user;
-let froll, dice, swapC;
+let froll, dice;
 let frollDecimals = 18;
 let currentSide = 'even';
 let currentTable = { min: null, max: null };
-
 let isConnecting = false;
 
 /** [4] Tiện ích chung */
@@ -72,8 +63,7 @@ function short(addr){ return addr ? (addr.slice(0,6)+'…'+addr.slice(-4)) : '�
 function setBusy(b){
   [
     'btn-approve','btn-play','btn-set-table','btn-clear','btn-half',
-    'btn-double','btn-repeat','btn-even','btn-odd','btn-open-swap',
-    'max-button','swap-now'
+    'btn-double','btn-repeat','btn-even','btn-odd'
   ].forEach(id => { const el = $(id); if (el) el.disabled = !!b; });
 }
 
@@ -84,7 +74,7 @@ const fromWeiFmt   = (w, dec=18, d=4) => {
   catch { return '0'; }
 };
 
-// [P1] CẦU CHÌ: phục hồi UI khi có lỗi, khỏi phải F5
+// Cầu chì UI khi lỗi
 function uiSoftReset(msg){
   try { $('bowl')?.classList.remove('shaking'); } catch {}
   try { setBusy(false); } catch {}
@@ -193,7 +183,6 @@ async function connectWallet(){
 
     froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
     dice  = new ethers.Contract(CONFIG.DICE,  DICE_ABI,  signer);
-    swapC = new ethers.Contract(CONFIG.SWAP,  SWAP_ABI,  signer);
 
     try { frollDecimals = await froll.decimals(); } catch {}
 
@@ -244,7 +233,6 @@ async function trySilentReconnectOnLoad(){
 
     froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
     dice  = new ethers.Contract(CONFIG.DICE,  DICE_ABI,  signer);
-    swapC = new ethers.Contract(CONFIG.SWAP,  SWAP_ABI,  signer);
 
     try { frollDecimals = await froll.decimals(); } catch {}
 
@@ -288,7 +276,6 @@ function renderCoins({ parityEven, txHash }){
   coinsEl.className = 'coins';
   coinsEl.innerHTML = '';
 
-  // layout “ảo” dựa theo hash để nhìn đẹp
   function variant(m){ try { return parseInt((txHash||'').slice(-4), 16) % m; } catch { return 0; } }
 
   if (parityEven){
@@ -452,7 +439,7 @@ async function onPlay(){
   if (allowance.lt(amountWei))return setStatus(`Allowance insufficient (${fromWeiFmt(allowance, frollDecimals, 6)}). Approve first.`);
   if (pool.lt(amountWei.mul(2))) return setStatus('Contract pool is insufficient for 2× payout.');
 
-  // PRE-FLIGHT: tránh CALL_EXCEPTION
+  // Preflight
   try{
     setStatus('Preflight check…');
     await dice.callStatic.play(amountWei, currentSide === 'even');
@@ -467,13 +454,12 @@ async function onPlay(){
     return;
   }
 
-  // Gửi giao dịch thật
+  // Gửi giao dịch
   setBusy(true); startShake(); setStatus('Sending play transaction…');
   try{
     const tx = await dice.play(amountWei, currentSide === 'even');
     const receipt = await tx.wait(1);
 
-    // bắt event
     let resultEven=null, win=null;
     for (const l of receipt.logs){
       try{
@@ -510,7 +496,7 @@ function onDouble(){
     el.value = String(Math.min(v*2, max));
   }
 }
-function onRepeat(){ /* nếu bạn có lưu last-round thì thêm ở đây, để nguyên cho an toàn */ }
+function onRepeat(){ /* để trống nếu chưa lưu last round */ }
 
 function bindSideButtons(){
   const be = $('btn-even'), bo = $('btn-odd');
@@ -518,131 +504,7 @@ function bindSideButtons(){
   if (bo) bo.addEventListener('click', ()=>{ currentSide='odd';  bo.classList.add('active');  be?.classList.remove('active'); });
 }
 
-/** [11] SWAP — UI helpers (chỉ phần giao diện swap) */
-const elHome        = $('home-interface');
-const elSwap        = $('swap-interface');
-const btnOpenSwap   = $('btn-open-swap');
-const btnBackToGame = $('btn-back-to-game');
-const btnDisconnect = $('disconnect-wallet');
-
-const fromAmountInput = $('from-amount');
-const toAmountInput   = $('to-amount');
-const fromTokenInfo   = $('from-token-info');
-const toTokenInfo     = $('to-token-info');
-const fromTokenLogo   = $('from-token-logo');
-const toTokenLogo     = $('to-token-logo');
-const swapDirectionBtn= $('swap-direction');
-const maxBtn          = $('max-button');
-const swapNowBtn      = $('swap-now');
-const walletAddrLabel = $('wallet-address');
-
-let swapFrom = 'VIC';  // 'VIC' | 'FROLL'
-let swapTo   = 'FROLL';
-
-function showHomeInterface(){ if (elSwap) elSwap.style.display='none'; if (elHome) elHome.style.display=''; }
-function showSwapInterface(){ if (elHome) elHome.style.display='none'; if (elSwap) elSwap.style.display=''; if (walletAddrLabel) walletAddrLabel.textContent = user? short(user): '—'; }
-
-// [P2] KHÔNG locale -> chuỗi “thô” để tránh NaN trên mobile
-async function updateSwapBalances(){
-  try{
-    if (!providerRW || !user) return;
-    const [vicBn, frollBn] = await Promise.all([
-      providerRW.getBalance(user),
-      froll ? froll.balanceOf(user) : ethers.constants.Zero
-    ]);
-    const vicPlain = fromWeiPlain(vicBn, 18);
-    const frPlain  = fromWeiPlain(frollBn, frollDecimals);
-    if (fromTokenInfo && toTokenInfo){
-      const getP = (sym) => sym==='VIC' ? vicPlain : frPlain;
-      fromTokenInfo.textContent = `${swapFrom}: ${getP(swapFrom)}`;
-      toTokenInfo.textContent   = `${swapTo}: ${getP(swapTo)}`;
-    }
-  }catch(e){ console.warn('updateSwapBalances:', e); }
-}
-
-function clearSwapInputs(){ if (fromAmountInput) fromAmountInput.value=''; if (toAmountInput) toAmountInput.value=''; }
-
-function flipDirection(){
-  [swapFrom, swapTo] = [swapTo, swapFrom];
-  if (fromTokenLogo && toTokenLogo){
-    const t = fromTokenLogo.src; fromTokenLogo.src = toTokenLogo.src; toTokenLogo.src = t;
-  }
-  updateSwapBalances();
-  clearSwapInputs();
-}
-
-function calcToAmount(){
-  if (!fromAmountInput || !toAmountInput) return;
-  const v = parseFloat(fromAmountInput.value);
-  if (isNaN(v) || v <= 0){ toAmountInput.value=''; return; }
-  // Hiển thị 1:1 (để UI không gây hiểu nhầm). Logic tỉ giá/fee do hợp đồng xử lý.
-  toAmountInput.value = v.toString();
-}
-
-async function ensureSwapReady(){
-  if (!user || !signer || !providerRW){
-    await connectWallet();
-  }
-  if (!user || !signer || !providerRW) throw new Error('Wallet not connected.');
-  if (!froll) froll = new ethers.Contract(CONFIG.FROLL, ERC20_ABI, signer);
-  if (!swapC) swapC = new ethers.Contract(CONFIG.SWAP,  SWAP_ABI,  signer);
-}
-
-async function onSwapMax(){
-  try{
-    await ensureSwapReady();
-    await updateSwapBalances();
-    const text = fromTokenInfo?.textContent || '';
-    const vStr = text.split(':')[1]?.trim() || '';
-    if (fromAmountInput){
-      fromAmountInput.value = vStr;
-      calcToAmount();
-    }
-  }catch(e){
-    alert(e?.message || 'Failed to set Max.');
-    uiSoftReset();
-  }
-}
-
-async function onSwapNow(){
-  try{
-    await ensureSwapReady();
-    const amount = parseFloat(fromAmountInput?.value || '0');
-    if (isNaN(amount) || amount <= 0) return alert('Please enter amount.');
-
-    if (swapFrom === 'VIC'){
-      // VIC -> FROLL
-      const value = ethers.utils.parseEther(String(amount));
-      const tx = await swapC.swapVicToFroll({ value });
-      await tx.wait(1);
-      alert('Swap VIC → FROLL successful.');
-    } else {
-      // FROLL -> VIC (cần approve)
-      const amountWei = ethers.utils.parseUnits(String(amount), frollDecimals);
-      const curAllo = await froll.allowance(user, CONFIG.SWAP);
-      if (curAllo.lt(amountWei)){
-        if (!curAllo.isZero()){
-          const tx0 = await froll.approve(CONFIG.SWAP, ethers.constants.Zero);
-          await tx0.wait(1);
-        }
-        const tx1 = await froll.approve(CONFIG.SWAP, amountWei);
-        await tx1.wait(1);
-      }
-      const tx = await swapC.swapFrollToVic(amountWei);
-      await tx.wait(1);
-      alert('Swap FROLL → VIC successful.');
-    }
-
-    await Promise.all([refreshBalances(), updateSwapBalances()]);
-    clearSwapInputs();
-  } catch (e){
-    console.error('Swap failed:', e);
-    alert(e?.reason || e?.data?.message || e?.message || 'Swap failed.');
-    uiSoftReset();
-  }
-}
-
-/** [12] Khởi tạo & bind UI */
+/** [11] Khởi tạo & bind UI */
 async function init(){
   // chờ ethers nếu đang load fallback
   let tries=0; while (typeof window.ethers==='undefined' && tries<30){ await new Promise(r=>setTimeout(r,150)); tries++; }
@@ -667,27 +529,12 @@ async function init(){
   $('btn-repeat')?.addEventListener('click', onRepeat);
   bindSideButtons();
 
-  // Swap UI
-  if (btnOpenSwap) btnOpenSwap.addEventListener('click', async ()=>{
-    try { await ensureSwapReady(); await updateSwapBalances(); showSwapInterface(); }
-    catch(e){ alert(e?.message || 'Please connect wallet to use Swap.'); }
-  });
-  if (btnBackToGame) btnBackToGame.addEventListener('click', showHomeInterface);
-  if (btnDisconnect) btnDisconnect.addEventListener('click', ()=>{
-    try { disconnectWallet(); } catch {}
-    showHomeInterface();
-  });
-  if (fromAmountInput) fromAmountInput.addEventListener('input', calcToAmount);
-  if (swapDirectionBtn) swapDirectionBtn.addEventListener('click', flipDirection);
-  if (maxBtn) maxBtn.addEventListener('click', onSwapMax);
-  if (swapNowBtn) swapNowBtn.addEventListener('click', onSwapNow);
-
   // Reconnect nếu có sẵn tài khoản
   await trySilentReconnectOnLoad();
   setStatus('Ready.');
 }
 
-// Expose để gọi từ HTML (nếu có)
+// Expose để gọi từ HTML (nếu cần)
 window.connectWallet   = connectWallet;
 window.disconnectWallet= disconnectWallet;
 
