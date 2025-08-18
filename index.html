@@ -171,52 +171,51 @@
 
   <!-- ===== PRICE SCRIPT (Dex-Trade, chạy ngay trong index.html) ===== -->
   <script>
-    (function dexTradePriceInIndex(){
-      const el = document.getElementById('price-text');
-      if (!el) return;
+  (function dexTradePriceInIndex(){
+    const el = document.getElementById('price-text');
+    if (!el) return;
 
-      const SYMBOLS_URL = 'https://api.dex-trade.com/v1/public/symbols';
+    const SYMBOLS_URL = 'https://api.dex-trade.com/v1/public/symbols';
 
-      async function detectPair(){
-        try{
-          const res = await fetch(SYMBOLS_URL, { cache: 'no-store' });
-          const json = await res.json();
-          if (json && json.status && Array.isArray(json.data)) {
-            const hasUSD  = json.data.find(p => p.pair === 'FROLLUSD');
-            const hasUSDT = json.data.find(p => p.pair === 'FROLLUSDT');
-            if (hasUSD)  return 'FROLLUSD';
-            if (hasUSDT) return 'FROLLUSDT';
-          }
-        }catch(e){
-          console.warn('[Dex-Trade] symbols fetch error:', e);
+    async function detectPair(){
+      try{
+        const res  = await fetch(SYMBOLS_URL, { cache: 'no-store' });
+        const json = await res.json();
+        if (json?.status && Array.isArray(json.data)) {
+          const hasUSD  = json.data.find(p => p.pair === 'FROLLUSD');
+          const hasUSDT = json.data.find(p => p.pair === 'FROLLUSDT');
+          if (hasUSD)  return 'FROLLUSD';
+          if (hasUSDT) return 'FROLLUSDT';
         }
-        return 'FROLLUSDT'; // fallback
+      }catch(e){ console.warn('[Dex-Trade] symbols error:', e); }
+      return 'FROLLUSDT'; // fallback an toàn
+    }
+
+    async function tick(){
+      try{
+        const pair = await detectPair(); // hoặc hardcode 'FROLLUSDT' nếu muốn
+        const res  = await fetch(`https://api.dex-trade.com/v1/public/ticker?pair=${pair}`, { cache: 'no-store' });
+        const json = await res.json();
+
+        if (!json?.status || !json?.data) throw new Error('Bad response');
+        const payload = json.data;
+        const last = Number(payload.last);        // <-- LẤY TỪ json.data.last
+        if (!Number.isFinite(last)) throw new Error('No numeric "last"');
+
+        const unit = (payload.pair || pair).endsWith('USDT') ? 'USDT' : 'USD';
+        el.textContent = `1 FROLL = ${last.toLocaleString(undefined, { maximumSignificantDigits: 8 })} ${unit}`;
+        el.classList.remove('skeleton');
+      }catch(err){
+        console.error('[Dex-Trade] price fetch error:', err);
+        el.textContent = 'Price unavailable';
+        el.classList.remove('skeleton');
       }
+    }
 
-      async function tick(){
-        try{
-          const pair = await detectPair();
-          const url  = `https://api.dex-trade.com/v1/public/ticker?pair=${pair}`;
-          const res  = await fetch(url, { cache: 'no-store' });
-          const data = await res.json();
-
-          const last = Number(data?.last);
-          if (!Number.isFinite(last)) throw new Error('No numeric "last"');
-
-          const unit = pair.endsWith('USDT') ? 'USDT' : 'USD';
-          el.textContent = `1 FROLL = ${last.toLocaleString(undefined, { maximumSignificantDigits: 6 })} ${unit}`;
-          el.classList.remove('skeleton');
-        }catch(err){
-          console.error('[Dex-Trade] price fetch error:', err);
-          el.textContent = 'Price unavailable';
-          el.classList.remove('skeleton');
-        }
-      }
-
-      tick();
-      setInterval(tick, 15000);
-    })();
-  </script>
+    tick();
+    setInterval(tick, 15000); // 15 giây/lần
+  })();
+</script>
 
   <!-- App logic (Dice, ví, v.v.) -->
   <script src="app.js"></script>
